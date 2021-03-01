@@ -1,9 +1,11 @@
 import React from 'react'
 
+import StateSelection from './pages/StateSelection'
+
 function App() {
   return (
     <div className="App">
-      diamondbacks redistricting
+      <StateSelection/>
     </div>
   );
 }
