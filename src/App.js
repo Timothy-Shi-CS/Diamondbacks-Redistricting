@@ -2,11 +2,15 @@ import React from 'react'
 
 import StateSelection from './pages/StateSelection'
 
+import { StateProvider } from './contexts/StateContext'
+
 function App() {
   return (
-    <div className="App">
-      <StateSelection/>
-    </div>
+    <StateProvider>
+      <div className="App">
+        <StateSelection />
+      </div>
+    </StateProvider>
   );
 }
 

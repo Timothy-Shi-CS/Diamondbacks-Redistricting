@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
 
+import { StateContext } from '../contexts/StateContext'
+
 const StateSelection = () => {
+    const [stateFeature, setStateFeature] = useContext(StateContext);
+
     let geojson;
     fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson')
         .then(resp => {
@@ -71,7 +75,7 @@ const StateSelection = () => {
         console.log(cur_feature);
 
         setFeature(cur_feature);
-
+        setStateFeature(cur_feature);
         if (cur_feature) {
             setPolygonData({
                 'type': cur_feature.type,
@@ -176,6 +180,7 @@ const StateSelection = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={popUpClicked}
             >
+                {/* {console.log("State feature: ", stateFeature)} */}
                 {feature !== null ? (
                     <Source
                         id="state"
