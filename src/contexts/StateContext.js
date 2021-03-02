@@ -6,7 +6,8 @@ export const StateProvider = (props) => {
     const [stateFeature, setStateFeature] = useState({
         feature:null,
         jobs:null,
-        job:null
+        job:null,
+        stateCenter:null
     });
 
     return (

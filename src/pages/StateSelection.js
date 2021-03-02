@@ -15,6 +15,15 @@ const StateSelection = () => {
             geojson = data;
         });
 
+    let stateCapitals;
+    fetch('https://gist.githubusercontent.com/jpriebe/d62a45e29f24e843c974/raw/b1d3066d245e742018bce56e41788ac7afa60e29/us_state_capitals.json')
+        .then(resp => {
+            return resp.json();
+        })
+        .then(data => {
+            stateCapitals = data;
+        });
+
     const [curJob, setCurJob] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [polygonLayer, setPolygonLayer] = useState(null);
@@ -35,6 +44,8 @@ const StateSelection = () => {
         bearing: 0,
         pitch: 0
     });
+
+
 
     const statesLayer = {
         id: 'states-layer',
@@ -57,7 +68,8 @@ const StateSelection = () => {
         setStateFeature({
             feature: null,
             jobs: null,
-            job: null
+            job: null,
+            stateCenter: null
         })
         //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
         if (e.features[0].properties.name === undefined || e.features[0].properties.name === "Toronto") {
@@ -145,7 +157,8 @@ const StateSelection = () => {
         setStateFeature({
             feature: null,
             jobs: null,
-            job: null
+            job: null,
+            stateCenter: null
         })
 
         const state = e.target.options[e.target.selectedIndex].text;
@@ -182,10 +195,12 @@ const StateSelection = () => {
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
             document.getElementById(`job-${curJob + 1}`).disabled = true;
         }
+
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
-            job: curJob
+            job: curJob,
+            stateCenter: null
         });
         setShowModal(false);
     }
@@ -195,14 +210,21 @@ const StateSelection = () => {
         if (stateFeature.job === null) {
             alert("You must choose a job before applying.");
         } else {
-            console.log(stateFeature);
+
+            setStateFeature({
+                feature: stateFeature.feature,
+                jobs: stateFeature.jobs,
+                job: curJob,
+                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long]
+            });
+            //console.log(stateFeature);
         }
     }
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop:"5rem"}}>
+                <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem" }}>
                     <h3>State selection:</h3>
                     <select id="state-selection" onChange={stateSelection}>
                         <option value="" defaultValue hidden>Select a state</option>
@@ -332,7 +354,7 @@ const StateSelection = () => {
             </ReactMapGL>
 
             {showModal ? (
-                <div class="card" style={{
+                <div className="card" style={{
                     zIndex: "2",
                     height: "20%",
                     width: "20%",
@@ -354,6 +376,7 @@ const StateSelection = () => {
                     </div>
                 </div>
             ) : ""}
+
 
         </div>
 
