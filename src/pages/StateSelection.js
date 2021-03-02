@@ -15,6 +15,7 @@ const StateSelection = () => {
             geojson = data;
         });
 
+    const [curJob, setCurJob] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [polygonLayer, setPolygonLayer] = useState(null);
     const [polygonData, setPolygonData] = useState(null);
@@ -45,16 +46,20 @@ const StateSelection = () => {
         }
     }
 
-    const popUpClicked = (e) => {
-        console.log("clicked")
+    const mapClicked = (e) => {
         e.preventDefault();
+
+        if (stateFeature.job !== null) {
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
+        }
+        setCurJob(null);
         setShowModal(false);
         setStateFeature({
             feature: null,
             jobs: null,
             job: null
         })
-        setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
+        //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
         if (e.features[0].properties.name === undefined || e.features[0].properties.name === "Toronto") {
             //setShowPopup(false)
             setFeature(null);
@@ -101,7 +106,7 @@ const StateSelection = () => {
             let temp_feature = {
                 feature: cur_feature,
                 jobs: jobs,
-                job: stateFeature.job
+                job: null
             };
 
             setStateFeature(temp_feature);
@@ -131,6 +136,18 @@ const StateSelection = () => {
 
     const stateSelection = (e) => {
         e.preventDefault()
+
+        if (stateFeature.job !== null) {
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
+        }
+        setCurJob(null);
+        setShowModal(false);
+        setStateFeature({
+            feature: null,
+            jobs: null,
+            job: null
+        })
+
         const state = e.target.options[e.target.selectedIndex].text;
         getState(state);
     }
@@ -139,25 +156,53 @@ const StateSelection = () => {
         e.preventDefault();
         setShowModal(true);
         const index = parseInt(e.target.id.split("-")[1]);
-        const temp_feature = {
-            feature: stateFeature.feature,
-            jobs: stateFeature.jobs,
-            job: index - 1
-        }
-        setStateFeature(temp_feature);
+        // const temp_feature = {
+        //     feature: stateFeature.feature,
+        //     jobs: stateFeature.jobs,
+        //     job: index - 1
+        // }
+        // setStateFeature(temp_feature);
+
+        setCurJob(index - 1);
         console.log(stateFeature);
         console.log(`Job ${index} has ${stateFeature.jobs[index - 1]} districtings.`)
     }
 
     const closePopup = (e) => {
         e.preventDefault();
+        setCurJob(null);
         setShowModal(false);
+    }
+
+    const applyJob = (e) => {
+        e.preventDefault();
+        if (stateFeature.job === null) {
+            document.getElementById(`job-${curJob + 1}`).disabled = true;
+        } else {
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
+            document.getElementById(`job-${curJob + 1}`).disabled = true;
+        }
+        setStateFeature({
+            feature: stateFeature.feature,
+            jobs: stateFeature.jobs,
+            job: curJob
+        });
+        setShowModal(false);
+    }
+
+    const applyEverything = (e) => {
+        e.preventDefault();
+        if (stateFeature.job === null) {
+            alert("You must choose a job before applying.");
+        } else {
+            console.log(stateFeature);
+        }
     }
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop:"5rem"}}>
                     <h3>State selection:</h3>
                     <select id="state-selection" onChange={stateSelection}>
                         <option value="" defaultValue hidden>Select a state</option>
@@ -213,7 +258,9 @@ const StateSelection = () => {
                         <option value="WY">Wyoming</option>
                     </select>
                     {stateFeature.jobs !== null ? (
-                        <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%" }}>
+                        <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%", width: "100%" }}>
+                            <hr></hr>
+                            <h5>Choose a job:</h5>
                             {stateFeature.jobs.map((job, index) => {
                                 return (
                                     <div key={index + 1}>
@@ -221,6 +268,11 @@ const StateSelection = () => {
                                     </div>
                                 )
                             })}
+
+                            <div>
+                                <button type="button" className="btn btn-lg col-12 btn-primary" onClick={applyEverything}>Apply</button>
+                            </div>
+                            <hr></hr>
                         </div>
                     ) : ""}
 
@@ -240,9 +292,9 @@ const StateSelection = () => {
                 height="100%"
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
-                onClick={popUpClicked}
+                onClick={mapClicked}
             >
-                {stateFeature.feature !== null ? console.log("feature is ", stateFeature) : ""}
+                {/* {stateFeature.feature !== null ? console.log("feature is ", stateFeature) : ""} */}
                 {stateFeature.feature !== null ? (
                     <Source
                         id="state"
@@ -291,10 +343,14 @@ const StateSelection = () => {
                     left: "50%"
                 }}>
                     <div className="card-body">
-                        <h5 className="card-title">Job {stateFeature.job + 1}</h5>
+                        <h5 className="card-title">Job {curJob + 1}</h5>
                         <h6 className="card-subtitle mb-2 text-muted">{stateFeature.feature.properties.name}</h6>
-                        <p className="card-text">This job for {stateFeature.feature.properties.name} has {stateFeature.jobs[stateFeature.job]} districtings.</p>
-                        <button className="btn btn-primary" onClick={closePopup}>Close</button>
+                        <p className="card-text">This job for {stateFeature.feature.properties.name} has {stateFeature.jobs[curJob]} districtings. Would you like to choose this job?</p>
+                        <div className="d-flex flex-row justify-content-around">
+                            <button className="btn btn-success" onClick={applyJob}>Yes</button>
+                            <button className="btn btn-danger" onClick={closePopup}>No</button>
+                        </div>
+
                     </div>
                 </div>
             ) : ""}
