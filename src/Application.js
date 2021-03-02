@@ -1,21 +1,26 @@
 import React, { useContext } from 'react'
+
 import StateSelection from './pages/StateSelection'
+import FirstFilter from './pages/FirstFilter'
+
 import { StateContext } from './contexts/StateContext'
 
 function Application() {
-    const [stateFeature, setStateFeature] = useContext(StateContext);
-    let page;
-    if(stateFeature.page==='state-selection'){
-        page=<StateSelection/>
-    }else{
-        page=<div>
-            {`${stateFeature.stateCenter} and ${stateFeature.feature.properties.name} and ${stateFeature.job+1}`}
-        </div>
+    const { state, page } = useContext(StateContext);
+    const [stateFeature, setStateFeature] = state;
+    const [pageName, setPageName] = page
+
+    let renderPage;
+
+    if (pageName === 'state-selection') {
+        renderPage = <StateSelection />
+    } else if (pageName === 'first-filter') {
+        renderPage = <FirstFilter />
     }
+    
     return (
         <div className="Application">
-            
-            {page}
+            {renderPage}
         </div>
     )
 }

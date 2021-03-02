@@ -8,11 +8,12 @@ export const StateProvider = (props) => {
         jobs:null,
         job:null,
         stateCenter:null,
-        page:"state-selection"
     });
 
+    const [page,setPage]=useState("state-selection");
+
     return (
-        <StateContext.Provider value={[stateFeature, setStateFeature]}>
+        <StateContext.Provider value={{state:[stateFeature, setStateFeature], page:[page,setPage]}}>
             {props.children}
         </StateContext.Provider>
     )

@@ -4,7 +4,9 @@ import ReactMapGL, { Source, Layer } from "react-map-gl"
 import { StateContext } from '../contexts/StateContext'
 
 const StateSelection = () => {
-    const [stateFeature, setStateFeature] = useContext(StateContext);
+    const {state, page} = useContext(StateContext);
+    const [stateFeature,setStateFeature]=state;
+    const [pageName,setPageName]=page
 
     let geojson;
     fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson')
@@ -43,8 +45,7 @@ const StateSelection = () => {
         feature: null,
         jobs: null,
         job: null,
-        stateCenter: null,
-        page: 'state-selection'
+        stateCenter: null
     }
 
     const statesLayer = {
@@ -116,8 +117,7 @@ const StateSelection = () => {
                 feature: cur_feature,
                 jobs: jobs,
                 job: null,
-                stateCenter: null,
-                page: 'state-selection'
+                stateCenter: null
             };
 
             setStateFeature(temp_feature);
@@ -194,8 +194,7 @@ const StateSelection = () => {
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
             job: curJob,
-            stateCenter: null,
-            page: 'state-selection'
+            stateCenter: null
         });
         setShowModal(false);
     }
@@ -210,10 +209,9 @@ const StateSelection = () => {
                 feature: stateFeature.feature,
                 jobs: stateFeature.jobs,
                 job: curJob,
-                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
-                stateFeature: ''
+                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long]
             });
-            //console.log(stateFeature);
+            setPageName('first-filter')
         }
     }
 
