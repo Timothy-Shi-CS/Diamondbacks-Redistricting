@@ -69,7 +69,8 @@ const StateSelection = () => {
             feature: null,
             jobs: null,
             job: null,
-            stateCenter: null
+            stateCenter: null,
+            page:'state-selection'
         })
         //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
         if (e.features[0].properties.name === undefined || e.features[0].properties.name === "Toronto") {
@@ -102,9 +103,11 @@ const StateSelection = () => {
 
         setFeature(cur_feature);
         let temp_feature = {
-            feature: cur_feature,
+            feature: null,
             jobs: null,
-            job: null
+            job: null,
+            stateCenter: null,
+            page:'state-selection'
         }
         setStateFeature(temp_feature);
         if (cur_feature) {
@@ -118,7 +121,8 @@ const StateSelection = () => {
             let temp_feature = {
                 feature: cur_feature,
                 jobs: jobs,
-                job: null
+                job: null,
+                page:'state-selection'
             };
 
             setStateFeature(temp_feature);
@@ -158,7 +162,8 @@ const StateSelection = () => {
             feature: null,
             jobs: null,
             job: null,
-            stateCenter: null
+            stateCenter: null,
+            page:'state-selection'
         })
 
         const state = e.target.options[e.target.selectedIndex].text;
@@ -200,7 +205,8 @@ const StateSelection = () => {
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
             job: curJob,
-            stateCenter: null
+            stateCenter: null,
+            page:'state-selection'
         });
         setShowModal(false);
     }
@@ -215,7 +221,8 @@ const StateSelection = () => {
                 feature: stateFeature.feature,
                 jobs: stateFeature.jobs,
                 job: curJob,
-                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long]
+                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
+                stateFeature:''
             });
             //console.log(stateFeature);
         }

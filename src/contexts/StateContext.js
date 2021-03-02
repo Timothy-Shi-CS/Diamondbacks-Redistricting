@@ -7,7 +7,8 @@ export const StateProvider = (props) => {
         feature:null,
         jobs:null,
         job:null,
-        stateCenter:null
+        stateCenter:null,
+        page:"state-selection"
     });
 
     return (
