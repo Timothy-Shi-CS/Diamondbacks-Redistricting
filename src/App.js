@@ -1,6 +1,5 @@
 import React from 'react'
 
-import StateSelection from './pages/StateSelection'
 import Application from './Application'
 import { StateProvider } from './contexts/StateContext'
 

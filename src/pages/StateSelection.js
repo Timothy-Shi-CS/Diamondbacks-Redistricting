@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
+import ReactMapGL, { Source, Layer } from "react-map-gl"
 
 import { StateContext } from '../contexts/StateContext'
 
@@ -28,13 +28,7 @@ const StateSelection = () => {
     const [showModal, setShowModal] = useState(false);
     const [polygonLayer, setPolygonLayer] = useState(null);
     const [polygonData, setPolygonData] = useState(null);
-    const [feature, setFeature] = useState(null);
-    const [showPopup, setShowPopup] = useState(false);
-    const [popUpCoords, setPopUpCoords] = useState({
-        latitude: 39.8283,
-        longitude: -98.5795,
-        state: ''
-    })
+    // const [feature, setFeature] = useState(null);
 
 
     const [viewport, setViewport] = useState({
@@ -45,7 +39,13 @@ const StateSelection = () => {
         pitch: 0
     });
 
-
+    const resetFeature = {
+        feature: null,
+        jobs: null,
+        job: null,
+        stateCenter: null,
+        page: 'state-selection'
+    }
 
     const statesLayer = {
         id: 'states-layer',
@@ -65,17 +65,11 @@ const StateSelection = () => {
         }
         setCurJob(null);
         setShowModal(false);
-        setStateFeature({
-            feature: null,
-            jobs: null,
-            job: null,
-            stateCenter: null,
-            page:'state-selection'
-        })
+        setStateFeature(resetFeature);
         //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
         if (e.features[0].properties.name === undefined || e.features[0].properties.name === "Toronto") {
             //setShowPopup(false)
-            setFeature(null);
+            //setFeature(null);
 
             document.getElementById('state-selection').value = '';
         } else {
@@ -101,15 +95,15 @@ const StateSelection = () => {
         }
         console.log(cur_feature);
 
-        setFeature(cur_feature);
-        let temp_feature = {
-            feature: null,
-            jobs: null,
-            job: null,
-            stateCenter: null,
-            page:'state-selection'
-        }
-        setStateFeature(temp_feature);
+        //setFeature(cur_feature);
+        // let temp_feature = {
+        //     feature: null,
+        //     jobs: null,
+        //     job: null,
+        //     stateCenter: null,
+        //     page: 'state-selection'
+        // }
+        setStateFeature(resetFeature);
         if (cur_feature) {
 
             //10 jobs with random number of districtings
@@ -122,7 +116,8 @@ const StateSelection = () => {
                 feature: cur_feature,
                 jobs: jobs,
                 job: null,
-                page:'state-selection'
+                stateCenter: null,
+                page: 'state-selection'
             };
 
             setStateFeature(temp_feature);
@@ -158,13 +153,7 @@ const StateSelection = () => {
         }
         setCurJob(null);
         setShowModal(false);
-        setStateFeature({
-            feature: null,
-            jobs: null,
-            job: null,
-            stateCenter: null,
-            page:'state-selection'
-        })
+        setStateFeature(resetFeature);
 
         const state = e.target.options[e.target.selectedIndex].text;
         getState(state);
@@ -206,7 +195,7 @@ const StateSelection = () => {
             jobs: stateFeature.jobs,
             job: curJob,
             stateCenter: null,
-            page:'state-selection'
+            page: 'state-selection'
         });
         setShowModal(false);
     }
@@ -222,7 +211,7 @@ const StateSelection = () => {
                 jobs: stateFeature.jobs,
                 job: curJob,
                 stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
-                stateFeature:''
+                stateFeature: ''
             });
             //console.log(stateFeature);
         }

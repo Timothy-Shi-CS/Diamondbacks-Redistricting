@@ -9,7 +9,7 @@ function Application() {
         page=<StateSelection/>
     }else{
         page=<div>
-            {stateFeature.stateCenter}
+            {`${stateFeature.stateCenter} and ${stateFeature.feature.properties.name} and ${stateFeature.job+1}`}
         </div>
     }
     return (
