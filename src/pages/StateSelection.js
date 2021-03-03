@@ -1,12 +1,13 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import ReactMapGL, { Source, Layer } from "react-map-gl"
 
 import { StateContext } from '../contexts/StateContext'
 
 const StateSelection = () => {
-    const {state, page} = useContext(StateContext);
-    const [stateFeature,setStateFeature]=state;
-    const [pageName,setPageName]=page
+    const { state, page, polygon } = useContext(StateContext);
+    const [stateFeature, setStateFeature] = state;
+    const [pageName, setPageName] = page
+    const [pd, setPd] = polygon
 
     let geojson;
     fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson')
@@ -28,8 +29,8 @@ const StateSelection = () => {
 
     const [curJob, setCurJob] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [polygonLayer, setPolygonLayer] = useState(null);
-    const [polygonData, setPolygonData] = useState(null);
+    // const [polygonLayer, setPolygonLayer] = useState(null);
+    // const [polygonData, setPolygonData] = useState(null);
     // const [feature, setFeature] = useState(null);
 
 
@@ -57,6 +58,16 @@ const StateSelection = () => {
             'fill-outline-color': 'rgba(150, 173, 212, 0.2)'
         }
     }
+
+    useEffect(()=>{
+        if(stateFeature.feature!==null){
+            //disable respective job button
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = true;
+
+            //set value of dropdown
+            document.getElementById('state-selection').value=stateFeature.feature.properties.postal;
+        }
+    },[])
 
     const mapClicked = (e) => {
         e.preventDefault();
@@ -122,24 +133,44 @@ const StateSelection = () => {
 
             setStateFeature(temp_feature);
 
-            setPolygonData({
-                'type': cur_feature.type,
-                'geometry': {
-                    'type': cur_feature.geometry.type,
-                    'coordinates': cur_feature.geometry.coordinates
-                }
-            });
-
-            setPolygonLayer({
-                'id': 'state-layer',
-                'type': 'fill',
-                'source': 'state',
-                'layout': {},
-                'paint': {
-                    'fill-color': 'rgba(132, 245, 134, 0.15)',
-                    'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+            setPd({
+                polygonData: {
+                    'type': cur_feature.type,
+                    'geometry': {
+                        'type': cur_feature.geometry.type,
+                        'coordinates': cur_feature.geometry.coordinates
+                    }
+                },
+                polygonLayer: {
+                    'id': 'state-layer',
+                    'type': 'fill',
+                    'source': 'state',
+                    'layout': {},
+                    'paint': {
+                        'fill-color': 'rgba(132, 245, 134, 0.15)',
+                        'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+                    }
                 }
             })
+
+            // setPolygonData({
+            //     'type': cur_feature.type,
+            //     'geometry': {
+            //         'type': cur_feature.geometry.type,
+            //         'coordinates': cur_feature.geometry.coordinates
+            //     }
+            // });
+
+            // setPolygonLayer({
+            //     'id': 'state-layer',
+            //     'type': 'fill',
+            //     'source': 'state',
+            //     'layout': {},
+            //     'paint': {
+            //         'fill-color': 'rgba(132, 245, 134, 0.15)',
+            //         'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+            //     }
+            // })
 
             document.getElementById('state-selection').value = cur_feature.properties.postal;
         }
@@ -310,15 +341,15 @@ const StateSelection = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={mapClicked}
             >
-                {/* {stateFeature.feature !== null ? console.log("feature is ", stateFeature) : ""} */}
+                {/* {console.log(pd.polygonData)} */}
                 {stateFeature.feature !== null ? (
                     <Source
                         id="state"
                         type="geojson"
-                        data={polygonData}
+                        data={pd.polygonData}
                     >
                         <Layer
-                            {...polygonLayer}
+                            {...pd.polygonLayer}
                         />
                     </Source>
                 ) : ""}

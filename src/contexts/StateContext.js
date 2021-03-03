@@ -12,8 +12,13 @@ export const StateProvider = (props) => {
 
     const [page,setPage]=useState("state-selection");
 
+    const [polygon,setPolygon]=useState({
+        polygonData:null,
+        polygonLayer:null
+    })
+
     return (
-        <StateContext.Provider value={{state:[stateFeature, setStateFeature], page:[page,setPage]}}>
+        <StateContext.Provider value={{state:[stateFeature, setStateFeature], page:[page,setPage], polygon:[polygon, setPolygon]}}>
             {props.children}
         </StateContext.Provider>
     )
