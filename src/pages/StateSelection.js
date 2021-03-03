@@ -46,7 +46,8 @@ const StateSelection = () => {
         feature: null,
         jobs: null,
         job: null,
-        stateCenter: null
+        stateCenter: null,
+        incumbents:[]
     }
 
     const statesLayer = {
@@ -128,7 +129,8 @@ const StateSelection = () => {
                 feature: cur_feature,
                 jobs: jobs,
                 job: null,
-                stateCenter: null
+                stateCenter: null,
+                incumbents:[]
             };
 
             setStateFeature(temp_feature);
@@ -147,7 +149,7 @@ const StateSelection = () => {
                     'source': 'state',
                     'layout': {},
                     'paint': {
-                        'fill-color': 'rgba(132, 245, 134, 0.15)',
+                        'fill-color': 'rgba(98, 201, 42, 0.15)',
                         'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
                     }
                 }
@@ -225,7 +227,8 @@ const StateSelection = () => {
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
             job: curJob,
-            stateCenter: null
+            stateCenter: null,
+            incumbents:[]
         });
         setShowModal(false);
     }
@@ -240,7 +243,8 @@ const StateSelection = () => {
                 feature: stateFeature.feature,
                 jobs: stateFeature.jobs,
                 job: curJob,
-                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long]
+                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
+                incumbents:[]
             });
             setPageName('first-filter')
         }
@@ -251,7 +255,7 @@ const StateSelection = () => {
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
                 <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem" }}>
                     <h3>State selection:</h3>
-                    <select id="state-selection" onChange={stateSelection}>
+                    <select id="state-selection" class="form-select" onChange={stateSelection}>
                         <option value="" defaultValue hidden>Select a state</option>
                         <option value="AL">Alabama</option>
                         <option value="AK">Alaska</option>

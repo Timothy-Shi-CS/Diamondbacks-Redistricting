@@ -3,6 +3,8 @@ import React from 'react'
 import Application from './Application'
 import { StateProvider } from './contexts/StateContext'
 
+import './App.css'
+
 function App() {
   return (
     <StateProvider>
