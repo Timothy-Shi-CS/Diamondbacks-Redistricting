@@ -83,6 +83,7 @@ const FirstFilter = () => {
 
     const backToStateSelection = (e) => {
         console.log('back to state selection');
+        resetChecks();
         setPageName('state-selection');
     }
 
@@ -91,6 +92,11 @@ const FirstFilter = () => {
         let tempChecks = [...checks];
         tempChecks[index - 1] = !tempChecks[index - 1]
         setChecks([...tempChecks]);
+    }
+
+    const resetChecks=(e)=>{
+        let reset=[false,false,false,false,false,false,false,false];
+        setChecks([...reset]);
     }
 
     return (
@@ -160,8 +166,8 @@ const FirstFilter = () => {
                     <div className="card" style={MODAL_STYLES}>
                         {/* {children} */}
                         <div class="card-body">
-                            <h5 class="card-title">Incumbent Protection</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Choose your incumbents</h6>
+                            <h5 class="card-title">Choose your incumbents</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Edits are automatically saved</h6>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} />
@@ -220,6 +226,7 @@ const FirstFilter = () => {
                             </div>
 
                             <div className="d-flex flex-row justify-content-around">
+                                <button className="btn btn-success" onClick={resetChecks}>Reset</button>
                                 <button className="btn btn-danger" onClick={() => setShowPopup(false)}>Close</button>
                             </div>
                         </div>

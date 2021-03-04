@@ -18,8 +18,10 @@ export const StateProvider = (props) => {
         polygonLayer: null
     })
 
+    const [districts,setDistrics]=useState(null);
+
     return (
-        <StateContext.Provider value={{ state: [stateFeature, setStateFeature], page: [page, setPage], polygon: [polygon, setPolygon]}}>
+        <StateContext.Provider value={{ state: [stateFeature, setStateFeature], page: [page, setPage], polygon: [polygon, setPolygon], districts:[districts,setDistrics]}}>
             {props.children}
         </StateContext.Provider>
     )
