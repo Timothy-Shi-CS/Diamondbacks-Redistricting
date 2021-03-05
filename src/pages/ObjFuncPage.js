@@ -205,9 +205,8 @@ const ObjFuncPage = () => {
                         longitude={popUpCoords[0]}
                         onClose={() => { setSelectedDist(null) }}
                     >
-                        <div>
+                        <div class="px-2">
                             <h5>{popUpText}</h5>
-                            <p>{popUpText} of {selectedDist.properties.STATENAME}</p>
                         </div>
                     </Popup>
                 ) : ""}

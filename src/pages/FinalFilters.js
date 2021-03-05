@@ -9,10 +9,17 @@ const FinalFilters = () => {
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
 
+    const [showPopup, setShowPopup] = useState(false);
+    const [popUpText, setPopUpText] = useState(null);
+    const [popUpCoords, setPopUpCoords] = useState(null);
+
     const [view, setView] = useState('');
 
     let [checks, setChecks] = useState([false, false, false, false, false, false, false, false]);
 
+    const [curDistricting, setCurDistricting] = useState('');
+
+    const [districtNumbers, setDistrictNumbers] = useState(null);
 
     const [viewport, setViewport] = useState({
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -21,6 +28,11 @@ const FinalFilters = () => {
         bearing: 0,
         pitch: 0
     });
+
+    //const enactedDistricts = require('../data/districts114.json');
+    const virginiaDistrict3 = require('../data/virginiaDistrict3.json')
+    const virginiaDistrict2 = require('../data/virginiaDistrict2.json');
+    const virginiaDistrict1 = require('../data/virginiaDistrict1.json');
 
     const backToObjFunc = (e) => {
         e.preventDefault();
@@ -33,7 +45,82 @@ const FinalFilters = () => {
     }
 
     const userChoseDistricting = (e) => {
-        console.log(e.target.options[e.target.selectedIndex].text);
+        e.preventDefault()
+        const name = e.target.options[e.target.selectedIndex].text;
+        setDistrictMap(name)
+        console.log(name);
+    }
+
+    const getMaxKey = (arr) => {
+        let max = 0;
+        for (let i = 0; i < arr.length; i++) {
+            if (parseInt(arr[i]) > max) {
+                max = arr[i];
+            }
+        }
+        return max;
+    }
+
+    const setDistrictMap = (districtName) => {
+        let data;
+        let distNums = [];
+        let distColor = [];
+        if (districtName === 'Districting 1') {
+            data = virginiaDistrict1
+        } else if (districtName === 'Districting 2') {
+            data = virginiaDistrict2
+        } else if (districtName === 'Districting 3') {
+            data = virginiaDistrict3
+        }
+
+        for (let i = 0; i < data.features.length; i++) {
+            distNums.push(data.features[i].properties.district);
+            const members = Object.keys(data.features[i].properties.member);
+            const maxMember = getMaxKey(members)
+
+            if (data.features[i].properties.member[maxMember][Object.keys(data.features[i].properties.member[maxMember])[0]].party === 'Republican') {
+                distColor.push('rgba(235, 64, 52,0.4)')
+            } else {
+                distColor.push('rgba(52, 122, 235,0.4)')
+            }
+            console.log(members);
+            console.log(maxMember)
+        }
+        console.log(data);
+        console.log(distNums)
+        setDistrictNumbers([...distNums]);
+        setCurDistricting(
+            data.features.map((f, index) => {
+                const f_data = {
+                    type: f.type,
+                    geometry: {
+                        type: f.geometry.type,
+                        coordinates: f.geometry.coordinates
+                    }
+                };
+
+                const f_layer = {
+                    'id': `district_${index}_layer`,
+                    'type': 'fill',
+                    'source': `district_${index}`,
+                    'layout': {},
+                    'paint': {
+                        'fill-color': `${distColor[index]}`,
+                        'fill-outline-color': 'rgba(255,255,255,1.0)'
+                    }
+                };
+
+                return (
+                    <Source
+                        id={`district_${index}`}
+                        type='geojson'
+                        data={f_data}
+                    >
+                        <Layer {...f_layer} />
+                    </Source>
+                )
+            })
+        )
     }
 
     const userChecked = (e) => {
@@ -52,9 +139,25 @@ const FinalFilters = () => {
 
     const resetChecks = (e) => {
         e.preventDefault();
+        document.getElementById("districting-selection").value = "";
         let tempChecks = [false, false, false, false, false];
         setChecks([...tempChecks]);
         setView('');
+        setCurDistricting('');
+    }
+
+    const userClickedDistrict = (e) => {
+        e.preventDefault();
+        if (e.features[0].source !== 'composite') {
+            const index = parseInt(e.features[0].source.split('_')[1]);
+            let coords=[e.lngLat[0],e.lngLat[1]];
+            setShowPopup(true);
+            setPopUpText(`District ${districtNumbers[index]}`);
+            setPopUpCoords([...coords]);
+        }else{
+            setShowPopup(false);
+        }
+
     }
 
     return (
@@ -133,10 +236,21 @@ const FinalFilters = () => {
                 height="100%"
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
+                onClick={userClickedDistrict}
             >
+                {curDistricting}
+                {showPopup && popUpText && popUpCoords? (
+                    <Popup
+                        latitude={popUpCoords[1]}
+                        longitude={popUpCoords[0]}
+                        onClose={() => { setShowPopup(false) }}
+                    >
+                        <div class="px-2">
+                            <h5>{popUpText}</h5>
+                        </div>
+                    </Popup>
+                ) : ''}
             </ReactMapGL>
-
-            {console.log(view)}
         </div>
     )
 }
