@@ -22,6 +22,7 @@ const FinalFilters = () => {
     let [checks, setChecks] = useState([false, false, false, false, false, false, false, false]);
 
     const [curDistricting, setCurDistricting] = useState('');
+    const [curDistrictingNum, setCurDistrictingNum] = useState(null);
 
     const [districtNumbers, setDistrictNumbers] = useState(null);
 
@@ -80,8 +81,15 @@ const FinalFilters = () => {
 
     const userChoseDistricting = (e) => {
         e.preventDefault()
+        let tempChecks = [false, false, false, false, false];
+
+        setChecks([...tempChecks]);
+        setView('');
+        setCountyLayer("");
+
         setShowFilters(true);
         const name = e.target.options[e.target.selectedIndex].text;
+        setCurDistrictingNum(name.split(' ')[1]);
         setDistrictMap(name)
         console.log(name);
     }
@@ -158,20 +166,89 @@ const FinalFilters = () => {
         )
     }
 
+    const removeOtherFilterLayers = () => {
+        let data;
+        let distNums = [];
+        let distColor = [];
+        if (curDistrictingNum === '1') {
+            data = virginiaDistrict1
+        } else if (curDistrictingNum === '2') {
+            data = virginiaDistrict2
+        } else if (curDistrictingNum === '3') {
+            data = virginiaDistrict3
+        }
+
+        for (let i = 0; i < data.features.length; i++) {
+            distNums.push(data.features[i].properties.district);
+            const members = Object.keys(data.features[i].properties.member);
+            const maxMember = getMaxKey(members)
+
+            if (data.features[i].properties.member[maxMember][Object.keys(data.features[i].properties.member[maxMember])[0]].party === 'Republican') {
+                distColor.push(`rgba(235, 64, 52,0.4)`)
+            } else {
+                distColor.push(`rgba(52, 122, 235,0.4)`)
+            }
+            console.log(members);
+            console.log(maxMember)
+        }
+        console.log(data);
+        console.log(distNums)
+        setDistrictNumbers([...distNums]);
+        setCurDistricting(
+            data.features.map((f, index) => {
+                const f_data = {
+                    type: f.type,
+                    geometry: {
+                        type: f.geometry.type,
+                        coordinates: f.geometry.coordinates
+                    }
+                };
+
+                const f_layer = {
+                    'id': `district_${index}_layer`,
+                    'type': 'fill',
+                    'source': `district_${index}`,
+                    'layout': {},
+                    'paint': {
+                        'fill-color': `${distColor[index]}`,
+                        'fill-outline-color': 'rgba(255,255,255,1.0)'
+                    }
+                };
+
+                return (
+                    <Source
+                        id={`district_${index}`}
+                        type='geojson'
+                        data={f_data}
+                    >
+                        <Layer {...f_layer} />
+                    </Source>
+                )
+            })
+        )
+    }
+
     const userChecked = (e) => {
         let tempChecks = [false, false, false, false, false];
         const index = parseInt(e.target.id.split('-')[2]);
         if (checks[index - 1] === true) {
             tempChecks[index - 1] = false;
+            removeOtherFilterLayers();
             setView('');
-            if (index === 1) {
-                setCountyLayer('')
-            }
+            setCountyLayer('')
         } else {
             tempChecks[index - 1] = true;
             setView(e.target.id);
             if (index === 1) {
+                removeOtherFilterLayers();
                 showCounties();
+
+            } else if (index === 2) {
+                showDevAvg();
+                setCountyLayer('')
+            } else {
+                removeOtherFilterLayers();
+                setCountyLayer('')
             }
         }
         setChecks([...tempChecks]);
@@ -186,7 +263,7 @@ const FinalFilters = () => {
             'source': 'counties',
             'layout': {},
             'paint': {
-                'fill-color': 'rgba(229, 145, 255, 0.05)',
+                'fill-color': 'rgba(229, 145, 255, 0.025)',
                 'fill-outline-color': 'rgba(255,255,255,1.0)'
             }
         };
@@ -200,6 +277,72 @@ const FinalFilters = () => {
                 <Layer {...countyLayerStyle} />
             </Source>
         );
+    }
+
+    const showDevAvg = () => {
+        let random = Math.random() * (1.0 - 0.1) + 0.1;
+        console.log(random);
+        console.log(curDistrictingNum);
+
+        let data;
+        let distNums = [];
+        let distColor = [];
+        if (curDistrictingNum === '1') {
+            data = virginiaDistrict1
+        } else if (curDistrictingNum === '2') {
+            data = virginiaDistrict2
+        } else if (curDistrictingNum === '3') {
+            data = virginiaDistrict3
+        }
+
+        for (let i = 0; i < data.features.length; i++) {
+            distNums.push(data.features[i].properties.district);
+            const members = Object.keys(data.features[i].properties.member);
+            const maxMember = getMaxKey(members)
+
+            if (data.features[i].properties.member[maxMember][Object.keys(data.features[i].properties.member[maxMember])[0]].party === 'Republican') {
+                distColor.push(`rgba(235, 64, 52,${Math.random() * (1.0 - 0.1) + 0.1})`)
+            } else {
+                distColor.push(`rgba(52, 122, 235,${Math.random() * (1.0 - 0.1) + 0.1})`)
+            }
+            console.log(members);
+            console.log(maxMember)
+        }
+        console.log(data);
+        console.log(distNums)
+        setDistrictNumbers([...distNums]);
+        setCurDistricting(
+            data.features.map((f, index) => {
+                const f_data = {
+                    type: f.type,
+                    geometry: {
+                        type: f.geometry.type,
+                        coordinates: f.geometry.coordinates
+                    }
+                };
+
+                const f_layer = {
+                    'id': `district_${index}_layer`,
+                    'type': 'fill',
+                    'source': `district_${index}`,
+                    'layout': {},
+                    'paint': {
+                        'fill-color': `${distColor[index]}`,
+                        'fill-outline-color': 'rgba(255,255,255,1.0)'
+                    }
+                };
+
+                return (
+                    <Source
+                        id={`district_${index}`}
+                        type='geojson'
+                        data={f_data}
+                    >
+                        <Layer {...f_layer} />
+                    </Source>
+                )
+            })
+        )
     }
 
     const resetCurDistricting = () => {
@@ -239,6 +382,7 @@ const FinalFilters = () => {
         setView('');
         setCountyLayer("");
         resetCurDistricting();
+        setCurDistrictingNum(null);
     }
 
     const userClickedDistrict = (e) => {
@@ -313,7 +457,7 @@ const FinalFilters = () => {
                                 </div>
 
                                 <div>
-                                    <p class="h6">Click to show enacted and selected </p>
+                                    <p class="h6 compareBtn d-inline-block">Click to show enacted and selected </p>
                                 </div>
 
                                 <div>
@@ -324,9 +468,16 @@ const FinalFilters = () => {
 
                     </div>
                 </div>
-                <div id="right-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2" }}>
-                    <p class="h6 d-inline-block">Objective Value Details</p>
-                    <hr></hr>
+                <div id="right-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                    <div align="center" style={{ paddingTop: "5rem" }}>
+                        <p class="h4 d-inline-block" >Objective Value Details</p>
+                        <hr></hr>
+                    </div>
+                    <div>
+                        {curDistrictingNum === null ? '' : (`Districting ${curDistrictingNum}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis tortor libero, sit amet pellentesque est tincidunt sit amet. Suspendisse vel laoreet diam. Fusce id fermentum arcu. Praesent semper sem neque, ac interdum purus venenatis ac. Fusce nec dolor sed risus tristique condimentum eget sit amet risus. Morbi eget sapien et mi pharetra venenatis eget quis est. Morbi egestas dolor arcu, convallis maximus felis placerat vitae. Donec ac placerat purus. Nulla porttitor eros ut est hendrerit, ac commodo eros rutrum. Sed eget ante vel tellus ultrices ornare. Etiam vulputate accumsan tortor vel dictum. Maecenas et porttitor ligula.
+                        `)}
+                    </div>
+
                 </div>
 
             </div>
