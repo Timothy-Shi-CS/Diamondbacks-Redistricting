@@ -34,6 +34,45 @@ const FinalFilters = () => {
         pitch: 0
     });
 
+    const [viewportEnacted, setViewportEnacted] = useState({
+        latitude: parseFloat(stateFeature.stateCenter[0]),
+        longitude: parseFloat(stateFeature.stateCenter[1]),
+        zoom: 6,
+        bearing: 0,
+        pitch: 0
+    });
+
+    const [viewportDB, setViewportDB] = useState({
+        latitude: parseFloat(stateFeature.stateCenter[0]),
+        longitude: parseFloat(stateFeature.stateCenter[1]),
+        zoom: 6,
+        bearing: 0,
+        pitch: 0
+    });
+
+    const [showComparisonPopup, setShowComparisonPopup] = useState(false);
+
+    const OVERLAY_STYLES = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        zIndex: 1000
+    }
+
+    const MODAL_STYLES = {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%,-50%)",
+        // backgroundColor: "rgba(255,255,255,1.0)",
+        height: "100%",
+        width: '100%',
+        zIndex: 1000
+    }
+
     const stateCoords = require('../data/stateCoords.json');
     //const enactedDistricts = require('../data/districts114.json');
     const virginiaDistrict3 = require('../data/virginiaDistrict3.json')
@@ -399,6 +438,110 @@ const FinalFilters = () => {
 
     }
 
+    const showComparison = (e) => {
+        e.preventDefault();
+        setShowComparisonPopup(true);
+        console.log('show comparison');
+    }
+
+    const getUnstyledCurDistricting = () => {
+        let data;
+        let distNums = [];
+        let distColor = [];
+        if (curDistrictingNum === '1') {
+            data = virginiaDistrict1
+        } else if (curDistrictingNum === '2') {
+            data = virginiaDistrict2
+        } else if (curDistrictingNum === '3') {
+            data = virginiaDistrict3
+        }
+
+        for (let i = 0; i < data.features.length; i++) {
+            distNums.push(data.features[i].properties.district);
+            const members = Object.keys(data.features[i].properties.member);
+            const maxMember = getMaxKey(members)
+
+            if (data.features[i].properties.member[maxMember][Object.keys(data.features[i].properties.member[maxMember])[0]].party === 'Republican') {
+                distColor.push(`rgba(235, 64, 52,0.4)`)
+            } else {
+                distColor.push(`rgba(52, 122, 235,0.4)`)
+            }
+            console.log(members);
+            console.log(maxMember)
+        }
+        console.log(data);
+        console.log(distNums)
+        //setDistrictNumbers([...distNums]);
+        return (
+            data.features.map((f, index) => {
+                const f_data = {
+                    type: f.type,
+                    geometry: {
+                        type: f.geometry.type,
+                        coordinates: f.geometry.coordinates
+                    }
+                };
+
+                const f_layer = {
+                    'id': `district_${index}_layer`,
+                    'type': 'fill',
+                    'source': `district_${index}`,
+                    'layout': {},
+                    'paint': {
+                        'fill-color': `${distColor[index]}`,
+                        'fill-outline-color': 'rgba(255,255,255,1.0)'
+                    }
+                };
+
+                return (
+                    <Source
+                        id={`district_${index}`}
+                        type='geojson'
+                        data={f_data}
+                    >
+                        <Layer {...f_layer} />
+                    </Source>
+                )
+            })
+        )
+    }
+
+
+    let render = "";
+
+    if (stateDistricts) {
+        render = stateDistricts.features.map((f, index) => {
+            const f_data = {
+                type: f.type,
+                geometry: {
+                    type: f.geometry.type,
+                    coordinates: f.geometry.coordinates
+                }
+            };
+
+            const f_layer = {
+                'id': `district_${stateDistricts.distNums[index]}_layer`,
+                'type': 'fill',
+                'source': `district_${stateDistricts.distNums[index]}`,
+                'layout': {},
+                'paint': {
+                    'fill-color': stateDistricts.distColors[index],
+                    'fill-outline-color': 'rgba(255,255,255,1.0)'
+                }
+            };
+
+            return (
+                <Source
+                    id={`district_${stateDistricts.distNums[index]}`}
+                    type='geojson'
+                    data={f_data}
+                >
+                    <Layer {...f_layer} />
+                </Source>
+            )
+        })
+    }
+
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
@@ -457,7 +600,7 @@ const FinalFilters = () => {
                                 </div>
 
                                 <div>
-                                    <p class="h6 compareBtn d-inline-block">Click to show enacted and selected </p>
+                                    <p class="h6 compareBtn d-inline-block" onClick={showComparison}>Click to show enacted and selected </p>
                                 </div>
 
                                 <div>
@@ -503,7 +646,44 @@ const FinalFilters = () => {
                     </Popup>
                 ) : ''}
             </ReactMapGL>
-        </div>
+
+            {showComparisonPopup ? (
+                <div className="comparisonPopup">
+                    <div style={OVERLAY_STYLES} />
+                    <div className="container-fluid" align='center' style={MODAL_STYLES}>
+                        {/* {children} */}
+                        <div class="row d-flex flex-row justify-content-around align-items-center" style={{ height: "90%", width: "100%" }}>
+                            <div class="col-5" style={{ backgroundColor: "rgba(255,255,255,1.0)", height: "65%" }} >
+                                <ReactMapGL
+                                    {...viewportEnacted}
+                                    width="100%"
+                                    height="100%"
+                                    onViewportChange={setViewportEnacted}
+                                    mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
+                                >
+                                    {render}
+                                </ReactMapGL>
+                                <h3 className="my-3" style={{color:'rgba(255,255,255,1.0)'}}><em>Enacted</em></h3>
+                            </div>
+                            <div class="col-5" style={{ backgroundColor: "rgba(255,255,255,1.0)", height: "65%" }}>
+                                <ReactMapGL
+                                    {...viewportDB}
+                                    width="100%"
+                                    height="100%"
+                                    onViewportChange={setViewportDB}
+                                    mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
+                                >
+                                    {getUnstyledCurDistricting()}
+                                </ReactMapGL>
+                                <h3 className="my-3 " style={{color:'rgba(255,255,255,1.0)'}}> <em>Districting {curDistrictingNum}</em></h3>
+                            </div>
+                        </div>
+                        <button className="btn btn-danger" onClick={() => setShowComparisonPopup(false)}>Close</button>
+                    </div>
+                </div>
+            ) : ''}
+
+        </div >
     )
 }
 
