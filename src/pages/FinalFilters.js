@@ -9,6 +9,10 @@ const FinalFilters = () => {
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
 
+    const [showFilters, setShowFilters] = useState(false);
+
+    const [countyLayer, setCountyLayer] = useState("");
+
     const [showPopup, setShowPopup] = useState(false);
     const [popUpText, setPopUpText] = useState(null);
     const [popUpCoords, setPopUpCoords] = useState(null);
@@ -29,10 +33,40 @@ const FinalFilters = () => {
         pitch: 0
     });
 
+    const stateCoords = require('../data/stateCoords.json');
     //const enactedDistricts = require('../data/districts114.json');
     const virginiaDistrict3 = require('../data/virginiaDistrict3.json')
     const virginiaDistrict2 = require('../data/virginiaDistrict2.json');
     const virginiaDistrict1 = require('../data/virginiaDistrict1.json');
+    const virginiaCounties = require('../data/virginiaCounties.json');
+
+    useEffect(() => {
+        const stateLayer = {
+            'id': 'state-layer',
+            'type': 'fill',
+            'source': 'state',
+            'layout': {},
+            'paint': {
+                'fill-color': 'rgba(98, 201, 42, 0.15)',
+                'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+            }
+        }
+        for (let i = 0; i < stateCoords.features.length; i++) {
+            if (stateCoords.features[i].properties.name === 'Virginia') {
+                console.log(stateCoords.features[i]);
+                setCurDistricting(
+                    <Source
+                        id="state"
+                        type="geojson"
+                        data={stateCoords.features[i]}
+                    >
+                        <Layer {...stateLayer} />
+                    </Source>
+                )
+                break;
+            }
+        }
+    }, [])
 
     const backToObjFunc = (e) => {
         e.preventDefault();
@@ -46,6 +80,7 @@ const FinalFilters = () => {
 
     const userChoseDistricting = (e) => {
         e.preventDefault()
+        setShowFilters(true);
         const name = e.target.options[e.target.selectedIndex].text;
         setDistrictMap(name)
         console.log(name);
@@ -129,32 +164,92 @@ const FinalFilters = () => {
         if (checks[index - 1] === true) {
             tempChecks[index - 1] = false;
             setView('');
+            if (index === 1) {
+                setCountyLayer('')
+            }
         } else {
             tempChecks[index - 1] = true;
             setView(e.target.id);
+            if (index === 1) {
+                showCounties();
+            }
         }
         setChecks([...tempChecks]);
         console.log(index);
     }
 
+    const showCounties = () => {
+        console.log(virginiaCounties);
+        const countyLayerStyle = {
+            'id': 'counties-layer',
+            'type': 'fill',
+            'source': 'counties',
+            'layout': {},
+            'paint': {
+                'fill-color': 'rgba(229, 145, 255, 0.05)',
+                'fill-outline-color': 'rgba(255,255,255,1.0)'
+            }
+        };
+
+        setCountyLayer(
+            <Source
+                id="counties"
+                type="geojson"
+                data={virginiaCounties}
+            >
+                <Layer {...countyLayerStyle} />
+            </Source>
+        );
+    }
+
+    const resetCurDistricting = () => {
+        const stateLayer = {
+            'id': 'state-layer',
+            'type': 'fill',
+            'source': 'state',
+            'layout': {},
+            'paint': {
+                'fill-color': 'rgba(98, 201, 42, 0.15)',
+                'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+            }
+        }
+        for (let i = 0; i < stateCoords.features.length; i++) {
+            if (stateCoords.features[i].properties.name === 'Virginia') {
+                console.log(stateCoords.features[i]);
+                setCurDistricting(
+                    <Source
+                        id="state"
+                        type="geojson"
+                        data={stateCoords.features[i]}
+                    >
+                        <Layer {...stateLayer} />
+                    </Source>
+                )
+                break;
+            }
+        }
+    }
+
     const resetChecks = (e) => {
         e.preventDefault();
+        setShowFilters(false);
         document.getElementById("districting-selection").value = "";
         let tempChecks = [false, false, false, false, false];
         setChecks([...tempChecks]);
         setView('');
-        setCurDistricting('');
+        setCountyLayer("");
+        resetCurDistricting();
     }
 
     const userClickedDistrict = (e) => {
         e.preventDefault();
-        if (e.features[0].source !== 'composite') {
+        if (e.features[0].source !== 'composite' && e.features[0].source !== 'state') {
             const index = parseInt(e.features[0].source.split('_')[1]);
-            let coords=[e.lngLat[0],e.lngLat[1]];
+            let coords = [e.lngLat[0], e.lngLat[1]];
             setShowPopup(true);
             setPopUpText(`District ${districtNumbers[index]}`);
             setPopUpCoords([...coords]);
-        }else{
+        } else {
             setShowPopup(false);
         }
 
@@ -180,48 +275,53 @@ const FinalFilters = () => {
                             <option value="3">Districting 3</option>
                         </select>
 
-                        <div class="form-check">
-                            <label class="form-check-label" htmlFor="split-counties-1">
-                                Show split counties
+                        {showFilters ? (
+                            <>
+                                <div class="form-check">
+                                    <label class="form-check-label" htmlFor="split-counties-1">
+                                        Show counties
                             </label>
-                            <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
-                        </div>
+                                    <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
+                                </div>
 
-                        <div class="form-check">
-                            <label class="form-check-label" htmlFor="dev-avg-2">
-                                Show deviation from average districting
+                                <div class="form-check">
+                                    <label class="form-check-label" htmlFor="dev-avg-2">
+                                        Show deviation from average districting
                             </label>
-                            <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
-                        </div>
+                                    <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
+                                </div>
 
-                        <div class="form-check">
-                            <label class="form-check-label" htmlFor="geo-compact-3">
-                                Show geometric compactness
+                                <div class="form-check">
+                                    <label class="form-check-label" htmlFor="geo-compact-3">
+                                        Show geometric compactness
                             </label>
-                            <input class="form-check-input" type="checkbox" value="" id="geo-compact-3" checked={checks[2]} onChange={userChecked} />
-                        </div>
+                                    <input class="form-check-input" type="checkbox" value="" id="geo-compact-3" checked={checks[2]} onChange={userChecked} />
+                                </div>
 
-                        <div class="form-check">
-                            <label class="form-check-label" htmlFor="graph-compact-4">
-                                Show graph compactness
+                                <div class="form-check">
+                                    <label class="form-check-label" htmlFor="graph-compact-4">
+                                        Show graph compactness
                             </label>
-                            <input class="form-check-input" type="checkbox" value="" id="graph-compact-4" checked={checks[3]} onChange={userChecked} />
-                        </div>
+                                    <input class="form-check-input" type="checkbox" value="" id="graph-compact-4" checked={checks[3]} onChange={userChecked} />
+                                </div>
 
-                        <div class="form-check">
-                            <label class="form-check-label" htmlFor="pop-fat-5">
-                                Show population fatness
+                                <div class="form-check">
+                                    <label class="form-check-label" htmlFor="pop-fat-5">
+                                        Show population fatness
                             </label>
-                            <input class="form-check-input" type="checkbox" value="" id="pop-fat-5" checked={checks[4]} onChange={userChecked} />
-                        </div>
+                                    <input class="form-check-input" type="checkbox" value="" id="pop-fat-5" checked={checks[4]} onChange={userChecked} />
+                                </div>
 
-                        <div>
-                            <p class="h6">Click to show enacted and selected </p>
-                        </div>
+                                <div>
+                                    <p class="h6">Click to show enacted and selected </p>
+                                </div>
 
-                        <div>
-                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={resetChecks}>Reset</button>
-                        </div>
+                                <div>
+                                    <button type="button" className="btn btn-lg col-12 btn-primary" onClick={resetChecks}>Reset</button>
+                                </div>
+                            </>
+                        ) : ""}
+
                     </div>
                 </div>
                 <div id="right-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2" }}>
@@ -238,8 +338,9 @@ const FinalFilters = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={userClickedDistrict}
             >
+                {countyLayer}
                 {curDistricting}
-                {showPopup && popUpText && popUpCoords? (
+                {showPopup && popUpText && popUpCoords ? (
                     <Popup
                         latitude={popUpCoords[1]}
                         longitude={popUpCoords[0]}
