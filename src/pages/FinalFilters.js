@@ -58,7 +58,7 @@ const FinalFilters = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        backgroundColor: 'rgba(0,0,0,0.85)',
         zIndex: 1000
     }
 
@@ -122,6 +122,7 @@ const FinalFilters = () => {
         e.preventDefault()
         let tempChecks = [false, false, false, false, false];
 
+        setShowPopup(false);
         setChecks([...tempChecks]);
         setView('');
         setCountyLayer("");
@@ -270,6 +271,7 @@ const FinalFilters = () => {
     const userChecked = (e) => {
         let tempChecks = [false, false, false, false, false];
         const index = parseInt(e.target.id.split('-')[2]);
+        setShowPopup(false);
         if (checks[index - 1] === true) {
             tempChecks[index - 1] = false;
             removeOtherFilterLayers();
@@ -281,6 +283,7 @@ const FinalFilters = () => {
             if (index === 1) {
                 removeOtherFilterLayers();
                 showCounties();
+                
 
             } else if (index === 2) {
                 showDevAvg();
@@ -303,7 +306,7 @@ const FinalFilters = () => {
             'layout': {},
             'paint': {
                 'fill-color': 'rgba(229, 145, 255, 0.025)',
-                'fill-outline-color': 'rgba(255,255,255,1.0)'
+                'fill-outline-color': 'rgba(0,0,0,0.3)'
             }
         };
 
@@ -424,15 +427,22 @@ const FinalFilters = () => {
         setCurDistrictingNum(null);
     }
 
-    const userClickedDistrict = (e) => {
+    const userClicked = (e) => {
         e.preventDefault();
-        if (e.features[0].source !== 'composite' && e.features[0].source !== 'state') {
+        console.log(e);
+        let coords = [e.lngLat[0], e.lngLat[1]];
+        if (e.features[0].source.includes('district')) {
             const index = parseInt(e.features[0].source.split('_')[1]);
-            let coords = [e.lngLat[0], e.lngLat[1]];
+            
             setShowPopup(true);
             setPopUpText(`District ${districtNumbers[index]}`);
             setPopUpCoords([...coords]);
-        } else {
+        }else if(e.features[0].source === 'counties'){
+            setShowPopup(true);
+            setPopUpText(`${e.features[0].properties.NAMELSAD}`);
+            setPopUpCoords([...coords]);
+        } 
+        else {
             setShowPopup(false);
         }
 
@@ -630,7 +640,7 @@ const FinalFilters = () => {
                 height="100%"
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
-                onClick={userClickedDistrict}
+                onClick={userClicked}
             >
                 {countyLayer}
                 {curDistricting}
@@ -678,7 +688,7 @@ const FinalFilters = () => {
                                 <h3 className="my-3 " style={{color:'rgba(255,255,255,1.0)'}}> <em>Districting {curDistrictingNum}</em></h3>
                             </div>
                         </div>
-                        <button className="btn btn-danger" onClick={() => setShowComparisonPopup(false)}>Close</button>
+                        <button className="btn btn-secondary" onClick={() => setShowComparisonPopup(false)}>Close</button>
                     </div>
                 </div>
             ) : ''}
