@@ -9,6 +9,9 @@ const StateSelection = () => {
     const [pageName, setPageName] = page
     const [pd, setPd] = polygon
 
+    const allStates = require('../data/allState.json');
+    const [filteredStates, setFilteredStates] = useState(null);
+
     let geojson;
     fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson')
         .then(resp => {
@@ -28,7 +31,7 @@ const StateSelection = () => {
         });
 
     const [curJob, setCurJob] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    //const [showModal, setShowModal] = useState(false);
     // const [polygonLayer, setPolygonLayer] = useState(null);
     // const [polygonData, setPolygonData] = useState(null);
     // const [feature, setFeature] = useState(null);
@@ -37,7 +40,7 @@ const StateSelection = () => {
     const [viewport, setViewport] = useState({
         latitude: 39.8283,
         longitude: -98.5795,
-        zoom: 3.75,
+        zoom: 4.25,
         bearing: 0,
         pitch: 0
     });
@@ -47,7 +50,7 @@ const StateSelection = () => {
         jobs: null,
         job: null,
         stateCenter: null,
-        incumbents:[]
+        incumbents: []
     }
 
     const statesLayer = {
@@ -55,20 +58,33 @@ const StateSelection = () => {
         type: 'fill',
         source: 'states',
         paint: {
-            'fill-color': 'rgba(181, 209, 255, 0.15)',
-            'fill-outline-color': 'rgba(150, 173, 212, 0.2)'
+            'fill-color': 'rgba(181, 209, 255, 0.3)',
+            'fill-outline-color': 'rgba(0, 0, 0, 0.5)'
         }
     }
 
-    useEffect(()=>{
-        if(stateFeature.feature!==null){
+    useEffect(() => {
+        let states = {
+            type: 'FeatureCollection',
+            features: []
+        }
+        const features = allStates.features;
+
+        for (let i = 0; i < features.length; i++) {
+            if (features[i].properties.name === 'Utah' || features[i].properties.name === 'Virginia' || features[i].properties.name === 'Nevada') {
+                states.features.push(features[i])
+            }
+        }
+
+        setFilteredStates(states);
+        if (stateFeature.feature !== null) {
             //disable respective job button
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = true;
 
             //set value of dropdown
-            document.getElementById('state-selection').value=stateFeature.feature.properties.postal;
+            document.getElementById('state-selection').value = stateFeature.feature.properties.postal;
         }
-    },[])
+    }, [])
 
     const mapClicked = (e) => {
         e.preventDefault();
@@ -77,7 +93,7 @@ const StateSelection = () => {
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
         }
         setCurJob(null);
-        setShowModal(false);
+        //setShowModal(false);
         setStateFeature(resetFeature);
         //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
         if (e.features[0].properties.name === undefined || e.features[0].properties.name === "Toronto") {
@@ -130,7 +146,7 @@ const StateSelection = () => {
                 jobs: jobs,
                 job: null,
                 stateCenter: null,
-                incumbents:[]
+                incumbents: []
             };
 
             setStateFeature(temp_feature);
@@ -149,8 +165,8 @@ const StateSelection = () => {
                     'source': 'state',
                     'layout': {},
                     'paint': {
-                        'fill-color': 'rgba(98, 201, 42, 0.15)',
-                        'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+                        'fill-color': 'rgba(98, 201, 42, 0.5)',
+                        'fill-outline-color': 'rgba(0, 0, 0, 0.5)'
                     }
                 }
             })
@@ -185,7 +201,7 @@ const StateSelection = () => {
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
         }
         setCurJob(null);
-        setShowModal(false);
+        //setShowModal(false);
         setStateFeature(resetFeature);
 
         const state = e.target.options[e.target.selectedIndex].text;
@@ -194,7 +210,7 @@ const StateSelection = () => {
 
     const jobClick = (e) => {
         e.preventDefault();
-        setShowModal(true);
+        //setShowModal(true);
         const index = parseInt(e.target.id.split("-")[1]);
         // const temp_feature = {
         //     feature: stateFeature.feature,
@@ -206,107 +222,76 @@ const StateSelection = () => {
         setCurJob(index - 1);
         console.log(stateFeature);
         console.log(`Job ${index} has ${stateFeature.jobs[index - 1]} districtings.`)
-    }
 
-    const closePopup = (e) => {
-        e.preventDefault();
-        setCurJob(null);
-        setShowModal(false);
-    }
-
-    const applyJob = (e) => {
-        e.preventDefault();
         if (stateFeature.job === null) {
-            document.getElementById(`job-${curJob + 1}`).disabled = true;
+            console.log("null")
+            document.getElementById(`job-${index}`).disabled = true;
         } else {
+            console.log("not null")
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
-            document.getElementById(`job-${curJob + 1}`).disabled = true;
+            document.getElementById(`job-${index}`).disabled = true;
         }
 
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
-            job: curJob,
+            job: index - 1,
             stateCenter: null,
-            incumbents:[]
+            incumbents: []
         });
-        setShowModal(false);
     }
+
+    // const closePopup = (e) => {
+    //     e.preventDefault();
+    //     setCurJob(null);
+    //     setShowModal(false);
+    // }
+
+    // const applyJob = () => {
+    //     //e.preventDefault();
+    //     if (stateFeature.job === null) {
+    //         console.log("null")
+    //         document.getElementById(`job-${curJob + 1}`).disabled = true;
+    //     } else {
+    //         console.log("not null")
+    //         document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
+    //         document.getElementById(`job-${curJob + 1}`).disabled = true;
+    //     }
+
+    //     setStateFeature({
+    //         feature: stateFeature.feature,
+    //         jobs: stateFeature.jobs,
+    //         job: curJob,
+    //         stateCenter: null,
+    //         incumbents: []
+    //     });
+    //     setShowModal(false);
+    // }
 
     const applyEverything = (e) => {
         e.preventDefault();
-        if (stateFeature.job === null) {
-            alert("You must choose a job before applying.");
-        } else {
 
-            setStateFeature({
-                feature: stateFeature.feature,
-                jobs: stateFeature.jobs,
-                job: curJob,
-                stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
-                incumbents:[]
-            });
-            setPageName('first-filter')
-        }
+        setStateFeature({
+            feature: stateFeature.feature,
+            jobs: stateFeature.jobs,
+            job: curJob,
+            stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
+            incumbents: []
+        });
+        setPageName('first-filter')
+
     }
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
                 <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem" }}>
-                    <h3>State selection:</h3>
+                    <h3>Select a state:</h3>
                     <select id="state-selection" class="form-select" onChange={stateSelection}>
                         <option value="" defaultValue hidden>Select a state</option>
-                        <option value="AL">Alabama</option>
-                        <option value="AK">Alaska</option>
-                        <option value="AZ">Arizona</option>
-                        <option value="AR">Arkansas</option>
-                        <option value="CA">California</option>
-                        <option value="CO">Colorado</option>
-                        <option value="CT">Connecticut</option>
-                        <option value="DE">Delaware</option>
-                        <option value="FL">Florida</option>
-                        <option value="GA">Georgia</option>
-                        <option value="HI">Hawaii</option>
-                        <option value="ID">Idaho</option>
-                        <option value="IL">Illinois</option>
-                        <option value="IN">Indiana</option>
-                        <option value="IA">Iowa</option>
-                        <option value="KS">Kansas</option>
-                        <option value="KY">Kentucky</option>
-                        <option value="LA">Louisiana</option>
-                        <option value="ME">Maine</option>
-                        <option value="MD">Maryland</option>
-                        <option value="MA">Massachusetts</option>
-                        <option value="MI">Michigan</option>
-                        <option value="MN">Minnesota</option>
-                        <option value="MS">Mississippi</option>
-                        <option value="MO">Missouri</option>
-                        <option value="MT">Montana</option>
-                        <option value="NE">Nebraska</option>
                         <option value="NV">Nevada</option>
-                        <option value="NH">New Hampshire</option>
-                        <option value="NJ">New Jersey</option>
-                        <option value="NM">New Mexico</option>
-                        <option value="NY">New York</option>
-                        <option value="NC">North Carolina</option>
-                        <option value="ND">North Dakota</option>
-                        <option value="OH">Ohio</option>
-                        <option value="OK">Oklahoma</option>
-                        <option value="OR">Oregon</option>
-                        <option value="PA">Pennsylvania</option>
-                        <option value="RI">Rhode Island</option>
-                        <option value="SC">South Carolina</option>
-                        <option value="SD">South Dakota</option>
-                        <option value="TN">Tennessee</option>
-                        <option value="TX">Texas</option>
                         <option value="UT">Utah</option>
-                        <option value="VT">Vermont</option>
                         <option value="VA">Virginia</option>
-                        <option value="WA">Washington</option>
-                        <option value="WV">West Virginia</option>
-                        <option value="WI">Wisconsin</option>
-                        <option value="WY">Wyoming</option>
                     </select>
                     {stateFeature.jobs !== null ? (
                         <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%", width: "100%" }}>
@@ -315,13 +300,18 @@ const StateSelection = () => {
                             {stateFeature.jobs.map((job, index) => {
                                 return (
                                     <div key={index + 1}>
-                                        <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}</button>
+                                        <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}: {stateFeature.jobs[index]} redistrictings</button>
                                     </div>
                                 )
                             })}
 
                             <div>
-                                <button type="button" className="btn btn-lg col-12 btn-primary" onClick={applyEverything}>Apply</button>
+                                {stateFeature.job ? (
+                                    <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything}>Proceed</button>
+                                ) : (
+                                        <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything} disabled>Proceed</button>
+                                    )}
+
                             </div>
                             <hr></hr>
                         </div>
@@ -345,7 +335,6 @@ const StateSelection = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={mapClicked}
             >
-                {/* {console.log(pd.polygonData)} */}
                 {stateFeature.feature !== null ? (
                     <Source
                         id="state"
@@ -361,7 +350,7 @@ const StateSelection = () => {
                 <Source
                     id="states"
                     type="geojson"
-                    data='https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson'
+                    data={filteredStates}
                 >
                     <Layer
                         {...statesLayer}
@@ -382,9 +371,9 @@ const StateSelection = () => {
                 } */}
             </ReactMapGL>
 
-            {showModal ? (
+            {/* {showModal ? (
                 <div className="card" style={{
-                    zIndex: "2",
+                    zIndex: "1000",
                     height: "20%",
                     width: "20%",
                     position: "absolute",
@@ -404,7 +393,7 @@ const StateSelection = () => {
 
                     </div>
                 </div>
-            ) : ""}
+            ) : ""} */}
 
 
         </div>

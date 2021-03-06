@@ -4,11 +4,14 @@ import ReactMapGL, { Source, Layer } from "react-map-gl"
 import { StateContext } from '../contexts/StateContext'
 
 const FirstFilter = () => {
-    const { state, page } = useContext(StateContext);
+    const { state, page, districts } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
+    const [stateDistricts, setStateDistricts] = districts;
 
-
+    const [popEqualValue, setPopEqualValue] = useState('75')
+    const [majMinValue, setMajMinValue] = useState('25');
+    const [compactValue, setCompactValue] = useState('50');
     let [checks, setChecks] = useState([false, false, false, false, false, false, false, false]);
     const [showPopup, setShowPopup] = useState(false);
     const [viewport, setViewport] = useState({
@@ -33,8 +36,8 @@ const FirstFilter = () => {
         'source': 'state',
         'layout': {},
         'paint': {
-            'fill-color': 'rgba(132, 245, 134, 0.15)',
-            'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
+            'fill-color': 'rgba(132, 245, 134, 0.5)',
+            'fill-outline-color': 'rgba(0, 0, 0, 0.5)'
         }
     };
 
@@ -57,9 +60,44 @@ const FirstFilter = () => {
         zIndex: 1000
     }
 
+    const enactedDistricts = require('../data/districts114.json');
+
     useEffect(() => {
         if (stateFeature.feature !== null) {
             setChecks([...stateFeature.incumbents]);
+        }
+        if (stateDistricts === null) {
+            let coordHolder = {
+                type: "FeatureCollection",
+                features: [],
+                distNums: [],
+                distColors: []
+            }
+            let districts = [];
+            let colors = [];
+            const features = enactedDistricts.features;
+            for (var i = 0; i < features.length; i++) {
+                if (features[i].properties.STATENAME === stateFeature.feature.properties.name) {
+                    coordHolder.features.push({
+                        type: features[i].type,
+                        geometry: {
+                            type: features[i].geometry.type,
+                            coordinates: features[i].geometry.coordinates
+                        },
+                        properties: features[i].properties
+                    });
+
+                    let red = Math.floor(Math.random() * 255);
+                    let blue = Math.floor(Math.random() * 255);
+                    let green = Math.floor(Math.random() * 255);
+
+                    colors.push(`rgba(${red},${blue},${green},0.5)`);
+                    districts.push(features[i].properties.DISTRICT);
+                }
+            }
+            coordHolder.distNums = [...districts];
+            coordHolder.distColors = [...colors];
+            setStateDistricts(coordHolder);
         }
     }, [])
 
@@ -94,9 +132,60 @@ const FirstFilter = () => {
         setChecks([...tempChecks]);
     }
 
-    const resetChecks=(e)=>{
-        let reset=[false,false,false,false,false,false,false,false];
+    const resetChecks = (e) => {
+        let reset = [false, false, false, false, false, false, false, false];
         setChecks([...reset]);
+    }
+
+    const popEqual = (e) => {
+        e.preventDefault();
+        console.log(e.target.value);
+        setPopEqualValue(e.target.value)
+    }
+
+    const majMin = (e) => {
+        e.preventDefault();
+        setMajMinValue(e.target.value);
+    }
+
+    const compact = (e) => {
+        e.preventDefault();
+        setCompactValue(e.target.value);
+    }
+
+    let render = "";
+
+    if (stateDistricts) {
+        render = stateDistricts.features.map((f, index) => {
+            const f_data = {
+                type: f.type,
+                geometry: {
+                    type: f.geometry.type,
+                    coordinates: f.geometry.coordinates
+                }
+            };
+
+            const f_layer = {
+                'id': `district_${stateDistricts.distNums[index]}_layer`,
+                'type': 'fill',
+                'source': `district_${stateDistricts.distNums[index]}`,
+                'layout': {},
+                'paint': {
+                    'fill-color': stateDistricts.distColors[index],
+                    'fill-outline-color': 'rgba(255,255,255,1.0)'
+                }
+            };
+
+            return (
+                <Source
+                    id={`district_${stateDistricts.distNums[index]}`}
+                    type='geojson'
+                    data={f_data}
+                >
+                    <Layer {...f_layer} />
+                </Source>
+            )
+        })
     }
 
     return (
@@ -105,33 +194,55 @@ const FirstFilter = () => {
                 <div id="left-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
                     <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Back</p>
                     <div align="center" style={{ paddingTop: "3rem" }}>
-                        <p class="h3">Initial Filtering</p>
+                        <p class="h2">Filter job</p>
                         <hr></hr>
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%", width: "100%" }}>
                         <div>
-                            <p class="h5">Incumbent Protection</p>
+                            <p class="h4">Incumbent Protection:</p>
                             <a class="link-primary" onClick={openIncumbentPopup}>Click to choose incumbents</a>
                         </div>
 
                         <div>
-                            <p class="h5">Population equality</p>
-                            <input type="range" class="form-range" id="pop_eq_range" />
+                            <div class="d-flex flex-row justify-content-between">
+                                <p class="h4">Population equality:</p>
+                                <p class="h4 px-2 border border-primary">{popEqualValue}</p>
+                            </div>
+
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="pop_eq_range" onInput={popEqual} value={popEqualValue} />
+                            <div class="d-flex flex-row justify-content-between">
+                                <p>0</p>
+                                <p>100</p>
+                            </div>
                         </div>
 
-                        <div>
+                        {/* <div>
                             <p class="h5">Incumbent Protection</p>
                             <input type="range" class="form-range" id="incum_prot_range" />
+                        </div> */}
+
+                        <div>
+                            <div class="d-flex flex-row justify-content-between">
+                                <p class="h4">Majority-Minority:</p>
+                                <p class="h4 px-2 border border-primary">{majMinValue}</p>
+                            </div>
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="maj_min_range" onInput={majMin} value={majMinValue} />
+                            <div class="d-flex flex-row justify-content-between">
+                                <p>0</p>
+                                <p>100</p>
+                            </div>
                         </div>
 
                         <div>
-                            <p class="h5">Majority-Minority</p>
-                            <input type="range" class="form-range" id="maj_min_range" />
-                        </div>
-
-                        <div>
-                            <p class="h5">Compactness</p>
-                            <input type="range" class="form-range" id="compact_range" />
+                            <div class="d-flex flex-row justify-content-between">
+                                <p class="h4">Compactness:</p>
+                                <p class="h4 px-2 border border-primary">{compactValue}</p>
+                            </div>
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="compact_range" onInput={compact} value={compactValue} />
+                            <div class="d-flex flex-row justify-content-between">
+                                <p>0</p>
+                                <p>100</p>
+                            </div>
                         </div>
 
                         <div>
@@ -148,7 +259,10 @@ const FirstFilter = () => {
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
             >
-                <Source
+                {render}
+
+                
+                {/* <Source
                     id="state"
                     type="geojson"
                     data={polygonData}
@@ -156,7 +270,7 @@ const FirstFilter = () => {
                     <Layer
                         {...polygonLayer}
                     />
-                </Source>
+                </Source> */}
             </ReactMapGL>
 
 

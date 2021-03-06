@@ -133,7 +133,7 @@ const ObjFuncPage = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                <div id="left-bar" className="col-3" style={{ backgroundColor: "#fff", zIndex: "2" }}>
                     <div className="d-flex flex-row justify-content-between">
                         <p class="h6 d-inline-block back-btn" onClick={backToFirstFilter}>Back</p>
                         <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
@@ -146,37 +146,37 @@ const ObjFuncPage = () => {
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "77%", width: "100%" }}>
                         <div>
-                            <p class="h5">Population equality</p>
+                            <p class="h5">Population equality:</p>
                             <input type="range" class="form-range" id="pop_eq_range" />
                         </div>
 
                         <div>
-                            <p class="h5">Split counties</p>
+                            <p class="h5">Split counties:</p>
                             <input type="range" class="form-range" id="split_county_range" />
                         </div>
 
                         <div>
-                            <p class="h6">Deviation from average districting</p>
+                            <p class="h6">Deviation from average districting:</p>
                             <input type="range" class="form-range" id="dev_avg_dist_range" />
                         </div>
 
                         <div>
-                            <p class="h6">Deviation from enacted districting</p>
+                            <p class="h6">Deviation from enacted districting:</p>
                             <input type="range" class="form-range" id="dev_avg_en_dist_range" />
                         </div>
 
                         <div>
-                            <p class="h5">Geographic compactness</p>
+                            <p class="h5">Geographic compactness:</p>
                             <input type="range" class="form-range" id="geo_compact_range" />
                         </div>
 
                         <div>
-                            <p class="h5">Graph compactness</p>
+                            <p class="h5">Graph compactness:</p>
                             <input type="range" class="form-range" id="graph_compact_range" />
                         </div>
 
                         <div>
-                            <p class="h5">Population fatness</p>
+                            <p class="h5">Population fatness:</p>
                             <input type="range" class="form-range" id="pop_fat_range" />
                         </div>
 

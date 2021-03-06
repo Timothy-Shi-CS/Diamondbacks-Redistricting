@@ -418,6 +418,7 @@ const FinalFilters = () => {
     const resetChecks = (e) => {
         e.preventDefault();
         setShowFilters(false);
+        setShowPopup(false);
         document.getElementById("districting-selection").value = "";
         let tempChecks = [false, false, false, false, false];
         setChecks([...tempChecks]);
@@ -561,7 +562,7 @@ const FinalFilters = () => {
                         <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
                     </div>
                     <div align="center" style={{ paddingTop: "3rem" }}>
-                        <p class="h3">Filters</p>
+                        <p class="h3">View Results</p>
                         <hr></hr>
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "77%", width: "100%" }}>
