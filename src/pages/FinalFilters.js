@@ -72,17 +72,38 @@ const FinalFilters = () => {
         width: '100%',
         zIndex: 1000
     }
+    let districtData = new Array(3);
+    let counties;
+    if (stateFeature.feature.properties.name === 'Virginia') {
+        districtData[0] = require('../data/virginiaDistrict1.json');
+        districtData[1] = require('../data/virginiaDistrict2.json');
+        districtData[2] = require('../data/virginiaDistrict3.json');
+        counties = require('../data/virginiaCounties.json');
+    } else if (stateFeature.feature.properties.name === 'Utah') {
+        districtData[0] = require('../data/utahDistrict1.json');
+        districtData[1] = require('../data/utahDistrict2.json');
+        districtData[2] = require('../data/utahDistrict3.json');
+        counties = require('../data/utahCounties.json');
+    } else if (stateFeature.feature.properties.name === 'Nevada') {
+        districtData[0] = require('../data/nevadaDistrict1.json');
+        districtData[1] = require('../data/nevadaDistrict2.json');
+        districtData[2] = require('../data/nevadaDistrict3.json');
+        counties = require('../data/nevadaCounties.json');
+    }
 
-    let virginiaDistricts=new Array(3);
+    //let virginiaDistricts = new Array(3);
 
     const stateCoords = require('../data/stateCoords.json');
     //const enactedDistricts = require('../data/districts114.json');
-    virginiaDistricts[2] = require('../data/virginiaDistrict3.json')
-    virginiaDistricts[1] = require('../data/virginiaDistrict2.json');
-    virginiaDistricts[0] = require('../data/virginiaDistrict1.json');
-    const virginiaCounties = require('../data/virginiaCounties.json');
+    // virginiaDistricts[2] = require('../data/virginiaDistrict3.json')
+    // virginiaDistricts[1] = require('../data/virginiaDistrict2.json');
+    // virginiaDistricts[0] = require('../data/virginiaDistrict1.json');
+
+    //const counties = require('../data/virginiaCounties.json');
 
     useEffect(() => {
+
+        console.log(districtData)
         const stateLayer = {
             'id': 'state-layer',
             'type': 'fill',
@@ -93,21 +114,21 @@ const FinalFilters = () => {
                 'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
             }
         }
-        for (let i = 0; i < stateCoords.features.length; i++) {
-            if (stateCoords.features[i].properties.name === stateFeature.feature.properties.name) {
-                console.log(stateCoords.features[i]);
-                setCurDistricting(
-                    <Source
-                        id="state"
-                        type="geojson"
-                        data={stateCoords.features[i]}
-                    >
-                        <Layer {...stateLayer} />
-                    </Source>
-                )
-                break;
-            }
-        }
+        //for (let i = 0; i < stateCoords.features.length; i++) {
+        //if (stateCoords.features[i].properties.name === stateFeature.feature.properties.name) {
+        //console.log(stateCoords.features[i]);
+        setCurDistricting(
+            <Source
+                id="state"
+                type="geojson"
+                data={stateFeature.feature}
+            >
+                <Layer {...stateLayer} />
+            </Source>
+        )
+        //break;
+        //}
+        //}
     }, [])
 
     const backToObjFunc = (e) => {
@@ -151,14 +172,15 @@ const FinalFilters = () => {
         let data;
         let distNums = [];
         let distColor = [];
-        if (districtName === 'Districting 1') {
-            data = virginiaDistricts[0]
-        } else if (districtName === 'Districting 2') {
-            data = virginiaDistricts[1]
-        } else if (districtName === 'Districting 3') {
-            data = virginiaDistricts[2]
-        }
-
+        data = districtData[parseInt(districtName.split(' ')[1]) - 1];
+        // if (districtName === 'Districting 1') {
+        //     data = districtData[0]
+        // } else if (districtName === 'Districting 2') {
+        //     data = districtData[1]
+        // } else if (districtName === 'Districting 3') {
+        //     data = districtData[2]
+        // }
+        console.log(data)
         for (let i = 0; i < data.features.length; i++) {
             distNums.push(data.features[i].properties.district);
             const members = Object.keys(data.features[i].properties.member);
@@ -210,16 +232,16 @@ const FinalFilters = () => {
     }
 
     const removeOtherFilterLayers = () => {
-        let data;
+        let data = districtData[parseInt(curDistrictingNum) - 1];
         let distNums = [];
         let distColor = [];
-        if (curDistrictingNum === '1') {
-            data = virginiaDistricts[0]
-        } else if (curDistrictingNum === '2') {
-            data = virginiaDistricts[1]
-        } else if (curDistrictingNum === '3') {
-            data = virginiaDistricts[2]
-        }
+        // if (curDistrictingNum === '1') {
+        //     data = districtData[0]
+        // } else if (curDistrictingNum === '2') {
+        //     data = districtData[1]
+        // } else if (curDistrictingNum === '3') {
+        //     data = districtData[2]
+        // }
 
         for (let i = 0; i < data.features.length; i++) {
             distNums.push(data.features[i].properties.district);
@@ -286,7 +308,7 @@ const FinalFilters = () => {
             if (index === 1) {
                 removeOtherFilterLayers();
                 showCounties();
-                
+
 
             } else if (index === 2) {
                 showDevAvg();
@@ -301,7 +323,7 @@ const FinalFilters = () => {
     }
 
     const showCounties = () => {
-        console.log(virginiaCounties);
+        console.log(counties);
         const countyLayerStyle = {
             'id': 'counties-layer',
             'type': 'fill',
@@ -317,7 +339,7 @@ const FinalFilters = () => {
             <Source
                 id="counties"
                 type="geojson"
-                data={virginiaCounties}
+                data={counties}
             >
                 <Layer {...countyLayerStyle} />
             </Source>
@@ -329,16 +351,10 @@ const FinalFilters = () => {
         console.log(random);
         console.log(curDistrictingNum);
 
-        let data;
+        let data = districtData[parseInt(curDistrictingNum) - 1];
         let distNums = [];
         let distColor = [];
-        if (curDistrictingNum === '1') {
-            data = virginiaDistricts[0]
-        } else if (curDistrictingNum === '2') {
-            data = virginiaDistricts[1]
-        } else if (curDistrictingNum === '3') {
-            data = virginiaDistricts[2]
-        }
+
 
         for (let i = 0; i < data.features.length; i++) {
             distNums.push(data.features[i].properties.district);
@@ -437,15 +453,16 @@ const FinalFilters = () => {
         let coords = [e.lngLat[0], e.lngLat[1]];
         if (e.features[0].source.includes('district')) {
             const index = parseInt(e.features[0].source.split('_')[1]);
-            
+
             setShowPopup(true);
             setPopUpText(`District ${districtNumbers[index]}`);
             setPopUpCoords([...coords]);
-        }else if(e.features[0].source === 'counties'){
+        } else if (e.features[0].source === 'counties') {
             setShowPopup(true);
-            setPopUpText(`${e.features[0].properties.NAMELSAD}`);
+            e.features[0].properties.name ? setPopUpText(`${e.features[0].properties.name}`) : setPopUpText(`${e.features[0].properties.NAME}`);
+            //setPopUpText(`${e.features[0].properties.NAME}`);
             setPopUpCoords([...coords]);
-        } 
+        }
         else {
             setShowPopup(false);
         }
@@ -459,16 +476,16 @@ const FinalFilters = () => {
     }
 
     const getUnstyledCurDistricting = () => {
-        let data;
+        let data = districtData[parseInt(curDistrictingNum) - 1];
         let distNums = [];
         let distColor = [];
-        if (curDistrictingNum === '1') {
-            data = virginiaDistricts[0]
-        } else if (curDistrictingNum === '2') {
-            data = virginiaDistricts[1]
-        } else if (curDistrictingNum === '3') {
-            data = virginiaDistricts[2]
-        }
+        // if (curDistrictingNum === '1') {
+        //     data = districtData[0]
+        // } else if (curDistrictingNum === '2') {
+        //     data = districtData[1]
+        // } else if (curDistrictingNum === '3') {
+        //     data = districtData[2]
+        // }
 
         for (let i = 0; i < data.features.length; i++) {
             distNums.push(data.features[i].properties.district);
@@ -677,7 +694,7 @@ const FinalFilters = () => {
                                 >
                                     {render}
                                 </ReactMapGL>
-                                <h3 className="my-3" style={{color:'rgba(255,255,255,1.0)'}}><em>Enacted</em></h3>
+                                <h3 className="my-3" style={{ color: 'rgba(255,255,255,1.0)' }}><em>Enacted</em></h3>
                             </div>
                             <div class="col-5" style={{ backgroundColor: "rgba(255,255,255,1.0)", height: "65%" }}>
                                 <ReactMapGL
@@ -689,7 +706,7 @@ const FinalFilters = () => {
                                 >
                                     {getUnstyledCurDistricting()}
                                 </ReactMapGL>
-                                <h3 className="my-3 " style={{color:'rgba(255,255,255,1.0)'}}> <em>Districting {curDistrictingNum}</em></h3>
+                                <h3 className="my-3 " style={{ color: 'rgba(255,255,255,1.0)' }}> <em>Districting {curDistrictingNum}</em></h3>
                             </div>
                         </div>
                         <button className="btn btn-secondary" onClick={() => setShowComparisonPopup(false)}>Close</button>
