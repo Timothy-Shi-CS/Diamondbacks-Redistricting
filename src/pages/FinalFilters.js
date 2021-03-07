@@ -73,11 +73,13 @@ const FinalFilters = () => {
         zIndex: 1000
     }
 
+    let virginiaDistricts=new Array(3);
+
     const stateCoords = require('../data/stateCoords.json');
     //const enactedDistricts = require('../data/districts114.json');
-    const virginiaDistrict3 = require('../data/virginiaDistrict3.json')
-    const virginiaDistrict2 = require('../data/virginiaDistrict2.json');
-    const virginiaDistrict1 = require('../data/virginiaDistrict1.json');
+    virginiaDistricts[2] = require('../data/virginiaDistrict3.json')
+    virginiaDistricts[1] = require('../data/virginiaDistrict2.json');
+    virginiaDistricts[0] = require('../data/virginiaDistrict1.json');
     const virginiaCounties = require('../data/virginiaCounties.json');
 
     useEffect(() => {
@@ -92,7 +94,7 @@ const FinalFilters = () => {
             }
         }
         for (let i = 0; i < stateCoords.features.length; i++) {
-            if (stateCoords.features[i].properties.name === 'Virginia') {
+            if (stateCoords.features[i].properties.name === stateFeature.feature.properties.name) {
                 console.log(stateCoords.features[i]);
                 setCurDistricting(
                     <Source
@@ -115,6 +117,7 @@ const FinalFilters = () => {
 
     const backToStateSelection = (e) => {
         e.preventDefault();
+        setStateDistricts(null);
         setPageName('state-selection')
     }
 
@@ -149,11 +152,11 @@ const FinalFilters = () => {
         let distNums = [];
         let distColor = [];
         if (districtName === 'Districting 1') {
-            data = virginiaDistrict1
+            data = virginiaDistricts[0]
         } else if (districtName === 'Districting 2') {
-            data = virginiaDistrict2
+            data = virginiaDistricts[1]
         } else if (districtName === 'Districting 3') {
-            data = virginiaDistrict3
+            data = virginiaDistricts[2]
         }
 
         for (let i = 0; i < data.features.length; i++) {
@@ -211,11 +214,11 @@ const FinalFilters = () => {
         let distNums = [];
         let distColor = [];
         if (curDistrictingNum === '1') {
-            data = virginiaDistrict1
+            data = virginiaDistricts[0]
         } else if (curDistrictingNum === '2') {
-            data = virginiaDistrict2
+            data = virginiaDistricts[1]
         } else if (curDistrictingNum === '3') {
-            data = virginiaDistrict3
+            data = virginiaDistricts[2]
         }
 
         for (let i = 0; i < data.features.length; i++) {
@@ -330,11 +333,11 @@ const FinalFilters = () => {
         let distNums = [];
         let distColor = [];
         if (curDistrictingNum === '1') {
-            data = virginiaDistrict1
+            data = virginiaDistricts[0]
         } else if (curDistrictingNum === '2') {
-            data = virginiaDistrict2
+            data = virginiaDistricts[1]
         } else if (curDistrictingNum === '3') {
-            data = virginiaDistrict3
+            data = virginiaDistricts[2]
         }
 
         for (let i = 0; i < data.features.length; i++) {
@@ -399,7 +402,7 @@ const FinalFilters = () => {
             }
         }
         for (let i = 0; i < stateCoords.features.length; i++) {
-            if (stateCoords.features[i].properties.name === 'Virginia') {
+            if (stateCoords.features[i].properties.name === stateFeature.feature.properties.name) {
                 console.log(stateCoords.features[i]);
                 setCurDistricting(
                     <Source
@@ -460,11 +463,11 @@ const FinalFilters = () => {
         let distNums = [];
         let distColor = [];
         if (curDistrictingNum === '1') {
-            data = virginiaDistrict1
+            data = virginiaDistricts[0]
         } else if (curDistrictingNum === '2') {
-            data = virginiaDistrict2
+            data = virginiaDistricts[1]
         } else if (curDistrictingNum === '3') {
-            data = virginiaDistrict3
+            data = virginiaDistricts[2]
         }
 
         for (let i = 0; i < data.features.length; i++) {

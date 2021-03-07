@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import ReactMapGL, { Source, Layer } from "react-map-gl"
+import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
 
 import { StateContext } from '../contexts/StateContext'
 
@@ -9,6 +9,9 @@ const FirstFilter = () => {
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
 
+    const [popUpText, setPopUpText] = useState("");
+    const [popUpCoords, setPopUpCoords] = useState(null);
+    const [selectedDist, setSelectedDist] = useState(null);
     const [popEqualValue, setPopEqualValue] = useState('75')
     const [majMinValue, setMajMinValue] = useState('25');
     const [compactValue, setCompactValue] = useState('50');
@@ -22,24 +25,24 @@ const FirstFilter = () => {
         pitch: 0
     });
 
-    const polygonData = {
-        'type': stateFeature.feature.type,
-        'geometry': {
-            'type': stateFeature.feature.geometry.type,
-            'coordinates': stateFeature.feature.geometry.coordinates
-        }
-    };
+    // const polygonData = {
+    //     'type': stateFeature.feature.type,
+    //     'geometry': {
+    //         'type': stateFeature.feature.geometry.type,
+    //         'coordinates': stateFeature.feature.geometry.coordinates
+    //     }
+    // };
 
-    const polygonLayer = {
-        'id': 'state-layer',
-        'type': 'fill',
-        'source': 'state',
-        'layout': {},
-        'paint': {
-            'fill-color': 'rgba(132, 245, 134, 0.5)',
-            'fill-outline-color': 'rgba(0, 0, 0, 0.5)'
-        }
-    };
+    // const polygonLayer = {
+    //     'id': 'state-layer',
+    //     'type': 'fill',
+    //     'source': 'state',
+    //     'layout': {},
+    //     'paint': {
+    //         'fill-color': 'rgba(132, 245, 134, 0.5)',
+    //         'fill-outline-color': 'rgba(0, 0, 0, 0.5)'
+    //     }
+    // };
 
     const MODAL_STYLES = {
         position: "fixed",
@@ -66,6 +69,7 @@ const FirstFilter = () => {
         if (stateFeature.feature !== null) {
             setChecks([...stateFeature.incumbents]);
         }
+        console.log(stateDistricts)
         if (stateDistricts === null) {
             let coordHolder = {
                 type: "FeatureCollection",
@@ -122,6 +126,7 @@ const FirstFilter = () => {
     const backToStateSelection = (e) => {
         console.log('back to state selection');
         resetChecks();
+        setStateDistricts(null);
         setPageName('state-selection');
     }
 
@@ -139,7 +144,6 @@ const FirstFilter = () => {
 
     const popEqual = (e) => {
         e.preventDefault();
-        console.log(e.target.value);
         setPopEqualValue(e.target.value)
     }
 
@@ -151,6 +155,25 @@ const FirstFilter = () => {
     const compact = (e) => {
         e.preventDefault();
         setCompactValue(e.target.value);
+    }
+
+    const userClickedDistrict = (e) => {
+        e.preventDefault();
+
+        if (e.features[0].source !== 'composite') {
+            const dist_num = parseInt(e.features[0].source.split('_')[1]);
+
+            setPopUpCoords([...e.lngLat]);
+            setPopUpText(`District ${dist_num}`);
+            setSelectedDist(stateDistricts.features[dist_num - 1]);
+
+            // console.log(e.lngLat);
+            // console.log(stateCoords.features[dist_num - 1]);
+            // console.log(dist_num);
+        } else {
+            setSelectedDist(null);
+        }
+
     }
 
     let render = "";
@@ -187,6 +210,7 @@ const FirstFilter = () => {
             )
         })
     }
+    
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
@@ -258,10 +282,21 @@ const FirstFilter = () => {
                 height="100%"
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
+                onClick={userClickedDistrict}
             >
                 {render}
 
-                
+                {popUpCoords && selectedDist ? (
+                    <Popup
+                        latitude={popUpCoords[1]}
+                        longitude={popUpCoords[0]}
+                        onClose={() => { setSelectedDist(null) }}
+                    >
+                        <div class="px-2">
+                            <h5>{popUpText}</h5>
+                        </div>
+                    </Popup>
+                ) : ""}
                 {/* <Source
                     id="state"
                     type="geojson"
@@ -347,6 +382,7 @@ const FirstFilter = () => {
                     </div>
                 </div>
             ) : ""}
+            <p style={{ position: 'absolute', top: '95%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: '1' }}><strong><em>Figure shows the most recent district boundaries</em></strong></p>
 
         </div>
     )

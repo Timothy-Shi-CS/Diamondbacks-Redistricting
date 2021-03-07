@@ -16,6 +16,15 @@ const ObjFuncPage = () => {
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
 
+    const [popEqRangeVal, setPopEqRangeVal] = useState('67');
+    const [splitCountyRangeVal, setSplitCountyRangeVal] = useState('32');
+    const [devAvgDistRangeVal, setDevAvgDistRangeVal] = useState('79');
+    const [devAvgEnDistGeoRangeVal, setDevAvgEnDistGeoRangeVal] = useState('48');
+    const [devAvgEnDistPopRangeVal, setDevAvgEnDistPopRangeVal] = useState('21');
+    const [geoCompactRangeVal, setGeoCompactRangeVal] = useState('89');
+    const [graphCompactRangeVal, setGraphCompactRangeVal] = useState('3');
+    const [popFatRangeVal, setPopFatRangeVal] = useState('99');
+
     const [viewport, setViewport] = useState({
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
@@ -25,7 +34,7 @@ const ObjFuncPage = () => {
     });
 
     const backToFirstFilter = (e) => {
-        setStateDistricts(null);
+        //setStateDistricts(null);
         setPageName('first-filter')
     }
     const backToStateSelection = (e) => {
@@ -130,54 +139,145 @@ const ObjFuncPage = () => {
         })
     }
 
+    const popEqRange = (e) => {
+        e.preventDefault();
+        setPopEqRangeVal(e.target.value);
+    }
+
+    const splitCountyRange = (e) => {
+        e.preventDefault();
+        setSplitCountyRangeVal(e.target.value);
+    }
+
+    const devAvgDistRange = (e) => {
+        e.preventDefault();
+        setDevAvgDistRangeVal(e.target.value);
+    }
+
+    const devAvgEnDistGeoRange = (e) => {
+        e.preventDefault();
+        setDevAvgEnDistGeoRangeVal(e.target.value);
+    }
+
+    const devAvgEnDistPopRange = (e) => {
+        e.preventDefault();
+        setDevAvgEnDistPopRangeVal(e.target.value);
+    }
+
+    const geoCompactRange = (e) => {
+        e.preventDefault();
+        setGeoCompactRangeVal(e.target.value);
+    }
+
+    const graphCompactRange = (e) => {
+        e.preventDefault();
+        setGraphCompactRangeVal(e.target.value);
+    }
+
+    const popFatRange = (e) => {
+        e.preventDefault();
+        setPopFatRangeVal(e.target.value);
+    }
+
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-3" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                <div id="left-bar" className="col-3" style={{ backgroundColor: "#fff", zIndex: "3" }}>
                     <div className="d-flex flex-row justify-content-between">
                         <p class="h6 d-inline-block back-btn" onClick={backToFirstFilter}>Back</p>
                         <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
                     </div>
 
-                    <div align="center" style={{ paddingTop: "0.5rem" }}>
+                    <div align="center" style={{ paddingTop: "1rem" }}>
                         <p class="h3">Objective Function Weights</p>
-                        <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p>
+                        {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                         <hr></hr>
                     </div>
-                    <div className="d-flex flex-column justify-content-between py-4" style={{ height: "77%", width: "100%" }}>
+                    <div className="d-flex flex-column justify-content-between" style={{ height: "80%", width: "100%" }}>
                         <div>
-                            <p class="h5">Population equality:</p>
-                            <input type="range" class="form-range" id="pop_eq_range" />
+
+                            <p class="h4">General</p>
+                            <div class="px-3">
+                                <div >
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Population equality:</p>
+                                        <p class="h6 px-2 border border-primary">{popEqRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="pop_eq_range" onInput={popEqRange} value={popEqRangeVal} />
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Split counties:</p>
+                                        <p class="h6 px-2 border border-primary">{splitCountyRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="split_county_range" onInput={splitCountyRange} value={splitCountyRangeVal} />
+                                </div>
+                            </div>
+
                         </div>
+                        <hr></hr>
+
 
                         <div>
-                            <p class="h5">Split counties:</p>
-                            <input type="range" class="form-range" id="split_county_range" />
+
+                            <p class="h4">Deviation</p>
+                            <div class="px-3">
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Deviation from average districting:</p>
+                                        <p class="h6 px-2 border border-primary">{devAvgDistRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="dev_avg_dist_range" onInput={devAvgDistRange} value={devAvgDistRangeVal} />
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Deviation from enacted districting (geometric):</p>
+                                        <p class="h6 px-2 border border-primary">{devAvgEnDistGeoRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="dev_avg_en_dist_geo_range" onInput={devAvgEnDistGeoRange} value={devAvgEnDistGeoRangeVal} />
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Deviation from enacted districting (population):</p>
+                                        <p class="h6 px-2 border border-primary">{devAvgEnDistPopRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="dev_avg_en_dist_pop_range" onInput={devAvgEnDistPopRange} value={devAvgEnDistPopRangeVal} />
+                                </div>
+
+                            </div>
                         </div>
+                        <hr></hr>
 
                         <div>
-                            <p class="h6">Deviation from average districting:</p>
-                            <input type="range" class="form-range" id="dev_avg_dist_range" />
-                        </div>
+                            <p class="h4">Compactness</p>
+                            <div class="px-3">
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Geographic compactness:</p>
+                                        <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} />
+                                </div>
 
-                        <div>
-                            <p class="h6">Deviation from enacted districting:</p>
-                            <input type="range" class="form-range" id="dev_avg_en_dist_range" />
-                        </div>
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Graph compactness:</p>
+                                        <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} />
+                                </div>
 
-                        <div>
-                            <p class="h5">Geographic compactness:</p>
-                            <input type="range" class="form-range" id="geo_compact_range" />
-                        </div>
-
-                        <div>
-                            <p class="h5">Graph compactness:</p>
-                            <input type="range" class="form-range" id="graph_compact_range" />
-                        </div>
-
-                        <div>
-                            <p class="h5">Population fatness:</p>
-                            <input type="range" class="form-range" id="pop_fat_range" />
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Population fatness:</p>
+                                        <p class="h6 px-2 border border-primary">{popFatRangeVal}</p>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="100" step="1" id="pop_fat_range" onInput={popFatRange} value={popFatRangeVal} />
+                                </div>
+                            </div>
                         </div>
 
                         <div>
@@ -197,6 +297,7 @@ const ObjFuncPage = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={userClickedDistrict}
             >
+
                 {render}
 
                 {popUpCoords && selectedDist ? (
@@ -205,12 +306,14 @@ const ObjFuncPage = () => {
                         longitude={popUpCoords[0]}
                         onClose={() => { setSelectedDist(null) }}
                     >
-                        <div class="px-2">
+                        <div class="px-2" style={{ zIndex: '2' }}>
                             <h5>{popUpText}</h5>
                         </div>
                     </Popup>
                 ) : ""}
             </ReactMapGL>
+
+            <p style={{ position: 'absolute', top: '95%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: '1' }}><strong><em>Figure shows the most recent district boundaries</em></strong></p>
 
 
 

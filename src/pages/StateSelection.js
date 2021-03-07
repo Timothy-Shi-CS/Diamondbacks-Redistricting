@@ -96,14 +96,16 @@ const StateSelection = () => {
         //setShowModal(false);
         setStateFeature(resetFeature);
         //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
-        if (e.features[0].properties.name === undefined || e.features[0].properties.name === "Toronto") {
+        if (e.features[0].properties.name === 'Utah' || e.features[0].properties.name=== 'Virginia' || e.features[0].properties.name === 'Nevada') {
             //setShowPopup(false)
             //setFeature(null);
-
-            document.getElementById('state-selection').value = '';
-        } else {
-            //setShowPopup(true);
             getState(e.features[0].properties.name);
+            
+        } else {
+            
+            //setShowPopup(true);
+            console.log(e.features[0].properties)
+            document.getElementById('state-selection').value = '';
         }
 
 
@@ -306,7 +308,7 @@ const StateSelection = () => {
                             })}
 
                             <div>
-                                {stateFeature.job ? (
+                                {stateFeature.job!==null ? (
                                     <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything}>Proceed</button>
                                 ) : (
                                         <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything} disabled>Proceed</button>
