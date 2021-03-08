@@ -4,10 +4,11 @@ import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
 import { StateContext } from '../contexts/StateContext'
 
 const FinalFilters = () => {
-    const { state, page, districts } = useContext(StateContext);
+    const { state, page, districts, objective } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
+    const [objValueParams, setObjValueParams] = objective;
 
     const [showFilters, setShowFilters] = useState(false);
 
@@ -576,7 +577,7 @@ const FinalFilters = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                <div id="left-bar" className="col-2 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
                     <div className="d-flex flex-row justify-content-between">
                         <p class="h6 d-inline-block back-btn" onClick={backToObjFunc}>Back</p>
                         <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
@@ -642,15 +643,97 @@ const FinalFilters = () => {
 
                     </div>
                 </div>
-                <div id="right-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
-                    <div align="center" style={{ paddingTop: "5rem" }}>
-                        <p class="h4 d-inline-block" >Objective Value Details</p>
+                <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", height: "100%" }}>
+                        <div align="center" style={{ paddingTop: "5rem" }}>
+                            <p class="h4 d-inline-block" >Objective Value Details</p>
+                        </div>
+                        
                         <hr></hr>
+                        <div className="d-flex flex-column justify-content-between" style={{ height: "70%"}}>
+                            <div>
+
+                                <p class="h4">General</p>
+                                <div class="px-3">
+                                    <div >
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Population equality:</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.populationEquality}</p>
+                                            
+                                        </div>
+                                        
+                                    </div>
+
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Split counties:</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.splitCounties}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <hr></hr>
+
+
+                            <div>
+
+                                <p class="h4">Deviation</p>
+                                <div class="px-3">
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Deviation from average districting:</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.devAvgDist}</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Deviation from enacted districting (geometric):</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.devAvgEnDistGeo}</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Deviation from enacted districting (population):</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.devAvgEnDistPop}</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <hr></hr>
+
+                            <div>
+                                <p class="h4">Compactness</p>
+                                <div class="px-3">
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Geographic compactness:</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.geographicCompact}</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Graph compactness:</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.graphCompact}</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <p class="h6">Population fatness:</p>
+                                            <p class="h6 px-2 border border-primary">{objValueParams.populationFatness}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
-                    <div>
+                    {/* <div>
                         {curDistrictingNum === null ? '' : (`Districting ${curDistrictingNum}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis tortor libero, sit amet pellentesque est tincidunt sit amet. Suspendisse vel laoreet diam. Fusce id fermentum arcu. Praesent semper sem neque, ac interdum purus venenatis ac. Fusce nec dolor sed risus tristique condimentum eget sit amet risus. Morbi eget sapien et mi pharetra venenatis eget quis est. Morbi egestas dolor arcu, convallis maximus felis placerat vitae. Donec ac placerat purus. Nulla porttitor eros ut est hendrerit, ac commodo eros rutrum. Sed eget ante vel tellus ultrices ornare. Etiam vulputate accumsan tortor vel dictum. Maecenas et porttitor ligula.
                         `)}
-                    </div>
+                    </div> */}
 
                 </div>
 

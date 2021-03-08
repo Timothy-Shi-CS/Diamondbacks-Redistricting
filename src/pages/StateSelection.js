@@ -96,13 +96,13 @@ const StateSelection = () => {
         //setShowModal(false);
         setStateFeature(resetFeature);
         //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
-        if (e.features[0].properties.name === 'Utah' || e.features[0].properties.name=== 'Virginia' || e.features[0].properties.name === 'Nevada') {
+        if (e.features[0].properties.name === 'Utah' || e.features[0].properties.name === 'Virginia' || e.features[0].properties.name === 'Nevada') {
             //setShowPopup(false)
             //setFeature(null);
             getState(e.features[0].properties.name);
-            
+
         } else {
-            
+
             //setShowPopup(true);
             console.log(e.features[0].properties)
             document.getElementById('state-selection').value = '';
@@ -287,7 +287,7 @@ const StateSelection = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem" }}>
+                <div id="left-bar" className="col-2 shadow-lg" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height:'100%' }}>
                     <h3>Select a state:</h3>
                     <select id="state-selection" class="form-select" onChange={stateSelection}>
                         <option value="" defaultValue hidden>Select a state</option>
@@ -296,19 +296,30 @@ const StateSelection = () => {
                         <option value="VA">Virginia</option>
                     </select>
                     {stateFeature.jobs !== null ? (
-                        <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%", width: "100%" }}>
+                        <div className="d-flex flex-column justify-content-between py-4" style={{ height: "90%", width: "100%" }}>
                             <hr></hr>
                             <h5>Choose a job:</h5>
+                            <div style={{overflow:'auto', height:'80%'}}>
                             {stateFeature.jobs.map((job, index) => {
                                 return (
-                                    <div key={index + 1}>
-                                        <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}: {stateFeature.jobs[index]} redistrictings</button>
+                                    // <div key={index + 1}>
+                                    //     <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}: {stateFeature.jobs[index]} redistrictings</button>
+                                    // </div>
+
+                                    <div class="card" key={index + 1}>
+                                        <h5 class="card-header">Job {index + 1}</h5>
+                                        <div class="card-body">
+                                            <h5 class="card-title">{stateFeature.jobs[index]} redistrictings</h5>
+                                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                                            <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Pick job {index + 1}</button>
+                                        </div>
                                     </div>
                                 )
                             })}
+                            </div>
 
                             <div>
-                                {stateFeature.job!==null ? (
+                                {stateFeature.job !== null ? (
                                     <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything}>Proceed</button>
                                 ) : (
                                         <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything} disabled>Proceed</button>

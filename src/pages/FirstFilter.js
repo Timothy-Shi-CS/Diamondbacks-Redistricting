@@ -215,7 +215,7 @@ const FirstFilter = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                <div id="left-bar" className="col-2 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
                     <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Back</p>
                     <div align="center" style={{ paddingTop: "3rem" }}>
                         <p class="h2">Filter job</p>

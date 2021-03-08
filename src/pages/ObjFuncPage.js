@@ -4,10 +4,11 @@ import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
 import { StateContext } from '../contexts/StateContext'
 
 const ObjFuncPage = () => {
-    const { state, page, districts } = useContext(StateContext);
+    const { state, page, districts, objective } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
+    const [objValueParams, setObjValueParams] = objective;
     const [distColors, setDistColors] = useState(null);
 
     const [selectedDist, setSelectedDist] = useState(null);
@@ -16,14 +17,14 @@ const ObjFuncPage = () => {
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
 
-    const [popEqRangeVal, setPopEqRangeVal] = useState('67');
-    const [splitCountyRangeVal, setSplitCountyRangeVal] = useState('32');
-    const [devAvgDistRangeVal, setDevAvgDistRangeVal] = useState('79');
-    const [devAvgEnDistGeoRangeVal, setDevAvgEnDistGeoRangeVal] = useState('48');
-    const [devAvgEnDistPopRangeVal, setDevAvgEnDistPopRangeVal] = useState('21');
-    const [geoCompactRangeVal, setGeoCompactRangeVal] = useState('89');
-    const [graphCompactRangeVal, setGraphCompactRangeVal] = useState('3');
-    const [popFatRangeVal, setPopFatRangeVal] = useState('99');
+    const [popEqRangeVal, setPopEqRangeVal] = useState(objValueParams.populationEquality);
+    const [splitCountyRangeVal, setSplitCountyRangeVal] = useState(objValueParams.splitCounties);
+    const [devAvgDistRangeVal, setDevAvgDistRangeVal] = useState(objValueParams.devAvgDist);
+    const [devAvgEnDistGeoRangeVal, setDevAvgEnDistGeoRangeVal] = useState(objValueParams.devAvgEnDistGeo);
+    const [devAvgEnDistPopRangeVal, setDevAvgEnDistPopRangeVal] = useState(objValueParams.devAvgEnDistPop);
+    const [geoCompactRangeVal, setGeoCompactRangeVal] = useState(objValueParams.geographicCompact);
+    const [graphCompactRangeVal, setGraphCompactRangeVal] = useState(objValueParams.graphCompact);
+    const [popFatRangeVal, setPopFatRangeVal] = useState(objValueParams.populationFatness);
 
     const [viewport, setViewport] = useState({
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -101,7 +102,18 @@ const ObjFuncPage = () => {
 
     const saveEverything = (e) => {
         e.preventDefault();
-        setPageName('final-filters')
+        let paramValues = {
+            populationEquality: popEqRangeVal,
+            splitCounties: splitCountyRangeVal,
+            devAvgDist: devAvgDistRangeVal,
+            devAvgEnDistGeo: devAvgEnDistGeoRangeVal,
+            devAvgEnDistPop: devAvgEnDistPopRangeVal,
+            geographicCompact: geoCompactRangeVal,
+            graphCompact: graphCompactRangeVal,
+            populationFatness: popFatRangeVal
+        }
+        setObjValueParams(paramValues);
+        setPageName('final-filters');
     }
 
     let render = "";
@@ -182,7 +194,7 @@ const ObjFuncPage = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-3" style={{ backgroundColor: "#fff", zIndex: "3" }}>
+                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "3" }}>
                     <div className="d-flex flex-row justify-content-between">
                         <p class="h6 d-inline-block back-btn" onClick={backToFirstFilter}>Back</p>
                         <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
@@ -285,6 +297,9 @@ const ObjFuncPage = () => {
                         </div>
                     </div>
 
+                </div>
+                <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                    bar 2
                 </div>
             </div>
 
