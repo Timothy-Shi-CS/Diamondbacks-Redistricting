@@ -235,10 +235,10 @@ const FirstFilter = () => {
                             <div class="d-flex flex-row justify-content-between">
                                 <p class="h4">Population Equality:</p>
                                 {/* <p class="h4 px-2 border border-primary">{popEqualValue}</p> */}
-                                <input type="number" value={popEqualValue} disabled="disabled" style={{width:'60px'}}/>
+                                <input type="number" value={popEqualValue} disabled="disabled" style={{ width: '60px' }} />
                             </div>
 
-                            
+
                             <input type="range" class="form-range" min="0" max="100" step="1" id="pop_eq_range" onInput={popEqual} value={popEqualValue} />
                             <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
@@ -254,7 +254,7 @@ const FirstFilter = () => {
                         <div>
                             <div class="d-flex flex-row justify-content-between">
                                 <p class="h4">Majority-Minority Districts:</p>
-                                <input type="number" value={majMinValue} disabled="disabled" style={{width:'60px'}}/>
+                                <input type="number" value={majMinValue} disabled="disabled" style={{ width: '60px' }} />
                             </div>
                             <input type="range" class="form-range" min="0" max="4" step="1" id="maj_min_range" onInput={majMin} value={majMinValue} />
                             <div class="d-flex flex-row justify-content-between">
@@ -266,7 +266,7 @@ const FirstFilter = () => {
                         <div>
                             <div class="d-flex flex-row justify-content-between">
                                 <p class="h4">Compactness:</p>
-                                <input type="number" value={compactValue} disabled="disabled" style={{width:'60px'}}/>
+                                <input type="number" value={compactValue} disabled="disabled" style={{ width: '60px' }} />
                             </div>
                             <input type="range" class="form-range" min="0" max="1" step="0.01" id="compact_range" onInput={compact} value={compactValue} />
                             <div class="d-flex flex-row justify-content-between">
@@ -323,61 +323,89 @@ const FirstFilter = () => {
                         <div class="card-body">
                             <h5 class="card-title">Choose your incumbents</h5>
                             <h6 class="card-subtitle mb-2 text-muted">Edits are automatically saved</h6>
+                            <h5>District 1</h5>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent1">
-                                    Jimmy Lin (R)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Jimmy Lin
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent2" checked={checks[1]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent2">
-                                    Timothy Shi (D)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Timothy Shi
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
+                                    </div>
+                                </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 2</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent3" checked={checks[2]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent3">
-                                    Gary Jiang (R)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Gary Jiang
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent4" checked={checks[3]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent4">
-                                    Jason Chen (D)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Jason Chen
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
+                                    </div>
+                                </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 3</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent5" checked={checks[4]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent5">
-                                    Limmy Jin (R)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Limmy Jin
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent6" checked={checks[5]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent6">
-                                    Simothy Thi (D)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Simothy Thi
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
+                                    </div>
+                                </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 4</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent7" checked={checks[6]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent7">
-                                    Jary Giang (R)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Jary Giang
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent8" checked={checks[7]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent8">
-                                    Cason Jhen (D)
-                                    </label>
+                                    <div class='d-flex flex-row justify-content-between'>
+                                        Cason Jhen
+                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div className="d-flex flex-row justify-content-around">

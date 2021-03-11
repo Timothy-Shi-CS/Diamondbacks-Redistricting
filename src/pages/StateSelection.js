@@ -25,13 +25,13 @@ const StateSelection = () => {
             geojson = data;
         });
 
-    let stateCapitals;
-    fetch('https://gist.githubusercontent.com/jpriebe/d62a45e29f24e843c974/raw/b1d3066d245e742018bce56e41788ac7afa60e29/us_state_capitals.json')
+    let stateCenters;
+    fetch('https://gist.githubusercontent.com/meiqimichelle/7727723/raw/0109432d22f28fd1a669a3fd113e41c4193dbb5d/USstates_avg_latLong')
         .then(resp => {
             return resp.json();
         })
         .then(data => {
-            stateCapitals = data;
+            stateCenters = data;
         });
 
     const [curJob, setCurJob] = useState(null);
@@ -279,19 +279,27 @@ const StateSelection = () => {
         e.preventDefault();
         // const centerOfPoly=centerOfMass.default(stateFeature.feature)
         // console.log(centerOfMass.default(stateFeature.feature));
-        console.log([stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long])
+        //console.log([stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long])
+        console.log(stateFeature.feature)
+        let center;
+        for (let i = 0; i < stateCenters.length; i++) {
+            if (stateCenters[i].state === stateFeature.feature.properties.name) {
+                center = stateCenters[i];
+                break;
+            }
+        }
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
             job: curJob,
-            stateCenter: [stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long],
+            stateCenter: [center.latitude, center.longitude],
             incumbents: []
         });
         setPageName('first-filter')
 
     }
 
-    const numberWithCommas=(x)=>{
+    const numberWithCommas = (x) => {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 

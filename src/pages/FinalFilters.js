@@ -669,7 +669,7 @@ const FinalFilters = () => {
                     <div className="d-flex flex-column justify-content-between" style={{ height: "38%" }}>
                         <div>
 
-                            <p class="h4">General:</p>
+                            <p class="h5">General:</p>
                             <div class="px-3">
                                 <div >
                                     <div class="d-flex flex-row justify-content-between">
@@ -694,7 +694,7 @@ const FinalFilters = () => {
 
                         <div>
 
-                            <p class="h4">Deviation from:</p>
+                            <p class="h5">Deviation from:</p>
                             <div class="px-3">
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
@@ -722,7 +722,7 @@ const FinalFilters = () => {
                         <hr></hr>
 
                         <div>
-                            <p class="h4">Compactness:</p>
+                            <p class="h5">Compactness:</p>
                             <div class="px-3">
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
