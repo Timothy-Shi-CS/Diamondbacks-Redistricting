@@ -3,11 +3,15 @@ import ReactMapGL, { Source, Layer } from "react-map-gl"
 
 import { StateContext } from '../contexts/StateContext'
 
+
+
 const StateSelection = () => {
     const { state, page, polygon } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page
     const [pd, setPd] = polygon
+
+    const centerOfMass = require('@turf/center-of-mass');
 
     const allStates = require('../data/allState.json');
     const [filteredStates, setFilteredStates] = useState(null);
@@ -83,6 +87,7 @@ const StateSelection = () => {
 
             //set value of dropdown
             document.getElementById('state-selection').value = stateFeature.feature.properties.postal;
+            setCurJob(stateFeature.job)
         }
     }, [])
 
@@ -272,7 +277,9 @@ const StateSelection = () => {
 
     const applyEverything = (e) => {
         e.preventDefault();
-
+        // const centerOfPoly=centerOfMass.default(stateFeature.feature)
+        // console.log(centerOfMass.default(stateFeature.feature));
+        console.log([stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long])
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
@@ -284,10 +291,14 @@ const StateSelection = () => {
 
     }
 
+    const numberWithCommas=(x)=>{
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2 shadow-lg" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height:'100%' }}>
+                <div id="left-bar" className="col-3 shadow-lg" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height: '100%' }}>
                     <h3>Select a state:</h3>
                     <select id="state-selection" class="form-select" onChange={stateSelection}>
                         <option value="" defaultValue hidden>Select a state</option>
@@ -299,23 +310,25 @@ const StateSelection = () => {
                         <div className="d-flex flex-column justify-content-between py-4" style={{ height: "90%", width: "100%" }}>
                             <hr></hr>
                             <h5>Choose a job:</h5>
-                            <div style={{overflow:'auto', height:'80%'}}>
-                            {stateFeature.jobs.map((job, index) => {
-                                return (
-                                    // <div key={index + 1}>
-                                    //     <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}: {stateFeature.jobs[index]} redistrictings</button>
-                                    // </div>
+                            <div style={{ overflow: 'auto', height: '80%' }}>
+                                {stateFeature.jobs.map((job, index) => {
+                                    return (
+                                        // <div key={index + 1}>
+                                        //     <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}: {stateFeature.jobs[index]} redistrictings</button>
+                                        // </div>
 
-                                    <div class="card" key={index + 1}>
-                                        <h5 class="card-header">Job {index + 1}</h5>
-                                        <div class="card-body">
-                                            <h5 class="card-title">{stateFeature.jobs[index]} redistrictings</h5>
-                                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                                            <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Pick job {index + 1}</button>
+                                        <div class="card" key={index + 1}>
+                                            <h5 class="card-header">Job {index + 1}</h5>
+                                            <div class="card-body">
+                                                <h5 class="card-title">{numberWithCommas(stateFeature.jobs[index])} redistrictings</h5>
+                                                <p class="card-text">MGGG Attribute 1</p>
+                                                <p class="card-text">MGGG Attribute 2</p>
+                                                <p class="card-text">MGGG Attribute 3</p>
+                                                <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Pick job {index + 1}</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                            })}
+                                    )
+                                })}
                             </div>
 
                             <div>

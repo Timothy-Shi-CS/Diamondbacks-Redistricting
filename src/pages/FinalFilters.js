@@ -574,6 +574,16 @@ const FinalFilters = () => {
         })
     }
 
+    let compactness;
+    if (objValueParams.chosenCompactness === 'graph-compact') {
+        compactness = 'Graph Compactness'
+    }
+    else if (objValueParams.chosenCompactness === 'geo-compact') {
+        compactness = 'Geometric Compactness'
+    } else {
+        compactness = 'Population Fatness'
+    }
+
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
@@ -592,6 +602,13 @@ const FinalFilters = () => {
                             <option value="1">Districting 1</option>
                             <option value="2">Districting 2</option>
                             <option value="3">Districting 3</option>
+                            <option>Districting 4</option>
+                            <option>Districting 5</option>
+                            <option>Districting 6</option>
+                            <option>Districting 7</option>
+                            <option>Districting 8</option>
+                            <option>Districting 9</option>
+                            <option>Districting 10</option>
                         </select>
 
                         {showFilters ? (
@@ -644,91 +661,92 @@ const FinalFilters = () => {
                     </div>
                 </div>
                 <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", height: "100%" }}>
-                        <div align="center" style={{ paddingTop: "5rem" }}>
-                            <p class="h4 d-inline-block" >Objective Value Details</p>
+                    <div align="center" style={{ paddingTop: "5rem" }}>
+                        <p class="h4 d-inline-block" >Objective Value Details</p>
+                    </div>
+
+                    <hr></hr>
+                    <div className="d-flex flex-column justify-content-between" style={{ height: "38%" }}>
+                        <div>
+
+                            <p class="h4">General:</p>
+                            <div class="px-3">
+                                <div >
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Population equality:</p>
+                                        <p class="h6 px-2">{objValueParams.populationEquality}</p>
+
+                                    </div>
+
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Split counties:</p>
+                                        <p class="h6 px-2">{objValueParams.splitCounties}</p>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                        
                         <hr></hr>
-                        <div className="d-flex flex-column justify-content-between" style={{ height: "70%"}}>
-                            <div>
 
-                                <p class="h4">General</p>
-                                <div class="px-3">
-                                    <div >
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Population equality:</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.populationEquality}</p>
-                                            
-                                        </div>
-                                        
+
+                        <div>
+
+                            <p class="h4">Deviation from:</p>
+                            <div class="px-3">
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Average districting:</p>
+                                        <p class="h6 px-2">{objValueParams.devAvgDist}</p>
                                     </div>
+                                </div>
 
-                                    <div>
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Split counties:</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.splitCounties}</p>
-                                        </div>
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Enacted districting (geometric):</p>
+                                        <p class="h6 px-2">{objValueParams.devAvgEnDistGeo}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Enacted districting (population):</p>
+                                        <p class="h6 px-2">{objValueParams.devAvgEnDistPop}</p>
                                     </div>
                                 </div>
 
                             </div>
-                            <hr></hr>
+                        </div>
+                        <hr></hr>
 
-
-                            <div>
-
-                                <p class="h4">Deviation</p>
-                                <div class="px-3">
-                                    <div>
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Deviation from average districting:</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.devAvgDist}</p>
-                                        </div>
+                        <div>
+                            <p class="h4">Compactness:</p>
+                            <div class="px-3">
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">{compactness}: </p>
+                                        <p class="h6">{objValueParams.compactnessVal}</p>
                                     </div>
-
-                                    <div>
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Deviation from enacted districting (geometric):</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.devAvgEnDistGeo}</p>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Deviation from enacted districting (population):</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.devAvgEnDistPop}</p>
-                                        </div>
-                                    </div>
-
                                 </div>
-                            </div>
-                            <hr></hr>
 
-                            <div>
-                                <p class="h4">Compactness</p>
-                                <div class="px-3">
-                                    <div>
+                                {/* <div>
                                         <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Geographic compactness:</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.geographicCompact}</p>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="d-flex flex-row justify-content-between">
-                                            <p class="h6">Graph compactness:</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.graphCompact}</p>
+                                            <p class="h6">Graph:</p>
+                                            <p class="h6">{objValueParams.graphCompact}</p>
                                         </div>
                                     </div>
 
                                     <div>
                                         <div class="d-flex flex-row justify-content-between">
                                             <p class="h6">Population fatness:</p>
-                                            <p class="h6 px-2 border border-primary">{objValueParams.populationFatness}</p>
+                                            <p class="h6">{objValueParams.populationFatness}</p>
                                         </div>
-                                    </div>
-                                </div>
+                                    </div> */}
                             </div>
+                        </div>
+                        <hr></hr>
                     </div>
                     {/* <div>
                         {curDistrictingNum === null ? '' : (`Districting ${curDistrictingNum}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis tortor libero, sit amet pellentesque est tincidunt sit amet. Suspendisse vel laoreet diam. Fusce id fermentum arcu. Praesent semper sem neque, ac interdum purus venenatis ac. Fusce nec dolor sed risus tristique condimentum eget sit amet risus. Morbi eget sapien et mi pharetra venenatis eget quis est. Morbi egestas dolor arcu, convallis maximus felis placerat vitae. Donec ac placerat purus. Nulla porttitor eros ut est hendrerit, ac commodo eros rutrum. Sed eget ante vel tellus ultrices ornare. Etiam vulputate accumsan tortor vel dictum. Maecenas et porttitor ligula.

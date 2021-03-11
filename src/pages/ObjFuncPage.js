@@ -25,6 +25,9 @@ const ObjFuncPage = () => {
     const [geoCompactRangeVal, setGeoCompactRangeVal] = useState(objValueParams.geographicCompact);
     const [graphCompactRangeVal, setGraphCompactRangeVal] = useState(objValueParams.graphCompact);
     const [popFatRangeVal, setPopFatRangeVal] = useState(objValueParams.populationFatness);
+    const [checks, setChecks] = useState([false, false, false]);
+    const [sliderVal, setSliderVal] = useState('0.5')
+    const [chosenCompact, setChosenCompact] = useState('');
 
     const [viewport, setViewport] = useState({
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -36,9 +39,35 @@ const ObjFuncPage = () => {
 
     const backToFirstFilter = (e) => {
         //setStateDistricts(null);
+        let paramValues = {
+            populationEquality: '0.62',
+            splitCounties: '0.21',
+            devAvgDist: '0.79',
+            devAvgEnDistGeo: '0.44',
+            devAvgEnDistPop: '0.97',
+            geographicCompact: '0.10',
+            graphCompact: '0.50',
+            populationFatness: '0.83',
+            chosenCompactness: '',
+            compactnessVal: '0.5'
+        }
+        setObjValueParams(paramValues);
         setPageName('first-filter')
     }
     const backToStateSelection = (e) => {
+        let paramValues = {
+            populationEquality: '0.62',
+            splitCounties: '0.21',
+            devAvgDist: '0.79',
+            devAvgEnDistGeo: '0.44',
+            devAvgEnDistPop: '0.97',
+            geographicCompact: '0.10',
+            graphCompact: '0.50',
+            populationFatness: '0.83',
+            chosenCompactness: '',
+            compactnessVal: '0.5'
+        }
+        setObjValueParams(paramValues);
         setStateDistricts(null);
         setPageName('state-selection')
     }
@@ -79,6 +108,34 @@ const ObjFuncPage = () => {
             coordHolder.distColors = [...colors];
             setStateDistricts(coordHolder);
         }
+
+        if (objValueParams.chosenCompactness === '') {
+            document.getElementById('slider_range').disabled = true
+        } else {
+            let index;
+            if (objValueParams.chosenCompactness === 'geo-compact') {
+                index = 0;
+            }
+            else if (objValueParams.chosenCompactness === 'graph-compact') {
+                index = 1;
+            } else {
+                index = 2;
+            }
+
+            let tempChecks = [false, false, false]
+            for (let i = 0; i < checks.length; i++) {
+                if (i === index) {
+                    tempChecks[i] = true;
+                }
+                else {
+                    tempChecks[i] = false;
+                }
+            }
+            setChecks([...tempChecks])
+            document.getElementById('slider_range').disabled = false
+        }
+        setChosenCompact(objValueParams.chosenCompactness)
+        setSliderVal(objValueParams.compactnessVal);
     }, []);
 
     const userClickedDistrict = (e) => {
@@ -110,7 +167,9 @@ const ObjFuncPage = () => {
             devAvgEnDistPop: devAvgEnDistPopRangeVal,
             geographicCompact: geoCompactRangeVal,
             graphCompact: graphCompactRangeVal,
-            populationFatness: popFatRangeVal
+            populationFatness: popFatRangeVal,
+            chosenCompactness: chosenCompact,
+            compactnessVal: sliderVal
         }
         setObjValueParams(paramValues);
         setPageName('final-filters');
@@ -191,6 +250,63 @@ const ObjFuncPage = () => {
         setPopFatRangeVal(e.target.value);
     }
 
+    const numberWithCommas = (x) => {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    const userChecked = (e) => {
+
+        let index;
+        if (e.target.id === 'geo-compact') {
+            index = 0;
+        }
+        else if (e.target.id === 'graph-compact') {
+            index = 1;
+        } else {
+            index = 2;
+        }
+
+        let tempChecks = [false, false, false]
+        for (let i = 0; i < checks.length; i++) {
+            if (i === index) {
+                if (checks[i] === false) {
+                    tempChecks[i] = true;
+                } else {
+                    tempChecks[i] = true;
+                }
+            }
+            else {
+                tempChecks[i] = false;
+            }
+        }
+
+        let allFalse = true
+        for (let i = 0; i < tempChecks.length; i++) {
+            if (tempChecks[i] === true) {
+                allFalse = false;
+            }
+        }
+        if (allFalse) {
+            document.getElementById('slider_range').disabled = true
+            setChosenCompact('')
+        } else {
+            document.getElementById('slider_range').disabled = false
+            setChosenCompact(e.target.id)
+        }
+
+        // document.getElementById("geo_compact_range").disabled = !tempChecks[0];
+        // document.getElementById("graph_compact_range").disabled = !tempChecks[1];
+        // document.getElementById("pop_fat_range").disabled = !tempChecks[2];
+
+
+        setChecks([...tempChecks])
+    }
+
+    const setSlider = (e) => {
+        e.preventDefault();
+        setSliderVal(e.target.value);
+    }
+
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
@@ -202,28 +318,31 @@ const ObjFuncPage = () => {
 
                     <div align="center" style={{ paddingTop: "1rem" }}>
                         <p class="h3">Objective Function Weights</p>
+                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(Math.floor(Math.sqrt(stateFeature.jobs[stateFeature.job])))} redistrictings</em></p>
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                         <hr></hr>
                     </div>
                     <div className="d-flex flex-column justify-content-between" style={{ height: "80%", width: "100%" }}>
                         <div>
 
-                            <p class="h4">General</p>
+                            <p class="h4">General:</p>
                             <div class="px-3">
                                 <div >
                                     <div class="d-flex flex-row justify-content-between">
                                         <p class="h6">Population equality:</p>
-                                        <p class="h6 px-2 border border-primary">{popEqRangeVal}</p>
+                                        <input type="number" value={popEqRangeVal} disabled="disabled" style={{ width: '60px' }} />
+                                        {/* <p class="h6 px-2 border border-primary">{popEqRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="pop_eq_range" onInput={popEqRange} value={popEqRangeVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="pop_eq_range" onInput={popEqRange} value={popEqRangeVal} />
                                 </div>
 
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
                                         <p class="h6">Split counties:</p>
-                                        <p class="h6 px-2 border border-primary">{splitCountyRangeVal}</p>
+                                        <input type="number" value={splitCountyRangeVal} disabled="disabled" style={{ width: '60px' }} />
+                                        {/* <p class="h6 px-2 border border-primary">{splitCountyRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="split_county_range" onInput={splitCountyRange} value={splitCountyRangeVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="split_county_range" onInput={splitCountyRange} value={splitCountyRangeVal} />
                                 </div>
                             </div>
 
@@ -233,30 +352,33 @@ const ObjFuncPage = () => {
 
                         <div>
 
-                            <p class="h4">Deviation</p>
+                            <p class="h4">Deviation From:</p>
                             <div class="px-3">
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Deviation from average districting:</p>
-                                        <p class="h6 px-2 border border-primary">{devAvgDistRangeVal}</p>
+                                        <p class="h6">Average districting:</p>
+                                        <input type="number" value={devAvgDistRangeVal} disabled="disabled" style={{ width: '60px' }} />
+                                        {/* <p class="h6 px-2 border border-primary">{devAvgDistRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="dev_avg_dist_range" onInput={devAvgDistRange} value={devAvgDistRangeVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="dev_avg_dist_range" onInput={devAvgDistRange} value={devAvgDistRangeVal} />
                                 </div>
 
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Deviation from enacted districting (geometric):</p>
-                                        <p class="h6 px-2 border border-primary">{devAvgEnDistGeoRangeVal}</p>
+                                        <p class="h6">Enacted districting (geometric):</p>
+                                        <input type="number" value={devAvgEnDistGeoRangeVal} disabled="disabled" style={{ width: '60px' }} />
+                                        {/* <p class="h6 px-2 border border-primary">{devAvgEnDistGeoRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="dev_avg_en_dist_geo_range" onInput={devAvgEnDistGeoRange} value={devAvgEnDistGeoRangeVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="dev_avg_en_dist_geo_range" onInput={devAvgEnDistGeoRange} value={devAvgEnDistGeoRangeVal} />
                                 </div>
 
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Deviation from enacted districting (population):</p>
-                                        <p class="h6 px-2 border border-primary">{devAvgEnDistPopRangeVal}</p>
+                                        <p class="h6">Enacted districting (population):</p>
+                                        <input type="number" value={devAvgEnDistPopRangeVal} disabled="disabled" style={{ width: '60px' }} />
+                                        {/* <p class="h6 px-2 border border-primary">{devAvgEnDistPopRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="dev_avg_en_dist_pop_range" onInput={devAvgEnDistPopRange} value={devAvgEnDistPopRangeVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="dev_avg_en_dist_pop_range" onInput={devAvgEnDistPopRange} value={devAvgEnDistPopRangeVal} />
                                 </div>
 
                             </div>
@@ -264,43 +386,64 @@ const ObjFuncPage = () => {
                         <hr></hr>
 
                         <div>
-                            <p class="h4">Compactness</p>
+                            <p class="h4">Compactness:</p>
                             <div class="px-3">
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Geographic compactness:</p>
-                                        <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p>
+                                        <div class="form-check">
+                                            <label class="form-check-label h6" htmlFor="geo-compact">
+                                                {/* <p class="h6">Geographic compactness:</p> */}
+                                                Geographic compactness
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" id="geo-compact" checked={checks[0]} onClick={userChecked} />
+                                        </div>
+                                        {/* <p class="h6">Geographic compactness:</p> */}
+                                        {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
+                                        {/* <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} />
+                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} /> */}
                                 </div>
 
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Graph compactness:</p>
-                                        <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p>
+                                        <div class="form-check">
+                                            <label class="form-check-label" htmlFor="graph-compact">
+                                                <p class="h6">Graph compactness</p>
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" id="graph-compact" checked={checks[1]} onChange={userChecked} />
+                                        </div>
+                                        {/* <p class="h6">Graph compactness:</p> */}
+                                        {/* <input type="number" value={graphCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
+                                        {/* <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} />
+                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} /> */}
                                 </div>
 
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Population fatness:</p>
-                                        <p class="h6 px-2 border border-primary">{popFatRangeVal}</p>
+                                        <div class="form-check">
+                                            <label class="form-check-label" htmlFor="pop-fat">
+                                                <p class="h6">Population fatness</p>
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" id="pop-fat" checked={checks[2]} onChange={userChecked} />
+                                        </div>
+                                        {/* <p class="h6">Population fatness:</p> */}
+                                        <input type="number" value={sliderVal} disabled="disabled" style={{ width: '60px' }} />
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="100" step="1" id="pop_fat_range" onInput={popFatRange} value={popFatRangeVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setSlider} value={sliderVal} />
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Apply</button>
+                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Proceed</button>
                         </div>
                     </div>
 
                 </div>
-                <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                {/* <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
                     bar 2
-                </div>
+                </div> */}
             </div>
 
 

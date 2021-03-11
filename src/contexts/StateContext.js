@@ -20,14 +20,16 @@ export const StateProvider = (props) => {
 
     const [districts,setDistrics]=useState(null);
     const [objValueParams, setObjValueParams]=useState({
-        populationEquality:'62',
-        splitCounties:'21',
-        devAvgDist:'79',
-        devAvgEnDistGeo:'44',
-        devAvgEnDistPop:'97',
-        geographicCompact:'10',
-        graphCompact:'50',
-        populationFatness:'83'
+        populationEquality:'0.62',
+        splitCounties:'0.21',
+        devAvgDist:'0.79',
+        devAvgEnDistGeo:'0.44',
+        devAvgEnDistPop:'0.97',
+        geographicCompact:'0.10',
+        graphCompact:'0.50',
+        populationFatness:'0.83',
+        chosenCompactness:'',
+        compactnessVal:'0.5'
     })
 
     return (

@@ -13,8 +13,8 @@ const FirstFilter = () => {
     const [popUpCoords, setPopUpCoords] = useState(null);
     const [selectedDist, setSelectedDist] = useState(null);
     const [popEqualValue, setPopEqualValue] = useState('75')
-    const [majMinValue, setMajMinValue] = useState('25');
-    const [compactValue, setCompactValue] = useState('50');
+    const [majMinValue, setMajMinValue] = useState('2');
+    const [compactValue, setCompactValue] = useState('0.51');
     let [checks, setChecks] = useState([false, false, false, false, false, false, false, false]);
     const [showPopup, setShowPopup] = useState(false);
     const [viewport, setViewport] = useState({
@@ -176,6 +176,9 @@ const FirstFilter = () => {
 
     }
 
+    const numberWithCommas = (x) => {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
     let render = "";
 
     if (stateDistricts) {
@@ -210,15 +213,16 @@ const FirstFilter = () => {
             )
         })
     }
-    
+
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
+                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
                     <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Back</p>
-                    <div align="center" style={{ paddingTop: "3rem" }}>
-                        <p class="h2">Filter job</p>
+                    <div align="center" style={{ paddingTop: "1.5rem" }}>
+                        <p class="h2">Constraints</p>
+                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.jobs[stateFeature.job])} redistrictings</em></p>
                         <hr></hr>
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%", width: "100%" }}>
@@ -229,10 +233,12 @@ const FirstFilter = () => {
 
                         <div>
                             <div class="d-flex flex-row justify-content-between">
-                                <p class="h4">Population equality:</p>
-                                <p class="h4 px-2 border border-primary">{popEqualValue}</p>
+                                <p class="h4">Population Equality:</p>
+                                {/* <p class="h4 px-2 border border-primary">{popEqualValue}</p> */}
+                                <input type="number" value={popEqualValue} disabled="disabled" style={{width:'60px'}}/>
                             </div>
 
+                            
                             <input type="range" class="form-range" min="0" max="100" step="1" id="pop_eq_range" onInput={popEqual} value={popEqualValue} />
                             <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
@@ -247,30 +253,30 @@ const FirstFilter = () => {
 
                         <div>
                             <div class="d-flex flex-row justify-content-between">
-                                <p class="h4">Majority-Minority:</p>
-                                <p class="h4 px-2 border border-primary">{majMinValue}</p>
+                                <p class="h4">Majority-Minority Districts:</p>
+                                <input type="number" value={majMinValue} disabled="disabled" style={{width:'60px'}}/>
                             </div>
-                            <input type="range" class="form-range" min="0" max="100" step="1" id="maj_min_range" onInput={majMin} value={majMinValue} />
+                            <input type="range" class="form-range" min="0" max="4" step="1" id="maj_min_range" onInput={majMin} value={majMinValue} />
                             <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
-                                <p>100</p>
+                                <p>4</p>
                             </div>
                         </div>
 
                         <div>
                             <div class="d-flex flex-row justify-content-between">
                                 <p class="h4">Compactness:</p>
-                                <p class="h4 px-2 border border-primary">{compactValue}</p>
+                                <input type="number" value={compactValue} disabled="disabled" style={{width:'60px'}}/>
                             </div>
-                            <input type="range" class="form-range" min="0" max="100" step="1" id="compact_range" onInput={compact} value={compactValue} />
+                            <input type="range" class="form-range" min="0" max="1" step="0.01" id="compact_range" onInput={compact} value={compactValue} />
                             <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
-                                <p>100</p>
+                                <p>1</p>
                             </div>
                         </div>
 
                         <div>
-                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Apply</button>
+                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Proceed</button>
                         </div>
                     </div>
                 </div>
@@ -321,56 +327,56 @@ const FirstFilter = () => {
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent1">
-                                    Jimmy Lin(R)
+                                    Jimmy Lin (R)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent2" checked={checks[1]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent2">
-                                    Timothy Shi(D)
+                                    Timothy Shi (D)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent3" checked={checks[2]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent3">
-                                    Gary Jiang(R)
+                                    Gary Jiang (R)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent4" checked={checks[3]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent4">
-                                    Jason Chen(D)
+                                    Jason Chen (D)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent5" checked={checks[4]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent5">
-                                    Limmy Jin(R)
+                                    Limmy Jin (R)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent6" checked={checks[5]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent6">
-                                    Simothy Thi(D)
+                                    Simothy Thi (D)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent7" checked={checks[6]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent7">
-                                    Jary Giang(R)
+                                    Jary Giang (R)
                                     </label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent8" checked={checks[7]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent8">
-                                    Cason Jhen(D)
+                                    Cason Jhen (D)
                                     </label>
                             </div>
 
