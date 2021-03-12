@@ -207,6 +207,7 @@ const FirstFilter = () => {
                     id={`district_${stateDistricts.distNums[index]}`}
                     type='geojson'
                     data={f_data}
+                    key={index}
                 >
                     <Layer {...f_layer} />
                 </Source>

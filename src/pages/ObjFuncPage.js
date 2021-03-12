@@ -203,6 +203,7 @@ const ObjFuncPage = () => {
                     id={`district_${stateDistricts.distNums[index]}`}
                     type='geojson'
                     data={f_data}
+                    key={index}
                 >
                     <Layer {...f_layer} />
                 </Source>
@@ -395,7 +396,7 @@ const ObjFuncPage = () => {
                                                 {/* <p class="h6">Geographic compactness:</p> */}
                                                 Geographic compactness
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="geo-compact" checked={checks[0]} onClick={userChecked} />
+                                            <input class="form-check-input" type="checkbox" id="geo-compact" checked={checks[0]} onChange={userChecked} />
                                         </div>
                                         {/* <p class="h6">Geographic compactness:</p> */}
                                         {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}

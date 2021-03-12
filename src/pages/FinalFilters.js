@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
+import Plot from 'react-plotly.js';
 
 import { StateContext } from '../contexts/StateContext'
 
@@ -26,6 +27,8 @@ const FinalFilters = () => {
     const [curDistrictingNum, setCurDistrictingNum] = useState(null);
 
     const [districtNumbers, setDistrictNumbers] = useState(null);
+    const [showComparisonPopup, setShowComparisonPopup] = useState(false);
+    const [showBoxAndWhiskerPopup, setShowBoxAndWhiskerPopup] = useState(false);
 
     const [viewport, setViewport] = useState({
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -51,7 +54,7 @@ const FinalFilters = () => {
         pitch: 0
     });
 
-    const [showComparisonPopup, setShowComparisonPopup] = useState(false);
+
 
     const OVERLAY_STYLES = {
         position: 'fixed',
@@ -73,6 +76,78 @@ const FinalFilters = () => {
         width: '100%',
         zIndex: 1000
     }
+
+    const data = [
+        {
+            name: "1",
+            y: [2.6, 2.7, 3.3, 5, 5, 6, 7, 9, 8.7, 10, 6.9, 5.33, 3.72, 2, 7.3, 2.9, 4.43, 5.67, 8.19, 15.76, 18.79],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "2",
+            y: [4.3, 5.67, 4, 6.7, 7.8, , 8.9, 12.54, 18.33, 20.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "3",
+            y: [6.3, 6.67, 5, 7.7, 8.8, 9.9, 13.54, 19.33, 22.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "4",
+            y: [6.3, 8.67, 9, 10.7, 11.8, 12.9, 16.54, 22.33, 25.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "5",
+            y: [6.9, 10.67, 11, 12.7, 14.8, 16.9, 20.54, 27.33, 33.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "6",
+            y: [7.9, 12.67, 13, 15.7, 17.8, 20.9, 24.54, 31.33, 35.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "7",
+            y: [8.4, 14.67, 15, 17.7, 21.8, 24.9, 27.54, 33.33, 37.89],
+            boxpoints: false,
+            type: 'box'
+        },
+
+        {
+            name: "8",
+            y: [19.5, 20.67, 21, 24.7, 32.8, 35.9, 38.54, 38.33, 49.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "9",
+            y: [31.5, 34.67, 36, 38.7, 46.8, 47.9, 48.54, 48.33, 59.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "10",
+            y: [41.5, 44.67, 36, 48.7, 56.8, 57.9, 68.54, 78.33, 79.89],
+            boxpoints: false,
+            type: 'box'
+        },
+        {
+            name: "11",
+            y: [79.97, 82.15, 63.3, 65.87, 75.87, 67.3, 73.2, 91.21, 82.7, 84.24, 62.9, 52.33, 53.72, 42.87, 72.3, 44.9, 44.43, 55.67, 68.19, 65.76, 60.73],
+            boxpoints: false,
+            type: 'box'
+        },
+
+    ];
+
     let districtData = new Array(3);
     let counties;
     if (stateFeature.feature.properties.name === 'Virginia') {
@@ -140,6 +215,19 @@ const FinalFilters = () => {
     const backToStateSelection = (e) => {
         e.preventDefault();
         setStateDistricts(null);
+        let paramValues = {
+            populationEquality: '0.62',
+            splitCounties: '0.21',
+            devAvgDist: '0.79',
+            devAvgEnDistGeo: '0.44',
+            devAvgEnDistPop: '0.97',
+            geographicCompact: '0.10',
+            graphCompact: '0.50',
+            populationFatness: '0.83',
+            chosenCompactness: '',
+            compactnessVal: '0.5'
+        }
+        setObjValueParams(paramValues);
         setPageName('state-selection')
     }
 
@@ -224,6 +312,7 @@ const FinalFilters = () => {
                         id={`district_${index}`}
                         type='geojson'
                         data={f_data}
+                        key={index}
                     >
                         <Layer {...f_layer} />
                     </Source>
@@ -286,6 +375,7 @@ const FinalFilters = () => {
                         id={`district_${index}`}
                         type='geojson'
                         data={f_data}
+                        key={index}
                     >
                         <Layer {...f_layer} />
                     </Source>
@@ -399,6 +489,7 @@ const FinalFilters = () => {
                         id={`district_${index}`}
                         type='geojson'
                         data={f_data}
+                        key={index}
                     >
                         <Layer {...f_layer} />
                     </Source>
@@ -530,12 +621,18 @@ const FinalFilters = () => {
                         id={`district_${index}`}
                         type='geojson'
                         data={f_data}
+                        key={index}
                     >
                         <Layer {...f_layer} />
                     </Source>
                 )
             })
         )
+    }
+
+    const showBoxAndWhisker = (e) => {
+        e.preventDefault();
+        setShowBoxAndWhiskerPopup(true);
     }
 
 
@@ -567,6 +664,7 @@ const FinalFilters = () => {
                     id={`district_${stateDistricts.distNums[index]}`}
                     type='geojson'
                     data={f_data}
+                    key={index}
                 >
                     <Layer {...f_layer} />
                 </Source>
@@ -752,6 +850,10 @@ const FinalFilters = () => {
                         {curDistrictingNum === null ? '' : (`Districting ${curDistrictingNum}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis tortor libero, sit amet pellentesque est tincidunt sit amet. Suspendisse vel laoreet diam. Fusce id fermentum arcu. Praesent semper sem neque, ac interdum purus venenatis ac. Fusce nec dolor sed risus tristique condimentum eget sit amet risus. Morbi eget sapien et mi pharetra venenatis eget quis est. Morbi egestas dolor arcu, convallis maximus felis placerat vitae. Donec ac placerat purus. Nulla porttitor eros ut est hendrerit, ac commodo eros rutrum. Sed eget ante vel tellus ultrices ornare. Etiam vulputate accumsan tortor vel dictum. Maecenas et porttitor ligula.
                         `)}
                     </div> */}
+                    {showFilters ? (
+                        <p class="h6 boxAndWhisker d-inline-block" onClick={showBoxAndWhisker}>Click to view Box and Whisker plot</p>
+                    ) : ''}
+
 
                 </div>
 
@@ -811,6 +913,48 @@ const FinalFilters = () => {
                             </div>
                         </div>
                         <button className="btn btn-secondary" onClick={() => setShowComparisonPopup(false)}>Close</button>
+                    </div>
+                </div>
+            ) : ''}
+
+            {showBoxAndWhiskerPopup ? (
+                <div className="boxAndWhiskerPopup">
+                    <div style={OVERLAY_STYLES} />
+                    <div className="container-fluid" align='center' style={MODAL_STYLES}>
+                        {/* {children} */}
+                        <div class="row d-flex flex-row justify-content-around align-items-center" style={{ height: "90%", width: "100%" }}>
+                            <Plot
+                                data={data}
+                                layout={{
+                                    width: 800,
+                                    height: 500,
+                                    title: "District Rankings",
+                                    display: 'inline-block',
+                                    xaxis: {
+                                        title: {
+                                            text: 'District Number',
+                                            font: {
+                                                family: 'Arial, Helvetica, sans-serif',
+                                                size: 18,
+                                                color: '#000'
+                                            }
+                                        },
+                                    },
+                                    yaxis: {
+                                        title: {
+                                            text: 'Percentage of African-Americans',
+                                            font: {
+                                                family: 'Arial, Helvetica, sans-serif',
+                                                size: 18,
+                                                color: '#000'
+                                            }
+                                        }
+                                    }
+                                }}
+                            />
+
+                        </div>
+                        <button className="btn btn-secondary" onClick={() => setShowBoxAndWhiskerPopup(false)}>Close</button>
                     </div>
                 </div>
             ) : ''}
