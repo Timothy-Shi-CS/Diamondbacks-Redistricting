@@ -145,7 +145,7 @@ const StateSelection = () => {
             //10 jobs with random number of districtings
             let jobs = [];
             for (let i = 0; i < 10; i++) {
-                jobs.push(Math.floor(Math.random() * 50000));
+                jobs.push(Math.floor((Math.random() * (101000 - 100000) + 100000)));
             }
 
             let temp_feature = {
@@ -329,9 +329,8 @@ const StateSelection = () => {
                                             <h5 class="card-header">Job {index + 1}</h5>
                                             <div class="card-body">
                                                 <h5 class="card-title">{numberWithCommas(stateFeature.jobs[index])} redistrictings</h5>
-                                                <p class="card-text">MGGG Attribute 1</p>
-                                                <p class="card-text">MGGG Attribute 2</p>
-                                                <p class="card-text">MGGG Attribute 3</p>
+                                                <p class="card-text">Rounds : {numberWithCommas(Math.floor(Math.random() * (100000 - 10000) + 10000))}</p>
+                                                <p class="card-text">Cooling-Period: {Math.floor((Math.random() * 50) + 50)}</p>
                                                 <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Pick job {index + 1}</button>
                                             </div>
                                         </div>

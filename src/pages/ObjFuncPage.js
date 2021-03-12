@@ -109,9 +109,7 @@ const ObjFuncPage = () => {
             setStateDistricts(coordHolder);
         }
 
-        if (objValueParams.chosenCompactness === '') {
-            document.getElementById('slider_range').disabled = true
-        } else {
+        if (objValueParams.chosenCompactness !== '') {
             let index;
             if (objValueParams.chosenCompactness === 'geo-compact') {
                 index = 0;
@@ -132,7 +130,7 @@ const ObjFuncPage = () => {
                 }
             }
             setChecks([...tempChecks])
-            document.getElementById('slider_range').disabled = false
+            //document.getElementById('slider_range').disabled = false
         }
         setChosenCompact(objValueParams.chosenCompactness)
         setSliderVal(objValueParams.compactnessVal);
@@ -159,6 +157,18 @@ const ObjFuncPage = () => {
 
     const saveEverything = (e) => {
         e.preventDefault();
+        let allFalse = true
+        for (let i = 0; i < checks.length; i++) {
+            if (checks[i] === true) {
+                allFalse = false;
+            }
+        }
+
+        if (allFalse) {
+            alert('You must choose a compactness measure!')
+            return;
+        }
+
         let paramValues = {
             populationEquality: popEqRangeVal,
             splitCounties: splitCountyRangeVal,
@@ -272,8 +282,6 @@ const ObjFuncPage = () => {
             if (i === index) {
                 if (checks[i] === false) {
                     tempChecks[i] = true;
-                } else {
-                    tempChecks[i] = true;
                 }
             }
             else {
@@ -281,26 +289,9 @@ const ObjFuncPage = () => {
             }
         }
 
-        let allFalse = true
-        for (let i = 0; i < tempChecks.length; i++) {
-            if (tempChecks[i] === true) {
-                allFalse = false;
-            }
-        }
-        if (allFalse) {
-            document.getElementById('slider_range').disabled = true
-            setChosenCompact('')
-        } else {
-            document.getElementById('slider_range').disabled = false
-            setChosenCompact(e.target.id)
-        }
-
-        // document.getElementById("geo_compact_range").disabled = !tempChecks[0];
-        // document.getElementById("graph_compact_range").disabled = !tempChecks[1];
-        // document.getElementById("pop_fat_range").disabled = !tempChecks[2];
-
 
         setChecks([...tempChecks])
+        setChosenCompact(e.target.id)
     }
 
     const setSlider = (e) => {
@@ -313,8 +304,8 @@ const ObjFuncPage = () => {
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
                 <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "3" }}>
                     <div className="d-flex flex-row justify-content-between">
-                        <p class="h6 d-inline-block back-btn" onClick={backToFirstFilter}>Back</p>
-                        <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
+                        <p class="h5 d-inline-block back-btn" onClick={backToFirstFilter}>Back</p>
+                        <p class="h5 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
                     </div>
 
                     <div align="center" style={{ paddingTop: "1rem" }}>
@@ -323,7 +314,7 @@ const ObjFuncPage = () => {
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                         <hr></hr>
                     </div>
-                    <div className="d-flex flex-column justify-content-between" style={{ height: "80%", width: "100%" }}>
+                    <div className="d-flex flex-column justify-content-between" style={{ height: "70%", width: "100%" }}>
                         <div>
 
                             <p class="h4">General:</p>
@@ -435,8 +426,17 @@ const ObjFuncPage = () => {
                                 </div>
                             </div>
                         </div>
-
+                        <hr></hr>
                         <div>
+                            <div className='d-flex flex-row justify-content-between'>
+                                <p class="h5 " >Efficiency Gap:</p>
+                                <input type="number" value={0.78} disabled="disabled" style={{ width: '60px', marginRight:'15px'}} />
+                            </div>
+                            <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" value={0.78} disabled/>
+
+                        </div>
+
+                        <div style={{ marginTop: '20px' }}>
                             <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Proceed</button>
                         </div>
                     </div>

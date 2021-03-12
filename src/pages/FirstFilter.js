@@ -12,11 +12,13 @@ const FirstFilter = () => {
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
     const [selectedDist, setSelectedDist] = useState(null);
-    const [popEqualValue, setPopEqualValue] = useState('75')
+    const [popEqualValue, setPopEqualValue] = useState('0.015')
     const [majMinValue, setMajMinValue] = useState('2');
     const [compactValue, setCompactValue] = useState('0.51');
-    let [checks, setChecks] = useState([false, false, false, false, false, false, false, false]);
+    let [checks, setChecks] = useState([false, false, false, false, false, false, false, false, false, false, false]);
     const [showPopup, setShowPopup] = useState(false);
+    const [checkPopulation, setCheckPopulation] = useState([false, false, false])
+
     const [viewport, setViewport] = useState({
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
@@ -50,7 +52,9 @@ const FirstFilter = () => {
         left: "50%",
         transform: "translate(-50%,-50%)",
         backgroundColor: "rgba(255,255,255,1.0)",
-        zIndex: 1000
+        zIndex: 1000,
+        width: '40%',
+        height:'70%'
     }
 
     const OVERLAY_STYLES = {
@@ -112,6 +116,17 @@ const FirstFilter = () => {
 
     const saveEverything = (e) => {
         e.preventDefault();
+        // let allFalse=true;
+        // for(let i=0;i<checkPopulation.length;i++){
+        //     if(checkPopulation[i]){
+        //         allFalse=false;
+        //         break;
+        //     }
+        // }
+        // if(allFalse){
+        //     alert('You must choose a population equality constraint!')
+        //     return;
+        // }
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
@@ -179,6 +194,28 @@ const FirstFilter = () => {
     const numberWithCommas = (x) => {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
+
+    const selectAllIncumbents = (e) => {
+        e.preventDefault();
+        let tempChecks = [true, true, true, true, true, true, true, true, true, true, true];
+        setChecks([...tempChecks]);
+    }
+
+    const userCheckedPop = (e) => {
+        const index = parseInt(e.target.id.split('_')[1])
+        console.log(index)
+        let tempChecks = checkPopulation;
+        for (let i = 0; i < tempChecks.length; i++) {
+            if (i === index) {
+                tempChecks[i] = !tempChecks[i];
+            } else {
+                tempChecks[i] = false;
+            }
+        }
+
+        setCheckPopulation([...tempChecks]);
+    }
+
     let render = "";
 
     if (stateDistricts) {
@@ -220,7 +257,7 @@ const FirstFilter = () => {
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
                 <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
-                    <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Back</p>
+                    <p class="h5 d-inline-block back-btn" onClick={backToStateSelection}>Back</p>
                     <div align="center" style={{ paddingTop: "1.5rem" }}>
                         <p class="h2">Constraints</p>
                         <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.jobs[stateFeature.job])} redistrictings</em></p>
@@ -233,17 +270,32 @@ const FirstFilter = () => {
                         </div>
 
                         <div>
-                            <div class="d-flex flex-row justify-content-between">
-                                <p class="h4">Population Equality:</p>
-                                {/* <p class="h4 px-2 border border-primary">{popEqualValue}</p> */}
-                                <input type="number" value={popEqualValue} disabled="disabled" style={{ width: '60px' }} />
+                            <p class="h4">Population Equality:</p>
+                            <div>
+                                <div class="d-flex flex-row justify-content-start">
+                                    <input class="form-check-input" type="checkbox" id="totPop_0" style={{ marginRight: '10px' }} checked={checkPopulation[0]} onChange={userCheckedPop} />
+                                    <label class="h6" htmlFor='totPop_0'>Total Population:</label>
+
+                                </div>
+                                <div class="d-flex flex-row justify-content-start">
+                                    <input class="form-check-input" type="checkbox" id="vap_1" style={{ marginRight: '10px' }} checked={checkPopulation[1]} onChange={userCheckedPop} disabled />
+                                    <label class="h6" htmlFor='vap_1'>Voting Age Population:</label>
+                                </div>
+                                <div class="d-flex flex-row justify-content-between">
+                                    <div>
+                                        <input class="form-check-input" type="checkbox" id="cvap_2" style={{ marginRight: '10px' }} checked={checkPopulation[2]} onChange={userCheckedPop} disabled />
+                                        <label class="h6" htmlFor='cvap_2'>Citizen Voting Age Population:</label>
+                                    </div>
+                                    {/* <p class="h4 px-2 border border-primary">{popEqualValue}</p> */}
+                                    <input type="number" value={popEqualValue} disabled="disabled" style={{ width: '60px' }} />
+                                </div>
                             </div>
 
 
-                            <input type="range" class="form-range" min="0" max="100" step="1" id="pop_eq_range" onInput={popEqual} value={popEqualValue} />
+                            <input type="range" class="form-range" min="0" max="0.05" step="0.001" id="pop_eq_range" onInput={popEqual} value={popEqualValue} />
                             <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
-                                <p>100</p>
+                                <p>0.05</p>
                             </div>
                         </div>
 
@@ -265,9 +317,54 @@ const FirstFilter = () => {
                         </div>
 
                         <div>
-                            <div class="d-flex flex-row justify-content-between">
+                            <div>
                                 <p class="h4">Compactness:</p>
-                                <input type="number" value={compactValue} disabled="disabled" style={{ width: '60px' }} />
+                                <div class="px-3">
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <div class="form-check">
+                                            <label class="form-check-label h6" htmlFor="geo-compact">
+                                                {/* <p class="h6">Geographic compactness:</p> */}
+                                                Geographic compactness
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" id="geo-compact" onChange={userChecked} />
+                                        </div>
+                                        {/* <p class="h6">Geographic compactness:</p> */}
+                                        {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
+                                        {/* <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p> */}
+                                    </div>
+                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} /> */}
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <div class="form-check">
+                                            <label class="form-check-label" htmlFor="graph-compact">
+                                                <p class="h6">Graph compactness</p>
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" id="graph-compact" onChange={userChecked} />
+                                        </div>
+                                        {/* <p class="h6">Graph compactness:</p> */}
+                                        {/* <input type="number" value={graphCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
+                                        {/* <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p> */}
+                                    </div>
+                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} /> */}
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <div class="form-check">
+                                            <label class="form-check-label" htmlFor="pop-fat">
+                                                <p class="h6">Population fatness</p>
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" id="pop-fat" onChange={userChecked} />
+                                        </div>
+                                        {/* <p class="h6">Population fatness:</p> */}
+                                        <input type="number" value={compactValue} disabled="disabled" style={{ width: '60px' }} />
+                                    </div>
+                                </div>
+                            </div>
+                                
                             </div>
                             <input type="range" class="form-range" min="0" max="1" step="0.01" id="compact_range" onInput={compact} value={compactValue} />
                             <div class="d-flex flex-row justify-content-between">
@@ -324,7 +421,101 @@ const FirstFilter = () => {
                         <div class="card-body">
                             <h5 class="card-title">Choose your incumbents</h5>
                             <h6 class="card-subtitle mb-2 text-muted">Edits are automatically saved</h6>
-                            <h5>District 1</h5>
+                            <div style={{height:'80%', overflow:'auto'}}>
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">District #</th>
+                                            <th scope="col"></th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Party</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-danger">
+                                            <th scope="row">1</th>
+                                            <td><img src='https://upload.wikimedia.org/wikipedia/commons/9/92/Rob_Wittman_116th_Congress.jpg' alt='Robert Wittman' style={{width:'40px'}}/></td>
+                                            <td>Robert Wittman</td>
+                                            <td>Republican</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">2</th>
+                                            <td></td>
+                                            <td>Elaine Luria</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent2" checked={checks[1]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">3</th>
+                                            <td></td>
+                                            <td>Robert Scott</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent3" checked={checks[2]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">4</th>
+                                            <td></td>
+                                            <td>Donald McEachin</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent4" checked={checks[3]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-danger">
+                                            <th scope="row">5</th>
+                                            <td></td>
+                                            <td>Robert Good</td>
+                                            <td>Republican</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent5" checked={checks[4]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-danger">
+                                            <th scope="row">6</th>
+                                            <td></td>
+                                            <td>Ben Cline</td>
+                                            <td>Republican</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent6" checked={checks[5]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">7</th>
+                                            <td></td>
+                                            <td>Abigail Spanberger</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent7" checked={checks[6]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">8</th>
+                                            <td></td>
+                                            <td>Donald Beyer Jr.</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent8" checked={checks[7]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-danger">
+                                            <th scope="row">9</th>
+                                            <td></td>
+                                            <td>Morgan Griffith</td>
+                                            <td>Republican</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent9" checked={checks[8]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">10</th>
+                                            <td></td>
+                                            <td>Jennifer Wexton</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent10" checked={checks[9]} onChange={userChecked} /></td>
+                                        </tr>
+                                        <tr class="table-info">
+                                            <th scope="row">11</th>
+                                            <td></td>
+                                            <td>Gerald Connolly</td>
+                                            <td>Democratic</td>
+                                            <td><input class="form-check-input" type="checkbox" value="" id="incumbent11" checked={checks[10]} onChange={userChecked} /></td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* <h5>District 1</h5>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} />
@@ -335,7 +526,8 @@ const FirstFilter = () => {
                                     </div>
                                 </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 2</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent2" checked={checks[1]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent2">
@@ -346,7 +538,7 @@ const FirstFilter = () => {
                                 </label>
                             </div>
                             <hr></hr>
-                            <h5>District 2</h5>
+                            <h5>District 3</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent3" checked={checks[2]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent3">
@@ -356,7 +548,8 @@ const FirstFilter = () => {
                                     </div>
                                 </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 4</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent4" checked={checks[3]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent4">
@@ -367,7 +560,7 @@ const FirstFilter = () => {
                                 </label>
                             </div>
                             <hr></hr>
-                            <h5>District 3</h5>
+                            <h5>District 5</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent5" checked={checks[4]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent5">
@@ -377,7 +570,8 @@ const FirstFilter = () => {
                                     </div>
                                 </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 6</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent6" checked={checks[5]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent6">
@@ -388,7 +582,7 @@ const FirstFilter = () => {
                                 </label>
                             </div>
                             <hr></hr>
-                            <h5>District 4</h5>
+                            <h5>District 7</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent7" checked={checks[6]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent7">
@@ -398,7 +592,8 @@ const FirstFilter = () => {
                                     </div>
                                 </label>
                             </div>
-
+                            <hr></hr>
+                            <h5>District 8</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="incumbent8" checked={checks[7]} onChange={userChecked} />
                                 <label class="form-check-label" htmlFor="incumbent8">
@@ -407,9 +602,15 @@ const FirstFilter = () => {
                                     <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
                                     </div>
                                 </label>
-                            </div>
+                            </div><hr></hr>
+                            <h5>District 9</h5>
+                            <hr></hr>
+                            <h5>District 10</h5>
+                            <hr></hr>
+                            <h5>District 11</h5> */}
 
-                            <div className="d-flex flex-row justify-content-around">
+                            <div className="d-flex flex-row justify-content-around" style={{marginTop:"10px"}}>
+                                <button className="btn btn-secondary" onClick={selectAllIncumbents}>Select All</button>
                                 <button className="btn btn-success" onClick={resetChecks}>Reset</button>
                                 <button className="btn btn-danger" onClick={() => setShowPopup(false)}>Close</button>
                             </div>
