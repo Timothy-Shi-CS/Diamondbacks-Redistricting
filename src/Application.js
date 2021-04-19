@@ -9,7 +9,6 @@ import { StateContext } from './contexts/StateContext'
 
 function Application() {
     const { state, page } = useContext(StateContext);
-    const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page
 
     let renderPage;

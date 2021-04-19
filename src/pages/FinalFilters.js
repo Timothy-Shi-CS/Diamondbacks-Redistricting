@@ -849,10 +849,10 @@ const FinalFilters = () => {
                                 </div>
 
                                 <div>
-                                    <p class="h6 compareBtn d-inline-block" onClick={showComparison} style={{ color: '#25cf6c' }}><u>Click to show enacted and selected</u></p>
+                                    <button type="button" class="btn btn-lg col-12 btn-primary compareBtn" onClick={showComparison}>View enacted and selected</button>
                                 </div>
                                 <div>
-                                    <p class="h6 boxAndWhisker d-inline-block" onClick={showBoxAndWhisker} style={{ color: '#25cf6c' }}><u>Click to view Box and Whisker plot</u></p>
+                                    <button type ="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
                                 </div>
 
                                 <div>

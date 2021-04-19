@@ -11,7 +11,7 @@ const StateSelection = () => {
     const [pageName, setPageName] = page
     const [pd, setPd] = polygon
 
-    const centerOfMass = require('@turf/center-of-mass');
+    //grab states from global state.
 
     const allStates = require('../data/allState.json');
     const [filteredStates, setFilteredStates] = useState(null);
@@ -35,13 +35,9 @@ const StateSelection = () => {
         });
 
     const [curJob, setCurJob] = useState(null);
-    //const [showModal, setShowModal] = useState(false);
-    // const [polygonLayer, setPolygonLayer] = useState(null);
-    // const [polygonData, setPolygonData] = useState(null);
-    // const [feature, setFeature] = useState(null);
 
 
-    const [viewport, setViewport] = useState({
+    const [viewport, setViewport] = useState({ //set viewing settings for map
         latitude: 39.8283,
         longitude: -98.5795,
         zoom: 4.25,
@@ -49,7 +45,7 @@ const StateSelection = () => {
         pitch: 0
     });
 
-    const resetFeature = {
+    const resetFeature = { //used to reset state data
         feature: null,
         jobs: null,
         job: null,
@@ -57,7 +53,7 @@ const StateSelection = () => {
         incumbents: []
     }
 
-    const statesLayer = {
+    const statesLayer = {  //used to outline the entire U.S.
         id: 'states-layer',
         type: 'fill',
         source: 'states',
@@ -81,66 +77,50 @@ const StateSelection = () => {
         }
 
         setFilteredStates(states);
-        if (stateFeature.feature !== null) {
+        if (stateFeature.feature !== null) { //if there is already a state chosen
             //disable respective job button
-            document.getElementById(`job-${stateFeature.job + 1}`).disabled = true;
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = true; //there must have been a job that was already chosen as well
 
             //set value of dropdown
             document.getElementById('state-selection').value = stateFeature.feature.properties.postal;
             setCurJob(stateFeature.job)
+            //set current job to job that was already chosen
         }
     }, [])
 
     const mapClicked = (e) => {
         e.preventDefault();
 
-        if (stateFeature.job !== null) {
-            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
+        if (stateFeature.job !== null) { //if user clicked on another state after choosing a job
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false; //reset the job button
         }
-        setCurJob(null);
-        //setShowModal(false);
-        setStateFeature(resetFeature);
-        //setPopUpCoords({ latitude: e.lngLat[1], longitude: e.lngLat[0], state: e.features[0].properties.name });
-        if (e.features[0].properties.name === 'Utah' || e.features[0].properties.name === 'Virginia' || e.features[0].properties.name === 'Nevada') {
-            //setShowPopup(false)
-            //setFeature(null);
-            getState(e.features[0].properties.name);
-
-        } else {
-
-            //setShowPopup(true);
+        setCurJob(null); //reset current job
+        setStateFeature(resetFeature); //reset the data for state
+        if (e.features[0].properties.name === 'Utah' || e.features[0].properties.name === 'Virginia' || e.features[0].properties.name === 'Nevada') { //check which state the user just clicked on
+            setStateByName(e.features[0].properties.name); //state data for map will be set in the function
+        } else { //if the chosen state is none of the 3
             console.log(e.features[0].properties)
-            document.getElementById('state-selection').value = '';
+            document.getElementById('state-selection').value = ''; //reset the dropdown value
         }
 
 
     }
 
-    const getState = (name) => {
-        if (geojson === undefined) {
+    const setStateByName = (name) => { //set the state feature from name of chosen state
+        if (geojson === undefined) { 
             return;
         }
         console.log(name)
         let cur_feature = null;
         for (let i = 0; i < geojson.features.length; i++) {
             if (geojson.features[i].properties.name === name) {
-                cur_feature = geojson.features[i]
-                // console.log(cur_feature.properties.postal)
+                cur_feature = geojson.features[i] //get features for chosen state
                 break
             }
         }
         console.log(cur_feature);
-
-        //setFeature(cur_feature);
-        // let temp_feature = {
-        //     feature: null,
-        //     jobs: null,
-        //     job: null,
-        //     stateCenter: null,
-        //     page: 'state-selection'
-        // }
-        setStateFeature(resetFeature);
-        if (cur_feature) {
+        
+        if (cur_feature) {  //if state exists
 
             //10 jobs with random number of districtings
             let jobs = [];
@@ -149,24 +129,24 @@ const StateSelection = () => {
             }
 
             let temp_feature = {
-                feature: cur_feature,
-                jobs: jobs,
-                job: null,
+                feature: cur_feature, //set the current features
+                jobs: jobs, //set the randomly generated jobs
+                job: null, //no job is chosen yet
                 stateCenter: null,
                 incumbents: []
             };
 
-            setStateFeature(temp_feature);
+            setStateFeature(temp_feature); //set the data for the state
 
             setPd({
-                polygonData: {
+                polygonData: { //set geometry of chosen state
                     'type': cur_feature.type,
                     'geometry': {
                         'type': cur_feature.geometry.type,
                         'coordinates': cur_feature.geometry.coordinates
                     }
                 },
-                polygonLayer: {
+                polygonLayer: { //set color and outline of chosen state
                     'id': 'state-layer',
                     'type': 'fill',
                     'source': 'state',
@@ -178,112 +158,60 @@ const StateSelection = () => {
                 }
             })
 
-            // setPolygonData({
-            //     'type': cur_feature.type,
-            //     'geometry': {
-            //         'type': cur_feature.geometry.type,
-            //         'coordinates': cur_feature.geometry.coordinates
-            //     }
-            // });
-
-            // setPolygonLayer({
-            //     'id': 'state-layer',
-            //     'type': 'fill',
-            //     'source': 'state',
-            //     'layout': {},
-            //     'paint': {
-            //         'fill-color': 'rgba(132, 245, 134, 0.15)',
-            //         'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
-            //     }
-            // })
-
-            document.getElementById('state-selection').value = cur_feature.properties.postal;
+            document.getElementById('state-selection').value = cur_feature.properties.postal; //set the dropdown value with chosen state postal
+        }else{ //state isn't valid
+            setStateFeature(resetFeature); //reset the state data
         }
     }
 
-    const stateSelection = (e) => {
+    const stateSelectionDropdown = (e) => { //for the dropdown
         e.preventDefault()
 
-        if (stateFeature.job !== null) {
+        if (stateFeature.job !== null) { //if the user has chosen a job and changed state, reset the job button
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
         }
-        setCurJob(null);
-        //setShowModal(false);
-        setStateFeature(resetFeature);
+        setCurJob(null); //reset current job
+
+        setStateFeature(resetFeature); //reset state data
 
         const state = e.target.options[e.target.selectedIndex].text;
-        getState(state);
+        setStateByName(state); //set state data from value chosen in dropdown
     }
 
     const jobClick = (e) => {
         e.preventDefault();
-        //setShowModal(true);
-        const index = parseInt(e.target.id.split("-")[1]);
-        // const temp_feature = {
-        //     feature: stateFeature.feature,
-        //     jobs: stateFeature.jobs,
-        //     job: index - 1
-        // }
-        // setStateFeature(temp_feature);
 
-        setCurJob(index - 1);
+        const id = parseInt(e.target.id.split("-")[1]); //get the id of that job
+
+
+        setCurJob(id - 1); //set current job by the index
         console.log(stateFeature);
-        console.log(`Job ${index} has ${stateFeature.jobs[index - 1]} districtings.`)
+        console.log(`Job ${id} has ${stateFeature.jobs[id - 1]} districtings.`)
 
-        if (stateFeature.job === null) {
+        if (stateFeature.job === null) { //if no previously chosen job exists
             console.log("null")
-            document.getElementById(`job-${index}`).disabled = true;
+            document.getElementById(`job-${id}`).disabled = true; //disable currently chosen job button
         } else {
             console.log("not null")
-            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
-            document.getElementById(`job-${index}`).disabled = true;
+            document.getElementById(`job-${stateFeature.job + 1}`).disabled = false; //reset the previously chosen job button
+            document.getElementById(`job-${id}`).disabled = true; //disable currently chosen job button
         }
 
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
-            job: index - 1,
-            stateCenter: null,
+            job: id - 1, //set current job by index
+            stateCenter: null, //user hasn't confirmed on state selection so we leave center null
             incumbents: []
         });
     }
 
-    // const closePopup = (e) => {
-    //     e.preventDefault();
-    //     setCurJob(null);
-    //     setShowModal(false);
-    // }
-
-    // const applyJob = () => {
-    //     //e.preventDefault();
-    //     if (stateFeature.job === null) {
-    //         console.log("null")
-    //         document.getElementById(`job-${curJob + 1}`).disabled = true;
-    //     } else {
-    //         console.log("not null")
-    //         document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
-    //         document.getElementById(`job-${curJob + 1}`).disabled = true;
-    //     }
-
-    //     setStateFeature({
-    //         feature: stateFeature.feature,
-    //         jobs: stateFeature.jobs,
-    //         job: curJob,
-    //         stateCenter: null,
-    //         incumbents: []
-    //     });
-    //     setShowModal(false);
-    // }
-
     const applyEverything = (e) => {
         e.preventDefault();
-        // const centerOfPoly=centerOfMass.default(stateFeature.feature)
-        // console.log(centerOfMass.default(stateFeature.feature));
-        //console.log([stateCapitals[stateFeature.feature.properties.postal].lat, stateCapitals[stateFeature.feature.properties.postal].long])
         console.log(stateFeature.feature)
         let center;
         for (let i = 0; i < stateCenters.length; i++) {
-            if (stateCenters[i].state === stateFeature.feature.properties.name) {
+            if (stateCenters[i].state === stateFeature.feature.properties.name) {  //get the state center for respective state
                 center = stateCenters[i];
                 break;
             }
@@ -291,15 +219,15 @@ const StateSelection = () => {
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
-            job: curJob,
-            stateCenter: [center.latitude, center.longitude],
+            job: curJob, //set the current job that was chosen
+            stateCenter: [center.latitude, center.longitude], //set the center of that state for the next page
             incumbents: []
         });
-        setPageName('first-filter')
+        setPageName('first-filter') //move on to next page
 
     }
 
-    const numberWithCommas = (x) => {
+    const numberWithCommas = (x) => { // add commas for thousands place and stuff
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
@@ -308,27 +236,25 @@ const StateSelection = () => {
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
                 <div id="left-bar" className="col-3 shadow-lg" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height: '100%' }}>
                     <h3>Select a state:</h3>
-                    <select id="state-selection" class="form-select" onChange={stateSelection}>
+                    <select id="state-selection" class="form-select" onChange={stateSelectionDropdown}>
                         <option value="" defaultValue hidden>Select a state</option>
                         <option value="NV">Nevada</option>
                         <option value="UT">Utah</option>
                         <option value="VA">Virginia</option>
                     </select>
-                    {stateFeature.jobs !== null ? (
+                    {stateFeature.jobs !== null ? ( 
                         <div className="d-flex flex-column justify-content-between py-4" style={{ height: "90%", width: "100%" }}>
                             <hr></hr>
                             <h5>Choose a job:</h5>
                             <div style={{ overflow: 'auto', height: '80%' }}>
                                 {stateFeature.jobs.map((job, index) => {
                                     return (
-                                        // <div key={index + 1}>
-                                        //     <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Job {index + 1}: {stateFeature.jobs[index]} redistrictings</button>
-                                        // </div>
+
 
                                         <div class="card" key={index + 1}>
                                             <h5 class="card-header">Job {index + 1}</h5>
                                             <div class="card-body">
-                                                <h5 class="card-title">{numberWithCommas(stateFeature.jobs[index])} redistrictings</h5>
+                                                <h5 class="card-title">{numberWithCommas(stateFeature.jobs[index])} redistrictings</h5> 
                                                 <p class="card-text">Rounds : {numberWithCommas(Math.floor(Math.random() * (100000 - 10000) + 10000))}</p>
                                                 <p class="card-text">Cooling-Period: {Math.floor((Math.random() * 50) + 50)}</p>
                                                 <button id={`job-${index + 1}`} className="btn btn-primary" onClick={jobClick}>Pick job {index + 1}</button>
@@ -339,7 +265,7 @@ const StateSelection = () => {
                             </div>
 
                             <div>
-                                {stateFeature.job !== null ? (
+                                {stateFeature.job !== null ? ( //the proceed button should only be clickable when user has chosen a job
                                     <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything}>Proceed</button>
                                 ) : (
                                         <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything} disabled>Proceed</button>
@@ -354,9 +280,7 @@ const StateSelection = () => {
 
                 </div>
 
-                {/* <div id="right-bar" className="col-2" style={{ backgroundColor: "#fff", zIndex: "2" }}>
-                    bar 2
-                </div> */}
+
             </div>
 
 
@@ -368,7 +292,7 @@ const StateSelection = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={mapClicked}
             >
-                {stateFeature.feature !== null ? (
+                {stateFeature.feature !== null ? ( //only display if the user has chosen a state and therefore setting stateFeature
                     <Source
                         id="state"
                         type="geojson"
@@ -391,42 +315,7 @@ const StateSelection = () => {
                 </Source>
 
 
-                {/* {showPopup && <Popup
-                    latitude={popUpCoords.latitude}
-                    longitude={popUpCoords.longitude}
-                    onClose={() => {
-                        setShowPopup(false);
-                        setFeature(null)
-                    }}
-                >
-                    <div>{popUpCoords.state}</div>
-                </Popup>
-                } */}
             </ReactMapGL>
-
-            {/* {showModal ? (
-                <div className="card" style={{
-                    zIndex: "1000",
-                    height: "20%",
-                    width: "20%",
-                    position: "absolute",
-                    backgroundColor: "rgba(255,255,255,0.8)",
-                    bottom: "5%",
-                    right: "50%",
-                    left: "50%"
-                }}>
-                    <div className="card-body">
-                        <h5 className="card-title">Job {curJob + 1}</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">{stateFeature.feature.properties.name}</h6>
-                        <p className="card-text">This job for {stateFeature.feature.properties.name} has {stateFeature.jobs[curJob]} districtings. Would you like to choose this job?</p>
-                        <div className="d-flex flex-row justify-content-around">
-                            <button className="btn btn-success" onClick={applyJob}>Yes</button>
-                            <button className="btn btn-danger" onClick={closePopup}>No</button>
-                        </div>
-
-                    </div>
-                </div>
-            ) : ""} */}
 
 
         </div>

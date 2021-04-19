@@ -11,15 +11,14 @@ const FirstFilter = () => {
 
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
-    const [selectedDist, setSelectedDist] = useState(null);
     const [popEqualValue, setPopEqualValue] = useState('0.015')
     const [majMinValue, setMajMinValue] = useState('2');
     const [compactValue, setCompactValue] = useState('0.51');
     let [checks, setChecks] = useState([false, false, false, false, false, false, false, false, false, false, false]);
-    const [showPopup, setShowPopup] = useState(false);
+    const [showIncumbents, setShowIncumbents] = useState(false);
     const [checkPopulation, setCheckPopulation] = useState([false, false, false])
 
-    const [viewport, setViewport] = useState({
+    const [viewport, setViewport] = useState({ //map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
         zoom: 6,
@@ -27,26 +26,7 @@ const FirstFilter = () => {
         pitch: 0
     });
 
-    // const polygonData = {
-    //     'type': stateFeature.feature.type,
-    //     'geometry': {
-    //         'type': stateFeature.feature.geometry.type,
-    //         'coordinates': stateFeature.feature.geometry.coordinates
-    //     }
-    // };
-
-    // const polygonLayer = {
-    //     'id': 'state-layer',
-    //     'type': 'fill',
-    //     'source': 'state',
-    //     'layout': {},
-    //     'paint': {
-    //         'fill-color': 'rgba(132, 245, 134, 0.5)',
-    //         'fill-outline-color': 'rgba(0, 0, 0, 0.5)'
-    //     }
-    // };
-
-    const MODAL_STYLES = {
+    const MODAL_STYLES = { //incumbent display styling
         position: "fixed",
         top: "50%",
         left: "50%",
@@ -57,7 +37,7 @@ const FirstFilter = () => {
         height:'70%'
     }
 
-    const OVERLAY_STYLES = {
+    const OVERLAY_STYLES = { //darken the background behind the incumbent popup
         position: 'fixed',
         top: 0,
         left: 0,
@@ -70,23 +50,23 @@ const FirstFilter = () => {
     const enactedDistricts = require('../data/districts114.json');
 
     useEffect(() => {
-        if (stateFeature.feature !== null) {
-            setChecks([...stateFeature.incumbents]);
+        if (stateFeature.feature !== null) { //if the user had chosen a state, the state data could potentially contain already selected incumbents.
+            setChecks([...stateFeature.incumbents]); //lets set the potentionally already selected incumbents
         }
         console.log(stateDistricts)
-        if (stateDistricts === null) {
-            let coordHolder = {
+        if (stateDistricts === null) { //if the districts for the enacted districting weren't loaded in before, load them in now
+            let coordHolder = { //set up the map that will hold all this data
                 type: "FeatureCollection",
                 features: [],
                 distNums: [],
                 distColors: []
             }
-            let districts = [];
-            let colors = [];
+            let districts = []; //this will hold the numbers for each district
+            let colors = []; //this will hold the colors(randomly generated) for each district
             const features = enactedDistricts.features;
             for (var i = 0; i < features.length; i++) {
-                if (features[i].properties.STATENAME === stateFeature.feature.properties.name) {
-                    coordHolder.features.push({
+                if (features[i].properties.STATENAME === stateFeature.feature.properties.name) { //get only the data for the selected state
+                    coordHolder.features.push({ //set data in our map we made earlier
                         type: features[i].type,
                         geometry: {
                             type: features[i].geometry.type,
@@ -99,19 +79,19 @@ const FirstFilter = () => {
                     let blue = Math.floor(Math.random() * 255);
                     let green = Math.floor(Math.random() * 255);
 
-                    colors.push(`rgba(${red},${blue},${green},0.5)`);
-                    districts.push(features[i].properties.DISTRICT);
+                    colors.push(`rgba(${red},${blue},${green},0.5)`); //generate a random color and push
+                    districts.push(features[i].properties.DISTRICT); //push the district number
                 }
             }
-            coordHolder.distNums = [...districts];
-            coordHolder.distColors = [...colors];
-            setStateDistricts(coordHolder);
+            coordHolder.distNums = [...districts]; //set the district numbers list
+            coordHolder.distColors = [...colors]; //set the colors list
+            setStateDistricts(coordHolder); //set all this data in global state
         }
     }, [])
 
     const openIncumbentPopup = (e) => {
         e.preventDefault();
-        setShowPopup(true);
+        setShowIncumbents(true); 
     }
 
     const saveEverything = (e) => {
@@ -127,33 +107,34 @@ const FirstFilter = () => {
         //     alert('You must choose a population equality constraint!')
         //     return;
         // }
+
         setStateFeature({
             feature: stateFeature.feature,
             jobs: stateFeature.jobs,
             job: stateFeature.job,
             stateCenter: stateFeature.stateCenter,
-            incumbents: [...checks]
+            incumbents: [...checks] //set the incumbents user chose to protect
         })
 
-        setPageName('obj-func-page');
+        setPageName('obj-func-page'); //move on to next page
     }
 
     const backToStateSelection = (e) => {
         console.log('back to state selection');
-        resetChecks();
-        setStateDistricts(null);
-        setPageName('state-selection');
+        resetChecks(); //reset any incumbents user protected
+        setStateDistricts(null); //reset any district data for enacted districting
+        setPageName('state-selection'); //go back to state selection
     }
 
     const userChecked = (e) => {
-        let index = parseInt(e.target.id.split('t')[1])
-        let tempChecks = [...checks];
-        tempChecks[index - 1] = !tempChecks[index - 1]
-        setChecks([...tempChecks]);
+        let index = parseInt(e.target.id.split('t')[1]) //get index of incumbent in list
+        let tempChecks = [...checks]; //get the list of checks
+        tempChecks[index - 1] = !tempChecks[index - 1] //toggle the incumbent in list
+        setChecks([...tempChecks]); //set the list of checks in local state
     }
 
     const resetChecks = (e) => {
-        let reset = [false, false, false, false, false, false, false, false];
+        let reset = [false, false, false, false, false, false, false, false]; 
         setChecks([...reset]);
     }
 
@@ -175,23 +156,18 @@ const FirstFilter = () => {
     const userClickedDistrict = (e) => {
         e.preventDefault();
 
-        if (e.features[0].source !== 'composite') {
+        if (e.features[0].source !== 'composite') { //if the area the user clicked on is a district
             const dist_num = parseInt(e.features[0].source.split('_')[1]);
 
-            setPopUpCoords([...e.lngLat]);
-            setPopUpText(`District ${dist_num}`);
-            setSelectedDist(stateDistricts.features[dist_num - 1]);
-
-            // console.log(e.lngLat);
-            // console.log(stateCoords.features[dist_num - 1]);
-            // console.log(dist_num);
+            setPopUpCoords([...e.lngLat]); //set the position of the popup
+            setPopUpText(`District ${dist_num}`); //set the text of the popup
         } else {
-            setSelectedDist(null);
+            setPopUpCoords(null)
         }
 
     }
 
-    const numberWithCommas = (x) => {
+    const numberWithCommas = (x) => { //added commas for numbers
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
@@ -206,30 +182,30 @@ const FirstFilter = () => {
         console.log(index)
         let tempChecks = checkPopulation;
         for (let i = 0; i < tempChecks.length; i++) {
-            if (i === index) {
+            if (i === index) { //toggle the selected population type
                 tempChecks[i] = !tempChecks[i];
             } else {
-                tempChecks[i] = false;
+                tempChecks[i] = false; //set everything else to false
             }
         }
 
-        setCheckPopulation([...tempChecks]);
+        setCheckPopulation([...tempChecks]); //set population type list
     }
 
     let render = "";
 
-    if (stateDistricts) {
-        render = stateDistricts.features.map((f, index) => {
-            const f_data = {
-                type: f.type,
+    if (stateDistricts) { //if the districts have been loaded in
+        render = stateDistricts.features.map((districtFeature, index) => { //for each district
+            const districtFeatureData = { //create the data for that district
+                type: districtFeature.type,
                 geometry: {
-                    type: f.geometry.type,
-                    coordinates: f.geometry.coordinates
+                    type: districtFeature.geometry.type,
+                    coordinates: districtFeature.geometry.coordinates
                 }
             };
 
-            const f_layer = {
-                'id': `district_${stateDistricts.distNums[index]}_layer`,
+            const districtFeatureLayer = { //create the layer for that district
+                'id': `district_${stateDistricts.distNums[index]}_layer`, //lets identify each layer by the district's actual number
                 'type': 'fill',
                 'source': `district_${stateDistricts.distNums[index]}`,
                 'layout': {},
@@ -239,14 +215,14 @@ const FirstFilter = () => {
                 }
             };
 
-            return (
+            return ( //return a source component with a child Layer component for that district
                 <Source
-                    id={`district_${stateDistricts.distNums[index]}`}
+                    id={`district_${stateDistricts.distNums[index]}`} //lets identify each Source component by the district's actual number
                     type='geojson'
-                    data={f_data}
+                    data={districtFeatureData}
                     key={index}
                 >
-                    <Layer {...f_layer} />
+                    <Layer {...districtFeatureLayer} />
                 </Source>
             )
         })
@@ -299,10 +275,6 @@ const FirstFilter = () => {
                             </div>
                         </div>
 
-                        {/* <div>
-                            <p class="h5">Incumbent Protection</p>
-                            <input type="range" class="form-range" id="incum_prot_range" />
-                        </div> */}
 
                         <div>
                             <div class="d-flex flex-row justify-content-between">
@@ -390,11 +362,11 @@ const FirstFilter = () => {
             >
                 {render}
 
-                {popUpCoords && selectedDist ? (
+                {popUpCoords? (
                     <Popup
                         latitude={popUpCoords[1]}
                         longitude={popUpCoords[0]}
-                        onClose={() => { setSelectedDist(null) }}
+                        onClose={() => { setPopUpCoords(null) }}
                     >
                         <div class="px-2">
                             <h5>{popUpText}</h5>
@@ -413,7 +385,7 @@ const FirstFilter = () => {
             </ReactMapGL>
 
 
-            {showPopup ? (
+            {showIncumbents ? (
                 <div className="incumbentPopup">
                     <div style={OVERLAY_STYLES} />
                     <div className="card" style={MODAL_STYLES}>
@@ -515,104 +487,10 @@ const FirstFilter = () => {
                                 </table>
                             </div>
 
-                            {/* <h5>District 1</h5>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent1">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Jimmy Lin
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 2</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent2" checked={checks[1]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent2">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Timothy Shi
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 3</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent3" checked={checks[2]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent3">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Gary Jiang
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 4</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent4" checked={checks[3]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent4">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Jason Chen
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 5</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent5" checked={checks[4]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent5">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Limmy Jin
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 6</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent6" checked={checks[5]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent6">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Simothy Thi
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#fc3003', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>R</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 7</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent7" checked={checks[6]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent7">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Jary Giang
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <hr></hr>
-                            <h5>District 8</h5>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="incumbent8" checked={checks[7]} onChange={userChecked} />
-                                <label class="form-check-label" htmlFor="incumbent8">
-                                    <div class='d-flex flex-row justify-content-between'>
-                                        Cason Jhen
-                                    <div style={{ height: '25px', width: '25px', backgroundColor: '#0380fc', textAlign: 'center', verticalAlign: 'middle', display: 'table-cell', borderRadius: '50%', color: '#fff', marginLeft: '10px' }}>D</div>
-                                    </div>
-                                </label>
-                            </div><hr></hr>
-                            <h5>District 9</h5>
-                            <hr></hr>
-                            <h5>District 10</h5>
-                            <hr></hr>
-                            <h5>District 11</h5> */}
-
                             <div className="d-flex flex-row justify-content-around" style={{marginTop:"10px"}}>
                                 <button className="btn btn-secondary" onClick={selectAllIncumbents}>Select All</button>
                                 <button className="btn btn-success" onClick={resetChecks}>Reset</button>
-                                <button className="btn btn-danger" onClick={() => setShowPopup(false)}>Close</button>
+                                <button className="btn btn-danger" onClick={() => setShowIncumbents(false)}>Close</button>
                             </div>
                         </div>
                     </div>

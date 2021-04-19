@@ -11,7 +11,7 @@ export const StateProvider = (props) => {
         incumbents:[]
     });
 
-    const [page, setPage] = useState("state-selection");
+    const [page, setPage] = useState("state-selection"); //start at state selection
 
     const [polygon, setPolygon] = useState({
         polygonData: null,
