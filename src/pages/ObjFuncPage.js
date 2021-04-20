@@ -33,7 +33,7 @@ const ObjFuncPage = () => {
         pitch: 0
     });
 
-    const backToFirstFilter = (e) => {
+    const backToConstraints = (e) => {
         //setStateDistricts(null);
         let paramValues = {
             populationEquality: '0.62',
@@ -48,7 +48,7 @@ const ObjFuncPage = () => {
             compactnessVal: '0.5'
         }
         setObjValueParams(paramValues);  //reset the values of the weights of each measure
-        setPageName('first-filter') //go back to previous page
+        setPageName('constraints') //go back to previous page
     }
     const backToStateSelection = (e) => {
         let paramValues = {
@@ -295,7 +295,7 @@ const ObjFuncPage = () => {
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
                 <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "3" }}>
                     <div className="d-flex flex-row justify-content-between">
-                        <p class="h5 d-inline-block back-btn" onClick={backToFirstFilter}>Back</p>
+                        <p class="h5 d-inline-block back-btn" onClick={backToConstraints}>Back</p>
                         <p class="h5 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
                     </div>
 

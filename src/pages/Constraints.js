@@ -3,20 +3,24 @@ import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
 
 import { StateContext } from '../contexts/StateContext'
 
-const FirstFilter = () => {
-    const { state, page, districts } = useContext(StateContext);
+const Constraints = () => {
+    const { state, page, districts, population, compactness, majorityMinority} = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
+    const [populationConstraint, setPopulationConstraint] = population;
+    const [compactnessConstraint, setCompactnessConstraint]=compactness
+    const [majorityMinorityConstraint,setMajorityMinorityConstraint]=majorityMinority
 
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
     const [popEqualValue, setPopEqualValue] = useState('0.015')
     const [majMinValue, setMajMinValue] = useState('2');
     const [compactValue, setCompactValue] = useState('0.51');
-    let [checks, setChecks] = useState([false, false, false, false, false, false, false, false, false, false, false]);
+    const [checks, setChecks] = useState([false, false, false, false, false, false, false, false, false, false, false]);
     const [showIncumbents, setShowIncumbents] = useState(false);
     const [checkPopulation, setCheckPopulation] = useState([false, false, false])
+    const [checkCompactness, setCheckCompactness] = useState([false, false, false])
 
     const [viewport, setViewport] = useState({ //map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -87,6 +91,24 @@ const FirstFilter = () => {
             coordHolder.distColors = [...colors]; //set the colors list
             setStateDistricts(coordHolder); //set all this data in global state
         }
+
+        if(populationConstraint.value){
+            setPopEqualValue(populationConstraint.value)
+            let tempCheckPopulation=checkPopulation
+            tempCheckPopulation[[populationConstraint.type]]=true
+            setCheckPopulation(tempCheckPopulation)
+        }
+
+        if(compactnessConstraint.value){
+            setCompactValue(compactnessConstraint.value)
+            let tempCheckCompactness=checkCompactness
+            tempCheckCompactness[[compactnessConstraint.type]]=true
+            setCheckCompactness(tempCheckCompactness)
+        }
+
+        if(majorityMinorityConstraint){
+            setMajMinValue(majorityMinorityConstraint)
+        }
     }, [])
 
     const openIncumbentPopup = (e) => {
@@ -116,6 +138,15 @@ const FirstFilter = () => {
             incumbents: [...checks] //set the incumbents user chose to protect
         })
 
+        setCompactnessConstraint({
+            value:compactValue,
+            type:checkCompactness.indexOf(true)
+        })
+        setPopulationConstraint({
+            value:popEqualValue,
+            type:checkPopulation.indexOf(true)
+        });
+        setMajorityMinorityConstraint(majMinValue)
         setPageName('obj-func-page'); //move on to next page
     }
 
@@ -123,6 +154,17 @@ const FirstFilter = () => {
         console.log('back to state selection');
         resetChecks(); //reset any incumbents user protected
         setStateDistricts(null); //reset any district data for enacted districting
+        setPopulationConstraint({ // reset population value and choice
+            value:null,
+            type:null
+        })
+
+        setCompactnessConstraint({ //reset constraint value and choice
+            value:null,
+            type:null
+        })
+
+        setMajorityMinorityConstraint(null)
         setPageName('state-selection'); //go back to state selection
     }
 
@@ -192,6 +234,21 @@ const FirstFilter = () => {
         setCheckPopulation([...tempChecks]); //set population type list
     }
 
+    const userCheckedCompactness=(e)=>{
+        const index = parseInt(e.target.id.split('_')[1])
+        console.log(index)
+        let tempChecks = checkCompactness;
+        for (let i = 0; i < tempChecks.length; i++) {
+            if (i === index) { //toggle the selected population type
+                tempChecks[i] = !tempChecks[i];
+            } else {
+                tempChecks[i] = false; //set everything else to false
+            }
+        }
+
+        setCheckCompactness([...tempChecks]); //set population type list
+    }
+
     let render = "";
 
     if (stateDistricts) { //if the districts have been loaded in
@@ -249,18 +306,18 @@ const FirstFilter = () => {
                             <p class="h4">Population Equality:</p>
                             <div>
                                 <div class="d-flex flex-row justify-content-start">
-                                    <input class="form-check-input" type="checkbox" id="totPop_0" style={{ marginRight: '10px' }} checked={checkPopulation[0]} onChange={userCheckedPop} />
-                                    <label class="h6" htmlFor='totPop_0'>Total Population:</label>
+                                    <input class="form-check-input" type="radio" id="totPop_0" style={{ marginRight: '10px' }} checked={checkPopulation[0]} onChange={userCheckedPop} />
+                                    <label class="h6" htmlFor='totPop_0'>Total Population</label>
 
                                 </div>
                                 <div class="d-flex flex-row justify-content-start">
-                                    <input class="form-check-input" type="checkbox" id="vap_1" style={{ marginRight: '10px' }} checked={checkPopulation[1]} onChange={userCheckedPop} disabled />
-                                    <label class="h6" htmlFor='vap_1'>Voting Age Population:</label>
+                                    <input class="form-check-input" type="radio" id="vap_1" style={{ marginRight: '10px' }} checked={checkPopulation[1]} onChange={userCheckedPop} />
+                                    <label class="h6" htmlFor='vap_1'>Voting Age Population</label>
                                 </div>
                                 <div class="d-flex flex-row justify-content-between">
                                     <div>
-                                        <input class="form-check-input" type="checkbox" id="cvap_2" style={{ marginRight: '10px' }} checked={checkPopulation[2]} onChange={userCheckedPop} disabled />
-                                        <label class="h6" htmlFor='cvap_2'>Citizen Voting Age Population:</label>
+                                        <input class="form-check-input" type="radio" id="cvap_2" style={{ marginRight: '10px' }} checked={checkPopulation[2]} onChange={userCheckedPop} />
+                                        <label class="h6" htmlFor='cvap_2'>Citizen Voting Age Population</label>
                                     </div>
                                     {/* <p class="h4 px-2 border border-primary">{popEqualValue}</p> */}
                                     <input type="number" value={popEqualValue} disabled="disabled" style={{ width: '60px' }} />
@@ -295,11 +352,11 @@ const FirstFilter = () => {
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
                                         <div class="form-check">
-                                            <label class="form-check-label h6" htmlFor="geo-compact">
+                                            <label class="form-check-label h6" htmlFor="geo-compact_0">
                                                 {/* <p class="h6">Geographic compactness:</p> */}
                                                 Geographic compactness
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="geo-compact" onChange={userChecked} />
+                                            <input class="form-check-input" type="radio" id="geo-compact_0" onChange={userCheckedCompactness} checked={checkCompactness[0]}/>
                                         </div>
                                         {/* <p class="h6">Geographic compactness:</p> */}
                                         {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
@@ -311,10 +368,10 @@ const FirstFilter = () => {
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
                                         <div class="form-check">
-                                            <label class="form-check-label" htmlFor="graph-compact">
+                                            <label class="form-check-label" htmlFor="graph-compact_1">
                                                 <p class="h6">Graph compactness</p>
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="graph-compact" onChange={userChecked} />
+                                            <input class="form-check-input" type="radio" id="graph-compact_1" onChange={userCheckedCompactness} checked={checkCompactness[1]}/>
                                         </div>
                                         {/* <p class="h6">Graph compactness:</p> */}
                                         {/* <input type="number" value={graphCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
@@ -326,10 +383,10 @@ const FirstFilter = () => {
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
                                         <div class="form-check">
-                                            <label class="form-check-label" htmlFor="pop-fat">
+                                            <label class="form-check-label" htmlFor="pop-fat_2">
                                                 <p class="h6">Population fatness</p>
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="pop-fat" onChange={userChecked} />
+                                            <input class="form-check-input" type="radio" id="pop-fat_2" onChange={userCheckedCompactness} checked={checkCompactness[2]}/>
                                         </div>
                                         {/* <p class="h6">Population fatness:</p> */}
                                         <input type="number" value={compactValue} disabled="disabled" style={{ width: '60px' }} />
@@ -502,4 +559,4 @@ const FirstFilter = () => {
     )
 }
 
-export default FirstFilter;
+export default Constraints;

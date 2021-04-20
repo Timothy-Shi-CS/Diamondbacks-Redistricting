@@ -223,7 +223,7 @@ const StateSelection = () => {
             stateCenter: [center.latitude, center.longitude], //set the center of that state for the next page
             incumbents: []
         });
-        setPageName('first-filter') //move on to next page
+        setPageName('constraints') //move on to next page
 
     }
 

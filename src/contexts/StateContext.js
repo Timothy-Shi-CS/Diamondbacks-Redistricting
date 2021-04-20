@@ -32,8 +32,29 @@ export const StateProvider = (props) => {
         compactnessVal:'0.5'
     })
 
+    const[populationConstraint,setPopulationConstraint]=useState({
+        value:null,
+        type:null
+    })
+
+    const[compactnessConstraint,setCompactnessConstraint]=useState({
+        value:null,
+        type:null
+    })
+
+    const [majorityMinorityConstraint,setMajorityMinorityConstraint]=useState(null)
+
     return (
-        <StateContext.Provider value={{ state: [stateFeature, setStateFeature], page: [page, setPage], polygon: [polygon, setPolygon], districts:[districts,setDistrics], objective:[objValueParams,setObjValueParams]}}>
+        <StateContext.Provider value={{ 
+            state: [stateFeature, setStateFeature], 
+            page: [page, setPage], 
+            polygon: [polygon, setPolygon], 
+            districts:[districts,setDistrics], 
+            objective:[objValueParams,setObjValueParams], 
+            population:[populationConstraint,setPopulationConstraint], 
+            compactness:[compactnessConstraint,setCompactnessConstraint],
+            majorityMinority:[majorityMinorityConstraint,setMajorityMinorityConstraint]
+            }}>
             {props.children}
         </StateContext.Provider>
     )

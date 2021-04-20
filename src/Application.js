@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 
 import StateSelection from './pages/StateSelection'
-import FirstFilter from './pages/FirstFilter'
+import Constraints from './pages/Constraints'
 import ObjFuncPage from './pages/ObjFuncPage'
 import FinalFilters from './pages/FinalFilters'
 
@@ -15,8 +15,8 @@ function Application() {
 
     if (pageName === 'state-selection') {
         renderPage = <StateSelection />
-    } else if (pageName === 'first-filter') {
-        renderPage = <FirstFilter />
+    } else if (pageName === 'constraints') {
+        renderPage = <Constraints />
     } else if (pageName === 'obj-func-page') {
         renderPage = <ObjFuncPage />
     } else if (pageName === 'final-filters') {
