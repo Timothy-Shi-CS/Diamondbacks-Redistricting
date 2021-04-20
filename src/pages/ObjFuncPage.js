@@ -9,10 +9,6 @@ const ObjFuncPage = () => {
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
     const [objValueParams, setObjValueParams] = objective;
-    const [distColors, setDistColors] = useState(null);
-
-    const [selectedDist, setSelectedDist] = useState(null);
-    const [distNums, setDistNums] = useState(null);
 
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
@@ -26,10 +22,10 @@ const ObjFuncPage = () => {
     const [graphCompactRangeVal, setGraphCompactRangeVal] = useState(objValueParams.graphCompact);
     const [popFatRangeVal, setPopFatRangeVal] = useState(objValueParams.populationFatness);
     const [checks, setChecks] = useState([false, false, false]);
-    const [sliderVal, setSliderVal] = useState('0.5')
+    const [compactnessSliderVal, setCompactnessSliderVal] = useState('0.5')
     const [chosenCompact, setChosenCompact] = useState('');
 
-    const [viewport, setViewport] = useState({
+    const [viewport, setViewport] = useState({ // set the map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
         zoom: 6,
@@ -51,8 +47,8 @@ const ObjFuncPage = () => {
             chosenCompactness: '',
             compactnessVal: '0.5'
         }
-        setObjValueParams(paramValues);
-        setPageName('first-filter')
+        setObjValueParams(paramValues);  //reset the values of the weights of each measure
+        setPageName('first-filter') //go back to previous page
     }
     const backToStateSelection = (e) => {
         let paramValues = {
@@ -67,16 +63,16 @@ const ObjFuncPage = () => {
             chosenCompactness: '',
             compactnessVal: '0.5'
         }
-        setObjValueParams(paramValues);
-        setStateDistricts(null);
-        setPageName('state-selection')
+        setObjValueParams(paramValues); //reset the values of the weights of each measure
+        setStateDistricts(null); //reset the districts of the enacted districting
+        setPageName('state-selection') //go back to state selection
     }
 
-    const enactedDistricts = require('../data/districts114.json');
+    const enactedDistricts = require('../data/districts114.json'); //load in the enacted districtings of each state
 
     useEffect(() => {
-        if (stateDistricts === null) {
-            let coordHolder = {
+        if (stateDistricts === null) { //if the districts weren't loaded in before, do so now
+            let coordHolder = { //create a map to hold the districts data
                 type: "FeatureCollection",
                 features: [],
                 distNums: [],
@@ -109,9 +105,9 @@ const ObjFuncPage = () => {
             setStateDistricts(coordHolder);
         }
 
-        if (objValueParams.chosenCompactness !== '') {
+        if (objValueParams.chosenCompactness !== '') { //if we stored the compactness type
             let index;
-            if (objValueParams.chosenCompactness === 'geo-compact') {
+            if (objValueParams.chosenCompactness === 'geo-compact') { //get the type which is associated with an index in an array
                 index = 0;
             }
             else if (objValueParams.chosenCompactness === 'graph-compact') {
@@ -121,7 +117,7 @@ const ObjFuncPage = () => {
             }
 
             let tempChecks = [false, false, false]
-            for (let i = 0; i < checks.length; i++) {
+            for (let i = 0; i < checks.length; i++) { //set the type to true in the array
                 if (i === index) {
                     tempChecks[i] = true;
                 }
@@ -129,11 +125,11 @@ const ObjFuncPage = () => {
                     tempChecks[i] = false;
                 }
             }
-            setChecks([...tempChecks])
+            setChecks([...tempChecks]) //set the array in the local state to change the ui
             //document.getElementById('slider_range').disabled = false
         }
-        setChosenCompact(objValueParams.chosenCompactness)
-        setSliderVal(objValueParams.compactnessVal);
+        setChosenCompact(objValueParams.chosenCompactness) 
+        setCompactnessSliderVal(objValueParams.compactnessVal); //set the value of the compactness slider
     }, []);
 
     const userClickedDistrict = (e) => {
@@ -144,13 +140,8 @@ const ObjFuncPage = () => {
 
             setPopUpCoords([...e.lngLat]);
             setPopUpText(`District ${dist_num}`);
-            setSelectedDist(stateDistricts.features[dist_num - 1]);
-
-            // console.log(e.lngLat);
-            // console.log(stateCoords.features[dist_num - 1]);
-            // console.log(dist_num);
         } else {
-            setSelectedDist(null);
+            setPopUpCoords(null);
         }
 
     }
@@ -158,18 +149,18 @@ const ObjFuncPage = () => {
     const saveEverything = (e) => {
         e.preventDefault();
         let allFalse = true
-        for (let i = 0; i < checks.length; i++) {
+        for (let i = 0; i < checks.length; i++) { //check if the user chose a compactness measure
             if (checks[i] === true) {
                 allFalse = false;
             }
-        }
+        } 
 
         if (allFalse) {
             alert('You must choose a compactness measure!')
             return;
         }
 
-        let paramValues = {
+        let paramValues = { //grab the values of each of the sliders
             populationEquality: popEqRangeVal,
             splitCounties: splitCountyRangeVal,
             devAvgDist: devAvgDistRangeVal,
@@ -179,15 +170,15 @@ const ObjFuncPage = () => {
             graphCompact: graphCompactRangeVal,
             populationFatness: popFatRangeVal,
             chosenCompactness: chosenCompact,
-            compactnessVal: sliderVal
+            compactnessVal: compactnessSliderVal
         }
-        setObjValueParams(paramValues);
-        setPageName('final-filters');
+        setObjValueParams(paramValues); //set the values of each of the sliders
+        setPageName('final-filters'); //move on to the final page
     }
 
     let render = "";
 
-    if (stateDistricts) {
+    if (stateDistricts) { //if the state's districts have been loaded in
         render = stateDistricts.features.map((f, index) => {
             const f_data = {
                 type: f.type,
@@ -268,7 +259,7 @@ const ObjFuncPage = () => {
     const userChecked = (e) => {
 
         let index;
-        if (e.target.id === 'geo-compact') {
+        if (e.target.id === 'geo-compact') { //figure out which compactness type they chose
             index = 0;
         }
         else if (e.target.id === 'graph-compact') {
@@ -278,7 +269,7 @@ const ObjFuncPage = () => {
         }
 
         let tempChecks = [false, false, false]
-        for (let i = 0; i < checks.length; i++) {
+        for (let i = 0; i < checks.length; i++) { //toggle on and off
             if (i === index) {
                 if (checks[i] === false) {
                     tempChecks[i] = true;
@@ -290,13 +281,13 @@ const ObjFuncPage = () => {
         }
 
 
-        setChecks([...tempChecks])
-        setChosenCompact(e.target.id)
+        setChecks([...tempChecks]) //set this list to change ui
+        setChosenCompact(e.target.id) //set the chosen compactness in global state
     }
 
-    const setSlider = (e) => {
+    const setCompactnessSlider = (e) => {
         e.preventDefault();
-        setSliderVal(e.target.value);
+        setCompactnessSliderVal(e.target.value);
     }
 
     return (
@@ -420,9 +411,9 @@ const ObjFuncPage = () => {
                                             <input class="form-check-input" type="checkbox" id="pop-fat" checked={checks[2]} onChange={userChecked} />
                                         </div>
                                         {/* <p class="h6">Population fatness:</p> */}
-                                        <input type="number" value={sliderVal} disabled="disabled" style={{ width: '60px' }} />
+                                        <input type="number" value={compactnessSliderVal} disabled="disabled" style={{ width: '60px' }} />
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setSlider} value={sliderVal} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setCompactnessSlider} value={compactnessSliderVal} />
                                 </div>
                             </div>
                         </div>
@@ -459,11 +450,11 @@ const ObjFuncPage = () => {
 
                 {render}
 
-                {popUpCoords && selectedDist ? (
+                {popUpCoords ? (
                     <Popup
                         latitude={popUpCoords[1]}
                         longitude={popUpCoords[0]}
-                        onClose={() => { setSelectedDist(null) }}
+                        onClose={() => { setPopUpCoords(null) }}
                     >
                         <div class="px-2" style={{ zIndex: '2' }}>
                             <h5>{popUpText}</h5>
