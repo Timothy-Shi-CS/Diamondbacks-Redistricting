@@ -288,19 +288,22 @@ const Constraints = () => {
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
-            <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
-                    <p class="h5 d-inline-block back-btn" onClick={backToStateSelection}>Back</p>
-                    <div align="center" style={{ paddingTop: "1.5rem" }}>
+            <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0'}}>
+                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", position:'relative'}}>
+                    <p class="h6 d-inline-block back-btn text-white" onClick={backToStateSelection} style={{position:'relative', zIndex:"4"}}>Back</p>
+                    <div className="bg-primary constraints_banner">
+
+                    </div>
+                    <div className="text-white" align="center" style={{ paddingTop: "1.5rem" , position:'relative', zIndex:"4", marginBottom:"25px"}}>
                         <p class="h2">Constraints</p>
                         <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.jobs[stateFeature.job])} redistrictings</em></p>
-                        <hr></hr>
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "80%", width: "100%" }}>
                         <div>
                             <p class="h4">Incumbent Protection:</p>
-                            <a class="link-primary" onClick={openIncumbentPopup}>Click to choose incumbents</a>
+                            <button type="button" class="btn btn-link" onClick={openIncumbentPopup}>Choose incumbents</button>
                         </div>
+                        <hr></hr>
 
                         <div>
                             <p class="h4">Population Equality:</p>
@@ -331,7 +334,7 @@ const Constraints = () => {
                                 <p>0.05</p>
                             </div>
                         </div>
-
+                        <hr></hr>
 
                         <div>
                             <div class="d-flex flex-row justify-content-between">
@@ -344,7 +347,7 @@ const Constraints = () => {
                                 <p>4</p>
                             </div>
                         </div>
-
+                        <hr></hr>
                         <div>
                             <div>
                                 <p class="h4">Compactness:</p>
@@ -403,7 +406,7 @@ const Constraints = () => {
                         </div>
 
                         <div>
-                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Proceed</button>
+                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Apply</button>
                         </div>
                     </div>
                 </div>
@@ -455,7 +458,6 @@ const Constraints = () => {
                                     <thead>
                                         <tr>
                                             <th scope="col">District #</th>
-                                            <th scope="col"></th>
                                             <th scope="col">Name</th>
                                             <th scope="col">Party</th>
                                             <th scope="col"></th>
@@ -464,77 +466,66 @@ const Constraints = () => {
                                     <tbody>
                                         <tr class="table-danger">
                                             <th scope="row">1</th>
-                                            <td><img src='https://upload.wikimedia.org/wikipedia/commons/9/92/Rob_Wittman_116th_Congress.jpg' alt='Robert Wittman' style={{width:'40px'}}/></td>
                                             <td>Robert Wittman</td>
                                             <td>Republican</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent1" checked={checks[0]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">2</th>
-                                            <td></td>
                                             <td>Elaine Luria</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent2" checked={checks[1]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">3</th>
-                                            <td></td>
                                             <td>Robert Scott</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent3" checked={checks[2]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">4</th>
-                                            <td></td>
                                             <td>Donald McEachin</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent4" checked={checks[3]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-danger">
                                             <th scope="row">5</th>
-                                            <td></td>
                                             <td>Robert Good</td>
                                             <td>Republican</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent5" checked={checks[4]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-danger">
                                             <th scope="row">6</th>
-                                            <td></td>
                                             <td>Ben Cline</td>
                                             <td>Republican</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent6" checked={checks[5]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">7</th>
-                                            <td></td>
                                             <td>Abigail Spanberger</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent7" checked={checks[6]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">8</th>
-                                            <td></td>
                                             <td>Donald Beyer Jr.</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent8" checked={checks[7]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-danger">
                                             <th scope="row">9</th>
-                                            <td></td>
                                             <td>Morgan Griffith</td>
                                             <td>Republican</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent9" checked={checks[8]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">10</th>
-                                            <td></td>
                                             <td>Jennifer Wexton</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent10" checked={checks[9]} onChange={userChecked} /></td>
                                         </tr>
                                         <tr class="table-info">
                                             <th scope="row">11</th>
-                                            <td></td>
                                             <td>Gerald Connolly</td>
                                             <td>Democratic</td>
                                             <td><input class="form-check-input" type="checkbox" value="" id="incumbent11" checked={checks[10]} onChange={userChecked} /></td>

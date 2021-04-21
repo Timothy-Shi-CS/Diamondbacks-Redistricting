@@ -1,3 +1,30 @@
 .back-btn:hover, a:hover, .compareBtn:hover, .boxAndWhisker:hover{
   cursor: pointer;
 }
+
+.state_selection_banner{
+  position:absolute;
+  top: 0;
+  left:0;
+  width:100%;
+  height:200px;
+  z-index: 3;
+}
+
+.constraints_banner{
+  position:absolute;
+  top: 0;
+  left:0;
+  width:100%;
+  height:150px;
+  z-index: 3;
+}
+
+.weights_banner{
+  position:absolute;
+  top: 0;
+  left:0;
+  width:100%;
+  height:125px;
+  z-index: 3;
+}

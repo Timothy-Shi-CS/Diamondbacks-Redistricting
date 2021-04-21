@@ -24,6 +24,7 @@ const ObjFuncPage = () => {
     const [checks, setChecks] = useState([false, false, false]);
     const [compactnessSliderVal, setCompactnessSliderVal] = useState('0.5')
     const [chosenCompact, setChosenCompact] = useState('');
+    const [efficiencyGap,setEfficiencyGap]=useState(0.75)
 
     const [viewport, setViewport] = useState({ // set the map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -128,6 +129,9 @@ const ObjFuncPage = () => {
             setChecks([...tempChecks]) //set the array in the local state to change the ui
             //document.getElementById('slider_range').disabled = false
         }
+        if (objValueParams.efficiencyGap){
+            setEfficiencyGap(objValueParams.efficiencyGap)
+        }
         setChosenCompact(objValueParams.chosenCompactness) 
         setCompactnessSliderVal(objValueParams.compactnessVal); //set the value of the compactness slider
     }, []);
@@ -170,7 +174,8 @@ const ObjFuncPage = () => {
             graphCompact: graphCompactRangeVal,
             populationFatness: popFatRangeVal,
             chosenCompactness: chosenCompact,
-            compactnessVal: compactnessSliderVal
+            compactnessVal: compactnessSliderVal,
+            efficiencyGap:efficiencyGap
         }
         setObjValueParams(paramValues); //set the values of each of the sliders
         setPageName('final-filters'); //move on to the final page
@@ -237,19 +242,9 @@ const ObjFuncPage = () => {
         setDevAvgEnDistPopRangeVal(e.target.value);
     }
 
-    const geoCompactRange = (e) => {
+    const setEfficiencyGapSlider=(e)=>{
         e.preventDefault();
-        setGeoCompactRangeVal(e.target.value);
-    }
-
-    const graphCompactRange = (e) => {
-        e.preventDefault();
-        setGraphCompactRangeVal(e.target.value);
-    }
-
-    const popFatRange = (e) => {
-        e.preventDefault();
-        setPopFatRangeVal(e.target.value);
+        setEfficiencyGap(e.target.value)
     }
 
     const numberWithCommas = (x) => {
@@ -293,17 +288,19 @@ const ObjFuncPage = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "3" }}>
+                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "3", position:"relative"}}>
                     <div className="d-flex flex-row justify-content-between">
-                        <p class="h5 d-inline-block back-btn" onClick={backToConstraints}>Back</p>
-                        <p class="h5 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
+                        <p class="h6 d-inline-block back-btn text-white" onClick={backToConstraints} style={{position:'relative', zIndex:"4"}}>Back</p>
+                        <p class="h6 d-inline-block back-btn text-white" onClick={backToStateSelection} style={{position:'relative', zIndex:"4"}}>Home</p>
                     </div>
 
-                    <div align="center" style={{ paddingTop: "1rem" }}>
+                    <div className="text-white" align="center" style={{ paddingTop: "1rem", zIndex:"4", position:"relative", marginBottom:"30px"}}>
                         <p class="h3">Objective Function Weights</p>
                         <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(Math.floor(Math.sqrt(stateFeature.jobs[stateFeature.job])))} redistrictings</em></p>
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
-                        <hr></hr>
+                    </div>
+                    <div className="bg-primary weights_banner">
+
                     </div>
                     <div className="d-flex flex-column justify-content-between" style={{ height: "70%", width: "100%" }}>
                         <div>
@@ -328,9 +325,8 @@ const ObjFuncPage = () => {
                                     <input type="range" class="form-range" min="0" max="1" step="0.01" id="split_county_range" onInput={splitCountyRange} value={splitCountyRangeVal} />
                                 </div>
                             </div>
-
+                            <hr></hr>
                         </div>
-                        <hr></hr>
 
 
                         <div>
@@ -365,8 +361,8 @@ const ObjFuncPage = () => {
                                 </div>
 
                             </div>
+                            <hr></hr>
                         </div>
-                        <hr></hr>
 
                         <div>
                             <p class="h4">Compactness:</p>
@@ -378,13 +374,9 @@ const ObjFuncPage = () => {
                                                 {/* <p class="h6">Geographic compactness:</p> */}
                                                 Geographic compactness
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="geo-compact" checked={checks[0]} onChange={userChecked} />
+                                            <input class="form-check-input" type="radio" id="geo-compact" checked={checks[0]} onChange={userChecked} />
                                         </div>
-                                        {/* <p class="h6">Geographic compactness:</p> */}
-                                        {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
-                                        {/* <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p> */}
                                     </div>
-                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} /> */}
                                 </div>
 
                                 <div>
@@ -393,13 +385,9 @@ const ObjFuncPage = () => {
                                             <label class="form-check-label" htmlFor="graph-compact">
                                                 <p class="h6">Graph compactness</p>
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="graph-compact" checked={checks[1]} onChange={userChecked} />
+                                            <input class="form-check-input" type="radio" id="graph-compact" checked={checks[1]} onChange={userChecked} />
                                         </div>
-                                        {/* <p class="h6">Graph compactness:</p> */}
-                                        {/* <input type="number" value={graphCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
-                                        {/* <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p> */}
                                     </div>
-                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} /> */}
                                 </div>
 
                                 <div>
@@ -408,7 +396,7 @@ const ObjFuncPage = () => {
                                             <label class="form-check-label" htmlFor="pop-fat">
                                                 <p class="h6">Population fatness</p>
                                             </label>
-                                            <input class="form-check-input" type="checkbox" id="pop-fat" checked={checks[2]} onChange={userChecked} />
+                                            <input class="form-check-input" type="radio" id="pop-fat" checked={checks[2]} onChange={userChecked} />
                                         </div>
                                         {/* <p class="h6">Population fatness:</p> */}
                                         <input type="number" value={compactnessSliderVal} disabled="disabled" style={{ width: '60px' }} />
@@ -416,14 +404,14 @@ const ObjFuncPage = () => {
                                     <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setCompactnessSlider} value={compactnessSliderVal} />
                                 </div>
                             </div>
+                            <hr></hr>
                         </div>
-                        <hr></hr>
                         <div>
                             <div className='d-flex flex-row justify-content-between'>
                                 <p class="h5 " >Efficiency Gap:</p>
-                                <input type="number" value={0.78} disabled="disabled" style={{ width: '60px', marginRight:'15px'}} />
+                                <input type="number" value={efficiencyGap} disabled style={{ width: '60px', marginRight:'15px'}} />
                             </div>
-                            <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" value={0.78} disabled/>
+                            <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setEfficiencyGapSlider} value={efficiencyGap}/>
 
                         </div>
 

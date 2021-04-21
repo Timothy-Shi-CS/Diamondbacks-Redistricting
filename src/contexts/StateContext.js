@@ -28,18 +28,19 @@ export const StateProvider = (props) => {
         geographicCompact:'0.10',
         graphCompact:'0.50',
         populationFatness:'0.83',
-        chosenCompactness:'',
-        compactnessVal:'0.5'
+        chosenCompactness:'geo-compact',
+        compactnessVal:'0.5',
+        efficiencyGap:'0.75'
     })
 
     const[populationConstraint,setPopulationConstraint]=useState({
-        value:null,
-        type:null
+        value:0.02,
+        type:0
     })
 
     const[compactnessConstraint,setCompactnessConstraint]=useState({
-        value:null,
-        type:null
+        value:0.5,
+        type:0
     })
 
     const [majorityMinorityConstraint,setMajorityMinorityConstraint]=useState(null)

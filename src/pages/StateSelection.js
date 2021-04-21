@@ -234,14 +234,19 @@ const StateSelection = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-3 shadow-lg" align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height: '100%' }}>
-                    <h3>Select a state:</h3>
-                    <select id="state-selection" class="form-select" onChange={stateSelectionDropdown}>
-                        <option value="" defaultValue hidden>Select a state</option>
-                        <option value="NV">Nevada</option>
-                        <option value="UT">Utah</option>
-                        <option value="VA">Virginia</option>
-                    </select>
+                <div id="left-bar" className="col-3 shadow-lg " align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height: '100%',position:"relative"}}>
+                    <div className="text-white" style={{zIndex:"4", position:"relative"}}>
+                        <h3>Select a state:</h3>
+                        <select id="state-selection" class="form-select" onChange={stateSelectionDropdown}>
+                            <option value="" defaultValue hidden>Select a state</option>
+                            <option value="NV">Nevada</option>
+                            <option value="UT">Utah</option>
+                            <option value="VA">Virginia</option>
+                        </select>
+                    </div>
+                    <div className="bg-primary state_selection_banner">
+
+                    </div>
                     {stateFeature.jobs !== null ? ( 
                         <div className="d-flex flex-column justify-content-between py-4" style={{ height: "90%", width: "100%" }}>
                             <hr></hr>
@@ -264,7 +269,7 @@ const StateSelection = () => {
                                 })}
                             </div>
 
-                            <div>
+                            <div style={{margin:"10px"}}>
                                 {stateFeature.job !== null ? ( //the proceed button should only be clickable when user has chosen a job
                                     <button type="button" className="btn btn-lg col-12 btn-success" onClick={applyEverything}>Proceed</button>
                                 ) : (
@@ -272,7 +277,6 @@ const StateSelection = () => {
                                     )}
 
                             </div>
-                            <hr></hr>
                         </div>
                     ) : ""}
 
