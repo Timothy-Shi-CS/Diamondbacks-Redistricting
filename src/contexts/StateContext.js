@@ -7,8 +7,7 @@ export const StateProvider = (props) => {
         feature: null,
         jobs: null,
         job: null,
-        stateCenter: null,
-        incumbents:[]
+        stateCenter: null
     });
 
     const [page, setPage] = useState("state-selection"); //start at state selection
@@ -33,17 +32,18 @@ export const StateProvider = (props) => {
         efficiencyGap:'0.75'
     })
 
-    const[populationConstraint,setPopulationConstraint]=useState({
-        value:0.02,
-        type:0
+    const [constraints,setConstraints]=useState({
+        populationConstraint:{
+            value:0.02,
+            type:0
+        },
+        compactnessConstraint:{
+            value:0.5,
+            type:0
+        },
+        majorityMinorityConstraint:2,
+        incumbents:[]
     })
-
-    const[compactnessConstraint,setCompactnessConstraint]=useState({
-        value:0.5,
-        type:0
-    })
-
-    const [majorityMinorityConstraint,setMajorityMinorityConstraint]=useState(null)
 
     return (
         <StateContext.Provider value={{ 
@@ -52,9 +52,7 @@ export const StateProvider = (props) => {
             polygon: [polygon, setPolygon], 
             districts:[districts,setDistrics], 
             objective:[objValueParams,setObjValueParams], 
-            population:[populationConstraint,setPopulationConstraint], 
-            compactness:[compactnessConstraint,setCompactnessConstraint],
-            majorityMinority:[majorityMinorityConstraint,setMajorityMinorityConstraint]
+            constraintsData:[constraints,setConstraints]
             }}>
             {props.children}
         </StateContext.Provider>

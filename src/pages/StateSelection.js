@@ -49,8 +49,7 @@ const StateSelection = () => {
         feature: null,
         jobs: null,
         job: null,
-        stateCenter: null,
-        incumbents: []
+        stateCenter: null
     }
 
     const statesLayer = {  //used to outline the entire U.S.
@@ -132,8 +131,7 @@ const StateSelection = () => {
                 feature: cur_feature, //set the current features
                 jobs: jobs, //set the randomly generated jobs
                 job: null, //no job is chosen yet
-                stateCenter: null,
-                incumbents: []
+                stateCenter: null
             };
 
             setStateFeature(temp_feature); //set the data for the state
@@ -202,7 +200,6 @@ const StateSelection = () => {
             jobs: stateFeature.jobs,
             job: id - 1, //set current job by index
             stateCenter: null, //user hasn't confirmed on state selection so we leave center null
-            incumbents: []
         });
     }
 
@@ -221,7 +218,6 @@ const StateSelection = () => {
             jobs: stateFeature.jobs,
             job: curJob, //set the current job that was chosen
             stateCenter: [center.latitude, center.longitude], //set the center of that state for the next page
-            incumbents: []
         });
         setPageName('constraints') //move on to next page
 
