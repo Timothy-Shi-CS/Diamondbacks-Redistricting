@@ -48,9 +48,6 @@ const Constraints = () => {
     const enactedDistricts = require('../data/districts114.json');
 
     useEffect(() => {
-        // if (stateFeature.feature !== null) { //if the user had chosen a state, the state data could potentially contain already selected incumbents.
-        //     setChecks([...stateFeature.incumbents]); //lets set the potentionally already selected incumbents
-        // }
         console.log(stateDistricts)
         if (stateDistricts === null) { //if the districts for the enacted districting weren't loaded in before, load them in now
             let coordHolder = { //set up the map that will hold all this data
@@ -102,25 +99,6 @@ const Constraints = () => {
 
     const saveEverything = (e) => {
         e.preventDefault();
-        // let allFalse=true;
-        // for(let i=0;i<checkPopulation.length;i++){
-        //     if(checkPopulation[i]){
-        //         allFalse=false;
-        //         break;
-        //     }
-        // }
-        // if(allFalse){
-        //     alert('You must choose a population equality constraint!')
-        //     return;
-        // }
-
-        setStateFeature({
-            feature: stateFeature.feature,
-            jobs: stateFeature.jobs,
-            job: stateFeature.job,
-            stateCenter: stateFeature.stateCenter,
-            incumbents: [] //set the incumbents user chose to protect
-        })
         setPageName('obj-func-page'); //move on to next page
     }
 
@@ -150,59 +128,61 @@ const Constraints = () => {
         let tempChecks = [...constraints.incumbents]; //get the list of checks
         tempChecks[index - 1] = !tempChecks[index - 1] //toggle the incumbent in list
 
-        setConstraints({ 
-            populationConstraint:constraints.populationConstraint,
-            compactnessConstraint:constraints.compactnessConstraint,
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:[...tempChecks] //set list of checks in context
+        setConstraints(prevConstraints => {
+            return {
+                ...prevConstraints,
+                incumbents:[...tempChecks] //set list of checks in context
+            }
         })
     }
 
     const resetChecks = (e) => {
         let reset = [false, false, false, false, false, false, false, false, false, false, false]; 
-        setConstraints({ 
-            populationConstraint:constraints.populationConstraint,
-            compactnessConstraint:constraints.compactnessConstraint,
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:[...reset] //set list of checks in context
+
+        setConstraints(prevConstraints => {
+            return {
+                ...prevConstraints,
+                incumbents:[...reset] //set list of checks in context
+            }
         })
     }
 
     const popEqual = (e) => {
         e.preventDefault();
-        setConstraints({
-            populationConstraint:{
-                value:e.target.value,
-                type:constraints.populationConstraint.type
-            },
-            compactnessConstraint:constraints.compactnessConstraint,
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:constraints.incumbents
+
+        setConstraints(prevConstraints=>{
+            return{
+                ...prevConstraints,
+                populationConstraint:{
+                    value:e.target.value,
+                    type:constraints.populationConstraint.type
+                }
+            }
         })
-        // setPopEqualValue(e.target.value)
     }
 
     const majMin = (e) => {
         e.preventDefault();
-        setConstraints({
-            populationConstraint:constraints.populationConstraint,
-            compactnessConstraint:constraints.compactnessConstraint,
-            majorityMinorityConstraint:e.target.value,
-            incumbents:constraints.incumbents
+
+        setConstraints(prevConstraints=>{
+            return{
+                ...prevConstraints,
+                majorityMinorityConstraint:e.target.value
+            }
         })
-        // setMajMinValue(e.target.value);
     }
 
     const compact = (e) => {
         e.preventDefault();
-        setConstraints({
-            populationConstraint:constraints.populationConstraint,
-            compactnessConstraint:{
-                value:e.target.value,
-                type:checkCompactness.indexOf(true)
-            },
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:constraints.incumbents
+
+        setConstraints(prevConstraints=>{
+            return{
+                ...prevConstraints,
+                compactnessConstraint:{
+                    value:e.target.value,
+                    type:constraints.compactnessConstraint.type
+                }
+            }
         })
     }
 
@@ -227,11 +207,11 @@ const Constraints = () => {
     const selectAllIncumbents = (e) => {
         e.preventDefault();
         let tempChecks = [true, true, true, true, true, true, true, true, true, true, true];
-        setConstraints({ 
-            populationConstraint:constraints.populationConstraint,
-            compactnessConstraint:constraints.compactnessConstraint,
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:[...tempChecks] //set list of checks in context
+        setConstraints(prevConstraints => {
+            return {
+                ...prevConstraints,
+                incumbents:[...tempChecks] //set list of checks in context
+            }
         })
         
     }
@@ -251,14 +231,15 @@ const Constraints = () => {
         }
 
         setCheckPopulation([...tempChecks]); //set population type list
-        setConstraints({
-            populationConstraint:{
-                value:constraints.populationConstraint.value,
-                type:index
-            },
-            compactnessConstraint:constraints.compactnessConstraint,
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:constraints.incumbents
+
+        setConstraints(prevConstraints =>{
+            return {
+                ...prevConstraints,
+                populationConstraint:{
+                    value:constraints.populationConstraint.value,
+                    type:index
+                }
+            }
         })
     }
 
@@ -277,14 +258,15 @@ const Constraints = () => {
         }
 
         setCheckCompactness([...tempChecks]); //set population type list
-        setConstraints({
-            populationConstraint:constraints.populationConstraint,
-            compactnessConstraint:{
-                value:constraints.compactnessConstraint.value,
-                type:index
-            },
-            majorityMinorityConstraint:constraints.majorityMinorityConstraint,
-            incumbents:constraints.incumbents
+
+        setConstraints(prevConstraints => {
+            return {
+                ...prevConstraints,
+                compactnessConstraint:{
+                    value:constraints.compactnessConstraint.value,
+                    type:index
+                }
+            }
         })
     }
 

@@ -82,7 +82,6 @@ const StateSelection = () => {
 
             //set value of dropdown
             document.getElementById('state-selection').value = stateFeature.feature.properties.postal;
-            setCurJob(stateFeature.job)
             //set current job to job that was already chosen
         }
     }, [])
@@ -93,7 +92,7 @@ const StateSelection = () => {
         if (stateFeature.job !== null) { //if user clicked on another state after choosing a job
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false; //reset the job button
         }
-        setCurJob(null); //reset current job
+
         setStateFeature(resetFeature); //reset the data for state
         if (e.features[0].properties.name === 'Utah' || e.features[0].properties.name === 'Virginia' || e.features[0].properties.name === 'Nevada') { //check which state the user just clicked on
             setStateByName(e.features[0].properties.name); //state data for map will be set in the function
@@ -168,7 +167,6 @@ const StateSelection = () => {
         if (stateFeature.job !== null) { //if the user has chosen a job and changed state, reset the job button
             document.getElementById(`job-${stateFeature.job + 1}`).disabled = false;
         }
-        setCurJob(null); //reset current job
 
         setStateFeature(resetFeature); //reset state data
 
@@ -181,8 +179,6 @@ const StateSelection = () => {
 
         const id = parseInt(e.target.id.split("-")[1]); //get the id of that job
 
-
-        setCurJob(id - 1); //set current job by the index
         console.log(stateFeature);
         console.log(`Job ${id} has ${stateFeature.jobs[id - 1]} districtings.`)
 
@@ -195,12 +191,12 @@ const StateSelection = () => {
             document.getElementById(`job-${id}`).disabled = true; //disable currently chosen job button
         }
 
-        setStateFeature({
-            feature: stateFeature.feature,
-            jobs: stateFeature.jobs,
-            job: id - 1, //set current job by index
-            stateCenter: null, //user hasn't confirmed on state selection so we leave center null
-        });
+        setStateFeature(prevStateFeature=>{
+            return{
+                ...prevStateFeature,
+                job: id - 1, //set current job by index
+            }
+        })
     }
 
     const applyEverything = (e) => {
@@ -213,12 +209,13 @@ const StateSelection = () => {
                 break;
             }
         }
-        setStateFeature({
-            feature: stateFeature.feature,
-            jobs: stateFeature.jobs,
-            job: curJob, //set the current job that was chosen
-            stateCenter: [center.latitude, center.longitude], //set the center of that state for the next page
-        });
+
+        setStateFeature(prevStateFeature=>{
+            return{
+                ...prevStateFeature,
+                stateCenter:[center.latitude, center.longitude], //set the center of that state for the next page
+            }
+        })
         setPageName('constraints') //move on to next page
 
     }
