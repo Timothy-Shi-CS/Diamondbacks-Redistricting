@@ -244,7 +244,7 @@ const StateSelection = () => {
                         <div className="d-flex flex-column justify-content-between py-4" style={{ height: "90%", width: "100%" }}>
                             <hr></hr>
                             <h5>Choose a job:</h5>
-                            <div style={{ overflow: 'auto', height: '80%' }}>
+                            <div className="shadow" style={{ overflow: 'auto', height: '80%' }}>
                                 {stateFeature.jobs.map((job, index) => {
                                     return (
 

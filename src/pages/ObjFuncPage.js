@@ -416,7 +416,7 @@ const ObjFuncPage = () => {
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
-                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Proceed</button>
+                            <button type="button" className="btn btn-lg col-12 btn-primary" onClick={saveEverything}>Apply</button>
                         </div>
                     </div>
 

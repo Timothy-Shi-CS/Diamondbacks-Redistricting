@@ -41,7 +41,10 @@ export const StateProvider = (props) => {
             value:0.5,
             type:0
         },
-        majorityMinorityConstraint:2,
+        majorityMinorityConstraint:{
+            value:2,
+            type:0
+        },
         incumbents:[]
     })
 

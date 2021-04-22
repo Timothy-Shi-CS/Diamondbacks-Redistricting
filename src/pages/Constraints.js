@@ -15,6 +15,7 @@ const Constraints = () => {
     const [showIncumbents, setShowIncumbents] = useState(false);
     const [checkPopulation, setCheckPopulation] = useState([false, false, false])
     const [checkCompactness, setCheckCompactness] = useState([false, false, false])
+    const [checkMinority, setCheckMinority]=useState([false,false,false]);
 
     const [viewport, setViewport] = useState({ //map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
@@ -89,6 +90,10 @@ const Constraints = () => {
         let tempCheckCompactness=checkCompactness
         tempCheckCompactness[[constraints.compactnessConstraint.type]]=true
         setCheckCompactness(tempCheckCompactness)
+
+        let tempCheckMinority=checkMinority
+        tempCheckMinority[[constraints.majorityMinorityConstraint.type]]=true
+        setCheckMinority(tempCheckMinority)
         
     }, [])
 
@@ -116,7 +121,10 @@ const Constraints = () => {
                 value:0.5,
                 type:0
             },
-            majorityMinorityConstraint:2,
+            majorityMinorityConstraint:{
+                value:2,
+                type:0
+            },
             incumbents:[]
         })
 
@@ -167,7 +175,10 @@ const Constraints = () => {
         setConstraints(prevConstraints=>{
             return{
                 ...prevConstraints,
-                majorityMinorityConstraint:e.target.value
+                majorityMinorityConstraint:{
+                    value:e.target.value,
+                    type:constraints.majorityMinorityConstraint.type
+                }
             }
         })
     }
@@ -270,6 +281,33 @@ const Constraints = () => {
         })
     }
 
+    const userCheckedMinority=(e)=>{
+        const parsedIndex = parseInt(e.target.id.split('_')[1])
+        console.log(parsedIndex)
+        let index=0;
+        let tempChecks = checkMinority;
+        for (let i = 0; i < tempChecks.length; i++) {
+            if (i === parsedIndex) { //toggle the selected population type
+                tempChecks[i] = true;
+                index=i
+            } else {
+                tempChecks[i] = false; //set everything else to false
+            }
+        }
+
+        setCheckMinority([...tempChecks]); //set population type list
+
+        setConstraints(prevConstraints => {
+            return {
+                ...prevConstraints,
+                majorityMinorityConstraint:{
+                    value:constraints.majorityMinorityConstraint.value,
+                    type:index
+                }
+            }
+        })
+    }
+
     let render = "";
 
     if (stateDistricts) { //if the districts have been loaded in
@@ -323,9 +361,10 @@ const Constraints = () => {
                         <div>
                             <p class="h4">Incumbent Protection:</p>
                             <button type="button" class="btn btn-link" onClick={openIncumbentPopup}>Choose incumbents</button>
+                            
                         </div>
+                        
                         <hr></hr>
-
                         <div>
                             <p class="h4">Population Equality:</p>
                             <div>
@@ -350,80 +389,101 @@ const Constraints = () => {
 
 
                             <input type="range" class="form-range" min="0" max="0.05" step="0.001" id="pop_eq_range" onInput={popEqual} value={constraints.populationConstraint.value} />
-                            <div class="d-flex flex-row justify-content-between">
+                            {/* <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
                                 <p>0.05</p>
-                            </div>
+                            </div> */}
+                            
                         </div>
+                        
                         <hr></hr>
-
                         <div>
-                            <div class="d-flex flex-row justify-content-between">
+                            <div>
                                 <p class="h4">Majority-Minority Districts:</p>
-                                <input type="number" value={constraints.majorityMinorityConstraint} disabled="disabled" style={{ width: '60px' }} />
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-start">
+                                        <input class="form-check-input" type="radio" id="asian_0" style={{ marginRight: '10px' }} checked={checkMinority[0]} onChange={userCheckedMinority} />
+                                        <label class="h6" htmlFor='asian_0'>Asian</label>
+
+                                    </div>
+                                    <div class="d-flex flex-row justify-content-start">
+                                        <input class="form-check-input" type="radio" id="aamerican_1" style={{ marginRight: '10px' }} checked={checkMinority[1]} onChange={userCheckedMinority} />
+                                        <label class="h6" htmlFor='aamerican_1'>African-American</label>
+                                    </div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <div>
+                                            <input class="form-check-input" type="radio" id="hispanic_2" style={{ marginRight: '10px' }} checked={checkMinority[2]} onChange={userCheckedMinority} />
+                                            <label class="h6" htmlFor='hispanic_2'>Hispanic</label>
+                                        </div>
+                                        {/* <p class="h4 px-2 border border-primary">{popEqualValue}</p> */}
+                                        <input type="number" value={constraints.majorityMinorityConstraint.value} disabled="disabled" style={{ width: '60px' }} />
+                                    </div>
+                                </div>
+
+                                
                             </div>
-                            <input type="range" class="form-range" min="0" max="4" step="1" id="maj_min_range" onInput={majMin} value={constraints.majorityMinorityConstraint} />
-                            <div class="d-flex flex-row justify-content-between">
+                            <input type="range" class="form-range" min="0" max="4" step="1" id="maj_min_range" onInput={majMin} value={constraints.majorityMinorityConstraint.value} />
+                            {/* <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
                                 <p>4</p>
-                            </div>
+                            </div> */}
+                            
                         </div>
                         <hr></hr>
                         <div>
                             <div>
                                 <p class="h4">Compactness:</p>
-                                <div class="px-3">
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <div class="form-check">
-                                            <label class="form-check-label h6" htmlFor="geo-compact_0">
+                                        <div>
+                                            <div class="d-flex flex-row justify-content-between">
+                                                <div class="form-check">
+                                                    <label class="form-check-label h6" htmlFor="geo-compact_0">
+                                                        {/* <p class="h6">Geographic compactness:</p> */}
+                                                        Geographic Compactness
+                                                    </label>
+                                                    <input class="form-check-input" type="radio" id="geo-compact_0" onChange={userCheckedCompactness} checked={checkCompactness[0]}/>
+                                                </div>
                                                 {/* <p class="h6">Geographic compactness:</p> */}
-                                                Geographic compactness
-                                            </label>
-                                            <input class="form-check-input" type="radio" id="geo-compact_0" onChange={userCheckedCompactness} checked={checkCompactness[0]}/>
+                                                {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
+                                                {/* <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p> */}
+                                            </div>
+                                            {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} /> */}
                                         </div>
-                                        {/* <p class="h6">Geographic compactness:</p> */}
-                                        {/* <input type="number" value={geoCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
-                                        {/* <p class="h6 px-2 border border-primary">{geoCompactRangeVal}</p> */}
-                                    </div>
-                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="geo_compact_range" onInput={geoCompactRange} value={geoCompactRangeVal} /> */}
-                                </div>
 
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <div class="form-check">
-                                            <label class="form-check-label" htmlFor="graph-compact_1">
-                                                <p class="h6">Graph compactness</p>
-                                            </label>
-                                            <input class="form-check-input" type="radio" id="graph-compact_1" onChange={userCheckedCompactness} checked={checkCompactness[1]}/>
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <div class="form-check">
+                                                <label class="form-check-label" htmlFor="graph-compact_1">
+                                                    <p class="h6">Graph Compactness</p>
+                                                </label>
+                                                <input class="form-check-input" type="radio" id="graph-compact_1" onChange={userCheckedCompactness} checked={checkCompactness[1]}/>
+                                            </div>
+                                            {/* <p class="h6">Graph compactness:</p> */}
+                                            {/* <input type="number" value={graphCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
+                                            {/* <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p> */}
                                         </div>
-                                        {/* <p class="h6">Graph compactness:</p> */}
-                                        {/* <input type="number" value={graphCompactRangeVal} disabled="disabled" style={{ width: '60px' }} /> */}
-                                        {/* <p class="h6 px-2 border border-primary">{graphCompactRangeVal}</p> */}
+                                        {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} /> */}
                                     </div>
-                                    {/* <input type="range" class="form-range" min="0" max="1" step="0.01" id="graph_compact_range" onInput={graphCompactRange} value={graphCompactRangeVal} /> */}
-                                </div>
 
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <div class="form-check">
-                                            <label class="form-check-label" htmlFor="pop-fat_2">
-                                                <p class="h6">Population fatness</p>
-                                            </label>
-                                            <input class="form-check-input" type="radio" id="pop-fat_2" onChange={userCheckedCompactness} checked={checkCompactness[2]}/>
+                                    <div>
+                                        <div class="d-flex flex-row justify-content-between">
+                                            <div class="form-check">
+                                                <label class="form-check-label" htmlFor="pop-fat_2">
+                                                    <p class="h6">Population Fatness</p>
+                                                </label>
+                                                <input class="form-check-input" type="radio" id="pop-fat_2" onChange={userCheckedCompactness} checked={checkCompactness[2]}/>
+                                            </div>
+                                            {/* <p class="h6">Population fatness:</p> */}
+                                            <input type="number" value={constraints.compactnessConstraint.value} disabled="disabled" style={{ width: '60px' }} />
                                         </div>
-                                        {/* <p class="h6">Population fatness:</p> */}
-                                        <input type="number" value={constraints.compactnessConstraint.value} disabled="disabled" style={{ width: '60px' }} />
                                     </div>
-                                </div>
-                            </div>
                                 
                             </div>
                             <input type="range" class="form-range" min="0" max="1" step="0.01" id="compact_range" onInput={compact} value={constraints.compactnessConstraint.value} />
-                            <div class="d-flex flex-row justify-content-between">
+                            {/* <div class="d-flex flex-row justify-content-between">
                                 <p>0</p>
                                 <p>1</p>
-                            </div>
+                            </div> */}
                         </div>
 
                         <div>
