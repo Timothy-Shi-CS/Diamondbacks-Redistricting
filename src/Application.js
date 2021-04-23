@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 
 import StateSelection from './pages/StateSelection'
 import Constraints from './pages/Constraints'
-import ObjFuncPage from './pages/ObjFuncPage'
+import Weights from './pages/Weights'
 import FinalFilters from './pages/FinalFilters'
 
 import { StateContext } from './contexts/StateContext'
@@ -17,8 +17,8 @@ function Application() {
         renderPage = <StateSelection />
     } else if (pageName === 'constraints') {
         renderPage = <Constraints />
-    } else if (pageName === 'obj-func-page') {
-        renderPage = <ObjFuncPage />
+    } else if (pageName === 'weights') {
+        renderPage = <Weights />
     } else if (pageName === 'final-filters') {
         renderPage = <FinalFilters />
     }

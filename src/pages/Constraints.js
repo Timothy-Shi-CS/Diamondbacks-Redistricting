@@ -104,7 +104,7 @@ const Constraints = () => {
 
     const saveEverything = (e) => {
         e.preventDefault();
-        setPageName('obj-func-page'); //move on to next page
+        setPageName('weights'); //move on to next page
     }
 
     const backToStateSelection = (e) => {

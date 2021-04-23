@@ -227,7 +227,7 @@ const StateSelection = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-3 shadow-lg " align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height: '100%',position:"relative" }}>
+                <div id="left-bar" className="col-3 shadow-lg " align="center" style={{ backgroundColor: "#fff", zIndex: "2", paddingTop: "5rem", height: '100%',position:"relative"}}>
                     <div className="text-white" style={{zIndex:"4", position:"relative"}}>
                         <h3>Select a state:</h3>
                         <select id="state-selection" class="form-select" onChange={stateSelectionDropdown}>
@@ -237,7 +237,7 @@ const StateSelection = () => {
                             <option value="VA">Virginia</option>
                         </select>
                     </div>
-                    <div className="state_selection_banner" style={{backgroundColor:'#a6283d'}}>
+                    <div className="bg-primary state_selection_banner">
 
                     </div>
                     {stateFeature.jobs !== null ? ( 

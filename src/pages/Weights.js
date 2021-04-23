@@ -3,7 +3,7 @@ import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
 
 import { StateContext } from '../contexts/StateContext'
 
-const ObjFuncPage = () => {
+const Weights = () => {
     const { state, page, districts, objective } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
@@ -271,7 +271,7 @@ const ObjFuncPage = () => {
                         <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(Math.floor(Math.sqrt(stateFeature.jobs[stateFeature.job])))} redistrictings</em></p>
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                     </div>
-                    <div className="bg-primary weights_banner">
+                    <div className="weights_banner" style={{backgroundColor:'#a6283d'}}>
 
                     </div>
                     <div className="d-flex flex-column justify-content-between" style={{ height: "70%", width: "100%" }}>
@@ -432,4 +432,4 @@ const ObjFuncPage = () => {
     )
 }
 
-export default ObjFuncPage;
+export default Weights;

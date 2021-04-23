@@ -292,7 +292,7 @@ const FinalFilters = () => {
 
     const backToObjFunc = (e) => {
         e.preventDefault();
-        setPageName('obj-func-page');
+        setPageName('weights');
     }
 
     const backToStateSelection = (e) => {
