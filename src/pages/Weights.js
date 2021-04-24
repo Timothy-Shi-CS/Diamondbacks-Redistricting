@@ -113,7 +113,7 @@ const Weights = () => {
 
     const saveEverything = (e) => {
         e.preventDefault();
-        setPageName('final-filters'); //move on to the final page
+        setPageName('analysis'); //move on to the final page
     }
 
     let render = "";

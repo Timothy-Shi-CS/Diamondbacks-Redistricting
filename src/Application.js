@@ -3,7 +3,7 @@ import React, { useContext } from 'react'
 import StateSelection from './pages/StateSelection'
 import Constraints from './pages/Constraints'
 import Weights from './pages/Weights'
-import FinalFilters from './pages/FinalFilters'
+import Analysis from './pages/Analysis'
 
 import { StateContext } from './contexts/StateContext'
 
@@ -19,8 +19,8 @@ function Application() {
         renderPage = <Constraints />
     } else if (pageName === 'weights') {
         renderPage = <Weights />
-    } else if (pageName === 'final-filters') {
-        renderPage = <FinalFilters />
+    } else if (pageName === 'analysis') {
+        renderPage = <Analysis />
     }
 
     return (

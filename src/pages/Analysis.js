@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js';
 
 import { StateContext } from '../contexts/StateContext'
 
-const FinalFilters = () => {
+const Analysis = () => {
     const { state, page, districts, objective } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
@@ -21,7 +21,7 @@ const FinalFilters = () => {
 
     const [view, setView] = useState('');
 
-    let [checks, setChecks] = useState([false, false, false, false, false, false, false, false]);
+    let [checks, setChecks] = useState([false, false, false, false, false]);
 
     const [curDistricting, setCurDistricting] = useState('');
     const [curDistrictingNum, setCurDistrictingNum] = useState(null);
@@ -30,7 +30,7 @@ const FinalFilters = () => {
     const [showComparisonPopup, setShowComparisonPopup] = useState(false);
     const [showBoxAndWhiskerPopup, setShowBoxAndWhiskerPopup] = useState(false);
 
-    const [viewport, setViewport] = useState({
+    const [viewport, setViewport] = useState({ //main map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
         zoom: 6,
@@ -38,7 +38,7 @@ const FinalFilters = () => {
         pitch: 0
     });
 
-    const [viewportEnacted, setViewportEnacted] = useState({
+    const [viewportEnacted, setViewportEnacted] = useState({ //enacted map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
         zoom: 6,
@@ -46,7 +46,7 @@ const FinalFilters = () => {
         pitch: 0
     });
 
-    const [viewportDB, setViewportDB] = useState({
+    const [viewportDB, setViewportDB] = useState({ //chosen districting map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
         zoom: 6,
@@ -56,7 +56,7 @@ const FinalFilters = () => {
 
 
 
-    const OVERLAY_STYLES = {
+    const OVERLAY_STYLES = { //background of comparison popup
         position: 'fixed',
         top: 0,
         left: 0,
@@ -66,7 +66,7 @@ const FinalFilters = () => {
         zIndex: 1000
     }
 
-    const MODAL_STYLES = {
+    const MODAL_STYLES = { //styling for display of comparing districtings
         position: "fixed",
         top: "50%",
         left: "50%",
@@ -77,7 +77,7 @@ const FinalFilters = () => {
         zIndex: 1000
     }
 
-    const data = [
+    const data = [ //placeholder data for box and whisker
         {
             name: "1",
             y: [2.6, 2.7, 3.3, 5, 5, 6, 7, 9, 8.7, 10, 6.9, 5.33, 3.72, 2, 7.3, 2.9, 4.43, 5.67, 8.19, 15.76, 18.79],
@@ -217,7 +217,7 @@ const FinalFilters = () => {
         }
     ];
 
-    const demographics = {
+    const demographics = { //placeholder demographic data for district popup
         '1': <p><b>Incumbent:</b> Rob Wittman<br /><b>Total Population:</b> 824,492<br /><b>White:</b> 596,921<br /><b>Black or African American:</b> 134,826<br /><b>American Indian and Alaska Native:</b> 1,781<br /><b>Asian:</b> 29,756<br /><b>Native Hawaiian and Other Pacific Islander:</b> 53<br /><b>Some other race:</b> 26,421</p>,
         '2': <p><b>Incumbent:</b> Elaine Luria<br /><b>Total Population:</b> 723,927<br /><b>White:</b> 486,553<br /><b>Black or African American:</b> 139,463<br /><b>American Indian and Alaska Native:</b> 1,888<br /><b>Asian:</b> 44,601<br /><b>Native Hawaiian and Other Pacific Islander:</b> 709<br /><b>Some other race:</b> 15,586</p>,
         '3': <p><b>Incumbent:</b> Bobby Scott<br /><b>Total Population:</b> 760,127<br /><b>White:</b> 329,198<br /><b>Black or African American:</b> 360,389<br /><b>American Indian and Alaska Native:</b> 975<br /><b>Asian:</b> 19,615<br /><b>Native Hawaiian and Other Pacific Islander:</b> 725<br /><b>Some other race:</b> 15,501</p>,
@@ -231,39 +231,31 @@ const FinalFilters = () => {
         '11': <p><b>Incumbent:</b> Gerry Conolly<br /><b>Deviation from population from ideal:</b> 0.04<br /><b>Deviation from enacted:</b> 0.02<br /><b>Total Population:</b> 789,553<br /><b>White:</b> 438,131<br /><b>Black or African American:</b> 109,462<br /><b>American Indian and Alaska Native:</b> 3,746<br /><b>Asian:</b> 147,446<br /><b>Native Hawaiian and Other Pacific Islander:</b> 1,200<br /><b>Some other race: </b>54,991<br /><b>Hispanic or Latino (of any race):</b> 150,667</p>
     }
 
-    let districtData = new Array(3);
+    let districtingData = new Array(3); //load in past districtings for the chosen state.
     let counties;
     if (stateFeature.feature.properties.name === 'Virginia') {
-        districtData[0] = require('../data/virginiaDistrict1.json');
-        districtData[1] = require('../data/virginiaDistrict2.json');
-        districtData[2] = require('../data/virginiaDistrict3.json');
+        districtingData[0] = require('../data/virginiaDistrict1.json');
+        districtingData[1] = require('../data/virginiaDistrict2.json');
+        districtingData[2] = require('../data/virginiaDistrict3.json');
         counties = require('../data/virginiaCounties.json');
     } else if (stateFeature.feature.properties.name === 'Utah') {
-        districtData[0] = require('../data/utahDistrict1.json');
-        districtData[1] = require('../data/utahDistrict2.json');
-        districtData[2] = require('../data/utahDistrict3.json');
+        districtingData[0] = require('../data/utahDistrict1.json');
+        districtingData[1] = require('../data/utahDistrict2.json');
+        districtingData[2] = require('../data/utahDistrict3.json');
         counties = require('../data/utahCounties.json');
     } else if (stateFeature.feature.properties.name === 'Nevada') {
-        districtData[0] = require('../data/nevadaDistrict1.json');
-        districtData[1] = require('../data/nevadaDistrict2.json');
-        districtData[2] = require('../data/nevadaDistrict3.json');
+        districtingData[0] = require('../data/nevadaDistrict1.json');
+        districtingData[1] = require('../data/nevadaDistrict2.json');
+        districtingData[2] = require('../data/nevadaDistrict3.json');
         counties = require('../data/nevadaCounties.json');
     }
 
-    //let virginiaDistricts = new Array(3);
-
-    const stateCoords = require('../data/stateCoords.json');
-    //const enactedDistricts = require('../data/districts114.json');
-    // virginiaDistricts[2] = require('../data/virginiaDistrict3.json')
-    // virginiaDistricts[1] = require('../data/virginiaDistrict2.json');
-    // virginiaDistricts[0] = require('../data/virginiaDistrict1.json');
-
-    //const counties = require('../data/virginiaCounties.json');
+    const stateCoords = require('../data/stateCoords.json'); //load in dataset that contains geometry for each state. we'll use this to show the actual state as a default view.
 
     useEffect(() => {
 
-        console.log(districtData)
-        const stateLayer = {
+        console.log(districtingData)
+        const stateLayer = { //create a layer to hold the styling of state geometry
             'id': 'state-layer',
             'type': 'fill',
             'source': 'state',
@@ -273,61 +265,39 @@ const FinalFilters = () => {
                 'fill-outline-color': 'rgba(113, 191, 114, 0.3)'
             }
         }
-        //for (let i = 0; i < stateCoords.features.length; i++) {
-        //if (stateCoords.features[i].properties.name === stateFeature.feature.properties.name) {
-        //console.log(stateCoords.features[i]);
         setCurDistricting(
             <Source
                 id="state"
                 type="geojson"
-                data={stateFeature.feature}
+                data={stateFeature.feature} //use the saved stateFeature feature data for the source layer
             >
                 <Layer {...stateLayer} />
             </Source>
         )
-        //break;
-        //}
-        //}
     }, [])
 
     const backToObjFunc = (e) => {
         e.preventDefault();
-        setPageName('weights');
+        setPageName('weights'); //go back to weights
     }
 
     const backToStateSelection = (e) => {
         e.preventDefault();
         setStateDistricts(null);
         let paramValues = {
-            populationEquality: '0.62',
-            splitCounties: '0.21',
-            devAvgDist: '0.79',
-            devAvgEnDistGeo: '0.44',
-            devAvgEnDistPop: '0.97',
-            geographicCompact: '0.10',
-            graphCompact: '0.50',
-            populationFatness: '0.83',
-            chosenCompactness: '',
-            compactnessVal: '0.5'
+            populationEquality: 0.62,
+            splitCounties: 0.21,
+            devAvgDist: 0.79,
+            devEnDistGeo: 0.44,
+            devEnDistPop: 0.97,
+            compactness: {
+                type: 0,
+                value: 0.5
+            },
+            efficiencyGap: 0.75
         }
-        setObjValueParams(paramValues);
-        setPageName('state-selection')
-    }
-
-    const userChoseDistricting = (e) => {
-        e.preventDefault()
-        let tempChecks = [false, false, false, false, false];
-
-        setShowPopup(false);
-        setChecks([...tempChecks]);
-        setView('');
-        setCountyLayer("");
-
-        setShowFilters(true);
-        const name = e.target.options[e.target.selectedIndex].text;
-        setCurDistrictingNum(name.split(' ')[1]);
-        setDistrictMap(name)
-        console.log(name);
+        setObjValueParams(paramValues); //reset the weights
+        setPageName('state-selection') //go back to state selection
     }
 
     const getMaxKey = (arr) => {
@@ -340,82 +310,51 @@ const FinalFilters = () => {
         return max;
     }
 
-    const setDistrictMap = (districtName) => {
-        let data;
-        let distNums = [];
-        let distColor = [];
-        data = districtData[parseInt(districtName.split(' ')[1]) - 1];
-        // if (districtName === 'Districting 1') {
-        //     data = districtData[0]
-        // } else if (districtName === 'Districting 2') {
-        //     data = districtData[1]
-        // } else if (districtName === 'Districting 3') {
-        //     data = districtData[2]
-        // }
-        console.log(data)
-        for (let i = 0; i < data.features.length; i++) {
-            distNums.push(data.features[i].properties.district);
-            const members = Object.keys(data.features[i].properties.member);
-            const maxMember = getMaxKey(members)
+    const userChoseDistricting = (e) => {
+        e.preventDefault()
+        let tempChecks = [false, false, false, false, false]; //reset any filters the user has clicked on
 
-            if (data.features[i].properties.member[maxMember][Object.keys(data.features[i].properties.member[maxMember])[0]].party === 'Republican') {
-                distColor.push('rgba(235, 64, 52,0.4)')
-            } else {
-                distColor.push('rgba(52, 122, 235,0.4)')
-            }
-            console.log(members);
-            console.log(maxMember)
-        }
-        console.log(data);
-        console.log(distNums)
-        setDistrictNumbers([...distNums]);
-        setCurDistricting(
-            data.features.map((f, index) => {
-                const f_data = {
-                    type: f.type,
-                    geometry: {
-                        type: f.geometry.type,
-                        coordinates: f.geometry.coordinates
-                    }
-                };
+        setShowPopup(false); //close any popups
+        setChecks([...tempChecks]); //set the filter selection
+        setView('');
+        setCountyLayer(""); //clear the current county layer
 
-                const f_layer = {
-                    'id': `district_${index}_layer`,
-                    'type': 'fill',
-                    'source': `district_${index}`,
-                    'layout': {},
-                    'paint': {
-                        'fill-color': `${distColor[index]}`,
-                        'fill-outline-color': 'rgba(255,255,255,1.0)'
-                    }
-                };
-
-                return (
-                    <Source
-                        id={`district_${index}`}
-                        type='geojson'
-                        data={f_data}
-                        key={index}
-                    >
-                        <Layer {...f_layer} />
-                    </Source>
-                )
-            })
-        )
+        setShowFilters(true); //leave the filters visible
+        const name = e.target.options[e.target.selectedIndex].text; //get the selected districting from dropdown
+        setCurDistrictingNum(name.split(' ')[1]); //get the number of the districting
+        setDistrictMap(name) //pass the districting name to the setDistrictMap function
+        console.log(name);
     }
 
-    const removeOtherFilterLayers = () => {
-        let data = districtData[parseInt(curDistrictingNum) - 1];
+    const userChecked = (e) => { //user clicked on one of the filters
+        let tempChecks = [false, false, false, false, false];
+        const index = parseInt(e.target.id.split('-')[2]); //get the index of the selected filter
+        setShowPopup(false); //remove any popups
+        if (checks[index - 1] === true) { //if the filter was originally selected, turn it off
+            tempChecks[index - 1] = false;
+            removeOtherFilterLayers(); //get back the origin colors of each district
+            setView(''); //
+            setCountyLayer('') //clear county layer
+        } else { //if the filter was originally deselected, turn it on
+            tempChecks[index - 1] = true;
+            setView(e.target.id);
+            if (index === 1) {
+                showCounties(); //show counties
+            } else if (index === 2) {
+                showDevAvg(); //show deviation from average
+                setCountyLayer('') //remove the counties
+            } else {
+                removeOtherFilterLayers();
+                setCountyLayer('') //remove the counties
+            }
+        }
+        setChecks([...tempChecks]);
+        console.log(index);
+    }
+
+    const getDistrictColorsAndNumbers = (data) => {
         let distNums = [];
         let distColor = [];
-        // if (curDistrictingNum === '1') {
-        //     data = districtData[0]
-        // } else if (curDistrictingNum === '2') {
-        //     data = districtData[1]
-        // } else if (curDistrictingNum === '3') {
-        //     data = districtData[2]
-        // }
-
         for (let i = 0; i < data.features.length; i++) {
             distNums.push(data.features[i].properties.district);
             const members = Object.keys(data.features[i].properties.member);
@@ -429,12 +368,17 @@ const FinalFilters = () => {
             console.log(members);
             console.log(maxMember)
         }
-        console.log(data);
-        console.log(distNums)
-        setDistrictNumbers([...distNums]);
-        setCurDistricting(
+
+        return {
+            distNums: distNums,
+            distColor: distColor
+        }
+    }
+
+    const setMapWithDistrictsData = (data, districtsColorsAndNumbers) => {
+        setCurDistricting( //let the current districting be a new list of source and layer components corresponding to the data of each district.
             data.features.map((f, index) => {
-                const f_data = {
+                const f_data = { //for the source component
                     type: f.type,
                     geometry: {
                         type: f.geometry.type,
@@ -442,20 +386,20 @@ const FinalFilters = () => {
                     }
                 };
 
-                const f_layer = {
-                    'id': `district_${index}_layer`,
+                const f_layer = { //for the layer component
+                    'id': `district_${index}_layer`, //uniquely identify each district layer by the district's index.
                     'type': 'fill',
                     'source': `district_${index}`,
                     'layout': {},
                     'paint': {
-                        'fill-color': `${distColor[index]}`,
+                        'fill-color': `${districtsColorsAndNumbers.distColor[index]}`,
                         'fill-outline-color': 'rgba(255,255,255,1.0)'
                     }
                 };
 
                 return (
                     <Source
-                        id={`district_${index}`}
+                        id={`district_${index}`} //uniquely identify each district source by the district's index.
                         type='geojson'
                         data={f_data}
                         key={index}
@@ -467,38 +411,35 @@ const FinalFilters = () => {
         )
     }
 
-    const userChecked = (e) => {
-        let tempChecks = [false, false, false, false, false];
-        const index = parseInt(e.target.id.split('-')[2]);
-        setShowPopup(false);
-        if (checks[index - 1] === true) {
-            tempChecks[index - 1] = false;
-            removeOtherFilterLayers();
-            setView('');
-            setCountyLayer('')
-        } else {
-            tempChecks[index - 1] = true;
-            setView(e.target.id);
-            if (index === 1) {
-                removeOtherFilterLayers();
-                showCounties();
+    const setDistrictMap = (districtName) => {
+        let data = districtingData[parseInt(districtName.split(' ')[1]) - 1]; //get the district data from the number of the districting
+        console.log(data)
+        const districtsColorsAndNumbers = getDistrictColorsAndNumbers(data)
+        const distNums = districtsColorsAndNumbers.distNums
+        console.log(data);
+        console.log(distNums)
+        setDistrictNumbers([...distNums]); //save the list of district numbers
+        setMapWithDistrictsData(data, districtsColorsAndNumbers)
+    }
 
 
-            } else if (index === 2) {
-                showDevAvg();
-                setCountyLayer('')
-            } else {
-                removeOtherFilterLayers();
-                setCountyLayer('')
-            }
-        }
-        setChecks([...tempChecks]);
-        console.log(index);
+
+    const removeOtherFilterLayers = () => {
+        let data = districtingData[parseInt(curDistrictingNum) - 1]; //get the district data for the already selected districting
+
+        const districtsColorsAndNumbers = getDistrictColorsAndNumbers(data);
+        const distNums = districtsColorsAndNumbers.distNums
+
+        console.log(data);
+        console.log(distNums)
+        setDistrictNumbers([...distNums]);
+
+        setMapWithDistrictsData(data, districtsColorsAndNumbers)
     }
 
     const showCounties = () => {
         console.log(counties);
-        const countyLayerStyle = {
+        const countyLayer = { //styling for layer that shows counties
             'id': 'counties-layer',
             'type': 'fill',
             'source': 'counties',
@@ -515,17 +456,15 @@ const FinalFilters = () => {
                 type="geojson"
                 data={counties}
             >
-                <Layer {...countyLayerStyle} />
+                <Layer {...countyLayer} />
             </Source>
         );
     }
 
     const showDevAvg = () => {
-        let random = Math.random() * (1.0 - 0.1) + 0.1;
-        console.log(random);
         console.log(curDistrictingNum);
 
-        let data = districtData[parseInt(curDistrictingNum) - 1];
+        let data = districtingData[parseInt(curDistrictingNum) - 1]; //get the data for the selected districting
         let distNums = [];
         let distColor = [];
 
@@ -536,7 +475,7 @@ const FinalFilters = () => {
             const maxMember = getMaxKey(members)
 
             if (data.features[i].properties.member[maxMember][Object.keys(data.features[i].properties.member[maxMember])[0]].party === 'Republican') {
-                distColor.push(`rgba(235, 64, 52,${Math.random() * (1.0 - 0.1) + 0.1})`)
+                distColor.push(`rgba(235, 64, 52,${Math.random() * (1.0 - 0.1) + 0.1})`) //set the color and also the alpha value
             } else {
                 distColor.push(`rgba(52, 122, 235,${Math.random() * (1.0 - 0.1) + 0.1})`)
             }
@@ -546,43 +485,15 @@ const FinalFilters = () => {
         console.log(data);
         console.log(distNums)
         setDistrictNumbers([...distNums]);
-        setCurDistricting(
-            data.features.map((f, index) => {
-                const f_data = {
-                    type: f.type,
-                    geometry: {
-                        type: f.geometry.type,
-                        coordinates: f.geometry.coordinates
-                    }
-                };
+        const districtsColorsAndNumbers = {
+            distColor: distColor
+        }
 
-                const f_layer = {
-                    'id': `district_${index}_layer`,
-                    'type': 'fill',
-                    'source': `district_${index}`,
-                    'layout': {},
-                    'paint': {
-                        'fill-color': `${distColor[index]}`,
-                        'fill-outline-color': 'rgba(255,255,255,1.0)'
-                    }
-                };
-
-                return (
-                    <Source
-                        id={`district_${index}`}
-                        type='geojson'
-                        data={f_data}
-                        key={index}
-                    >
-                        <Layer {...f_layer} />
-                    </Source>
-                )
-            })
-        )
+        setMapWithDistrictsData(data, districtsColorsAndNumbers)
     }
 
     const resetCurDistricting = () => {
-        const stateLayer = {
+        const stateLayer = { //styling used to reset the map
             'id': 'state-layer',
             'type': 'fill',
             'source': 'state',
@@ -609,27 +520,27 @@ const FinalFilters = () => {
         }
     }
 
-    const resetChecks = (e) => {
+    const resetChecks = (e) => { //user clicks on the reset button
         e.preventDefault();
-        setShowFilters(false);
-        setShowPopup(false);
-        document.getElementById("districting-selection").value = "";
-        let tempChecks = [false, false, false, false, false];
+        setShowFilters(false); //remove any filters from map
+        setShowPopup(false); //remove any popups
+        document.getElementById("districting-selection").value = ""; //clear the dropdown
+        let tempChecks = [false, false, false, false, false]; //remove any selected filters
         setChecks([...tempChecks]);
         setView('');
         setCountyLayer("");
-        resetCurDistricting();
-        setCurDistrictingNum(null);
+        resetCurDistricting(); //bring map of state back to a blank slate
+        setCurDistrictingNum(null); //reset currently selected districting
     }
 
-    const userClicked = (e) => {
+    const userClickedOnMap = (e) => { //user clicked on one of the districts
         e.preventDefault();
         console.log(e);
-        let coords = [e.lngLat[0], e.lngLat[1]];
-        if (e.features[0].source.includes('district')) {
-            const index = parseInt(e.features[0].source.split('_')[1]);
+        let coords = [e.lngLat[0], e.lngLat[1]]; //get the coordinates of where the user clicked.
+        if (e.features[0].source.includes('district')) { //make sure that the user actually clicked on one of the districts
+            const index = parseInt(e.features[0].source.split('_')[1]); //get the index of that district
 
-            setShowPopup(true);
+            setShowPopup(true); //show popup and set the text for the popup
             setPopUpText(<>
                 <h3><b>District {districtNumbers[index]}</b></h3>
                 {demographics[districtNumbers[index]]}
@@ -650,12 +561,11 @@ const FinalFilters = () => {
                     <b>&nbsp;&nbsp;&nbsp;&nbsp;Political Fairness:</b>1 (<i>weight: 0.43</i>)
                 </p>
             </>);
-            setPopUpCoords([...coords]);
-        } else if (e.features[0].source === 'counties') {
-            setShowPopup(true);
-            e.features[0].properties.name ? setPopUpText(`${e.features[0].properties.name}`) : setPopUpText(`${e.features[0].properties.NAME}`);
-            //setPopUpText(`${e.features[0].properties.NAME}`);
-            setPopUpCoords([...coords]);
+            setPopUpCoords([...coords]); //set the location of the popup
+        } else if (e.features[0].source === 'counties') { //if the user clicked on a county instead
+            setShowPopup(true); //show popup
+            e.features[0].properties.name ? setPopUpText(`${e.features[0].properties.name}`) : setPopUpText(`${e.features[0].properties.NAME}`); //set the text
+            setPopUpCoords([...coords]); //set location of the popup
         }
         else {
             setShowPopup(false);
@@ -665,21 +575,14 @@ const FinalFilters = () => {
 
     const showComparison = (e) => {
         e.preventDefault();
-        setShowComparisonPopup(true);
+        setShowComparisonPopup(true); //show the comparison between enacted and selected
         console.log('show comparison');
     }
 
-    const getUnstyledCurDistricting = () => {
-        let data = districtData[parseInt(curDistrictingNum) - 1];
+    const getUnstyledCurDistricting = () => { //get the unstyled current districting
+        let data = districtingData[parseInt(curDistrictingNum) - 1];
         let distNums = [];
         let distColor = [];
-        // if (curDistrictingNum === '1') {
-        //     data = districtData[0]
-        // } else if (curDistrictingNum === '2') {
-        //     data = districtData[1]
-        // } else if (curDistrictingNum === '3') {
-        //     data = districtData[2]
-        // }
 
         for (let i = 0; i < data.features.length; i++) {
             distNums.push(data.features[i].properties.district);
@@ -734,7 +637,7 @@ const FinalFilters = () => {
 
     const showBoxAndWhisker = (e) => {
         e.preventDefault();
-        setShowBoxAndWhiskerPopup(true);
+        setShowBoxAndWhiskerPopup(true); //show box and whisker
     }
 
 
@@ -852,7 +755,7 @@ const FinalFilters = () => {
                                     <button type="button" class="btn btn-lg col-12 btn-primary compareBtn" onClick={showComparison}>View enacted and selected</button>
                                 </div>
                                 <div>
-                                    <button type ="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
+                                    <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
                                 </div>
 
                                 <div>
@@ -890,8 +793,8 @@ const FinalFilters = () => {
                                             <p class="h6">{objValueParams.populationEquality}</p>
                                             <p class="h6" style={{ marginLeft: '50px' }}>{54}</p>
                                         </div>) : (
-                                                ""
-                                            )}
+                                            ""
+                                        )}
 
 
                                     </div>
@@ -1014,7 +917,7 @@ const FinalFilters = () => {
                 height="100%"
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
-                onClick={userClicked}
+                onClick={userClickedOnMap}
             >
                 {countyLayer}
                 {curDistricting}
@@ -1114,4 +1017,4 @@ const FinalFilters = () => {
     )
 }
 
-export default FinalFilters;
+export default Analysis;
