@@ -339,6 +339,7 @@ const Analysis = () => {
             tempChecks[index - 1] = true;
             setView(e.target.id);
             if (index === 1) {
+                removeOtherFilterLayers();
                 showCounties(); //show counties
             } else if (index === 2) {
                 showDevAvg(); //show deviation from average
@@ -690,14 +691,16 @@ const Analysis = () => {
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
             <div className="row d-flex justify-content-between" style={{ height: "100%", width: "100%", position: 'absolute', top: '0' }}>
-                <div id="left-bar" className="col-2 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2" }}>
-                    <div className="d-flex flex-row justify-content-between">
-                        <p class="h5 d-inline-block back-btn" onClick={backToObjFunc}>Back</p>
-                        <p class="h5 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
+                <div id="left-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", position: 'relative' }}>
+                    <div className="d-flex flex-row justify-content-between text-white" style={{ position: 'relative', zIndex: "4" }}>
+                        <p class="h6 d-inline-block back-btn" onClick={backToObjFunc}>Back</p>
+                        <p class="h6 d-inline-block back-btn" onClick={backToStateSelection}>Home</p>
                     </div>
-                    <div align="center" style={{ paddingTop: "3rem" }}>
-                        <p class="h3">View Results</p>
-                        <hr></hr>
+                    <div className="text-white" align="center" style={{ paddingTop: "3rem", position: 'relative', zIndex: "4", marginBottom: '30px' }}>
+                        <p class="h3">Analyze Results</p>
+                    </div>
+                    <div className="bg-primary results_banner">
+
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "77%", width: "100%" }}>
                         <select id="districting-selection" class="form-select" onChange={userChoseDistricting}>
@@ -720,35 +723,35 @@ const Analysis = () => {
                                     <label class="form-check-label" htmlFor="split-counties-1">
                                         Show counties
                             </label>
-                                    <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
+                                    <input class="form-check-input" type="radio" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="dev-avg-2">
                                         Show deviation from average districting
                             </label>
-                                    <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
+                                    <input class="form-check-input" type="radio" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="geo-compact-3">
                                         Show geometric compactness
                             </label>
-                                    <input class="form-check-input" type="checkbox" value="" id="geo-compact-3" checked={checks[2]} onChange={userChecked} />
+                                    <input class="form-check-input" type="radio" value="" id="geo-compact-3" checked={checks[2]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="graph-compact-4">
                                         Show graph compactness
                             </label>
-                                    <input class="form-check-input" type="checkbox" value="" id="graph-compact-4" checked={checks[3]} onChange={userChecked} />
+                                    <input class="form-check-input" type="radio" value="" id="graph-compact-4" checked={checks[3]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="pop-fat-5">
                                         Show population fatness
                             </label>
-                                    <input class="form-check-input" type="checkbox" value="" id="pop-fat-5" checked={checks[4]} onChange={userChecked} />
+                                    <input class="form-check-input" type="radio" value="" id="pop-fat-5" checked={checks[4]} onChange={userChecked} />
                                 </div>
 
                                 <div>
@@ -766,145 +769,237 @@ const Analysis = () => {
 
                     </div>
                 </div>
-                <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", height: "100%" }}>
-                    <div align="center" style={{ paddingTop: "5rem" }}>
-                        {showFilters ? (<p class="h4 d-inline-block" >Objective Value : 607</p>) : (
-                            <p class="h4 d-inline-block" >Objective Value</p>
+                <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", height: "100%", position: 'relative' }}>
+                    <div className="text-white" align="center" style={{ paddingTop: "5rem", position: 'relative', zIndex: "4", marginBottom:'50px'}}>
+                        {showFilters ? (<p class="h4 d-inline-block" >Objective Function Value : 607</p>) : (
+                            <p class="h4 d-inline-block" >Objective Function Value</p>
                         )}
 
                     </div>
 
-                    <hr></hr>
-                    <div className="d-flex flex-column justify-content-between" style={{ height: "75%" }}>
-                        <div>
-                            <div class='d-flex flex-row justify-content-between'>
-                                <p class="h3">General:</p>
-                                <div class='d-flex flex-row'>
-                                    <p class="h6" >Weight:</p>
-                                    <p class="h6" style={{ marginLeft: '20px', marginRight: '5px' }}>Value:</p>
-                                </div>
-                            </div>
-
-                            <div class="px-3">
-                                <div >
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Population equality:</p>
-                                        {showFilters ? (<div className='d-flex flex-row'>
-                                            <p class="h6">{objValueParams.populationEquality}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{54}</p>
-                                        </div>) : (
-                                            ""
-                                        )}
-
-
-                                    </div>
-
-                                </div>
-
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Split counties:</p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.splitCounties}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{69}</p>
-                                        </div>) : ""}
-
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <hr></hr>
-
-
-                        <div>
-
-                            <p class="h3">Deviation from:</p>
-                            <div class="px-3">
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Average districting:</p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.devAvgDist}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{72}</p>
-                                        </div>) : ''}
-
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Enacted districting (geometric):</p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.devAvgEnDistGeo}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{53}</p></div>)
-                                            : ''}
-
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Enacted districting (population):</p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.devAvgEnDistPop}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{89}</p>
-                                        </div>) : ''}
-
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <hr></hr>
-
-                        <div>
-                            <p class="h3">Compactness:</p>
-                            <div class="px-3">
-                                <div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Geometric: </p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.compactnessVal}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{50}</p>
-                                        </div>) : ''}
-
-                                    </div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Graph: </p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.compactnessVal}</p>
-                                            <p class="h6" style={{ marginLeft: '50px' }}>{80}</p>
-                                        </div>) : ''}
-
-                                    </div>
-                                    <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Population fatness: </p>
-                                        {showFilters ? (<div className='d-flex flex-row'><p class="h6">{objValueParams.compactnessVal}</p>
-                                            <p class="h6 " style={{ marginLeft: '50px' }}>{62}</p>
-                                        </div>) : ''}
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <hr></hr>
-                        <div>
-                            <p class="h3">Other:</p>
-                            <div class="px-3">
-                                <div class="d-flex flex-row justify-content-between">
-                                    <p class="h6">Political fairness: </p>
-                                    {showFilters ? (<div className='d-flex flex-row'><p class="h6">{0.43}</p>
-                                        <p class="h6" style={{ marginLeft: '50px' }}>{78}</p></div>) : ''}
-
-                                </div>
-                            </div>
-                        </div>
+                    <div className="bg-primary objective_banner">
 
                     </div>
 
-                    {/* <div>
-                        {curDistrictingNum === null ? '' : (`Districting ${curDistrictingNum}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam mattis tortor libero, sit amet pellentesque est tincidunt sit amet. Suspendisse vel laoreet diam. Fusce id fermentum arcu. Praesent semper sem neque, ac interdum purus venenatis ac. Fusce nec dolor sed risus tristique condimentum eget sit amet risus. Morbi eget sapien et mi pharetra venenatis eget quis est. Morbi egestas dolor arcu, convallis maximus felis placerat vitae. Donec ac placerat purus. Nulla porttitor eros ut est hendrerit, ac commodo eros rutrum. Sed eget ante vel tellus ultrices ornare. Etiam vulputate accumsan tortor vel dictum. Maecenas et porttitor ligula.
-                        `)}
-                    </div> */}
-                    {/* {showFilters ? (
-                        <p class="h6 boxAndWhisker d-inline-block" onClick={showBoxAndWhisker}>Click to view Box and Whisker plot</p>
-                    ) : ''} */}
+                    <div className="d-flex flex-column justify-content-between" style={{ height: "75%" }}>
+                        <div>
+                            <table className='table table-bordered table-hover table-striped shadow-sm'>
+                                <thead className='table-dark'>
+                                    <tr>
+                                        <th scope='col'>General</th>
+                                        <th scope='col'>Weight</th>
+                                        <th scope='col'>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Population:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.populationEquality}</td>
+                                                <td>54</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Split Counties:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.splitCounties}</td>
+                                                <td>69</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr></hr>
+
+                        <div>
+                            <table className='table table-bordered table-hover table-striped shadow-sm'>
+                                <thead className='table-dark'>
+                                    <tr>
+                                        <th scope='col'>Deviation From</th>
+                                        <th scope='col'>Weight</th>
+                                        <th scope='col'>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Average Districting:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devAvgDist}</td>
+                                                <td>72</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Enacted Districting (Geometric):</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devEnDistGeo}</td>
+                                                <td>53</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Enacted Districting (Population):</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devEnDistPop}</td>
+                                                <td>89</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr></hr>
+
+                        <div>
+                            <table className='table table-bordered table-hover table-striped shadow-sm'>
+                                <thead className='table-dark'>
+                                    <tr>
+                                        <th scope='col'>Compactness</th>
+                                        <th scope='col'>Weight</th>
+                                        <th scope='col'>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Geometric:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devAvgDist}</td>
+                                                <td>72</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Graph:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devEnDistGeo}</td>
+                                                <td>53</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Population Fatness:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devEnDistPop}</td>
+                                                <td>89</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr></hr>
+                        <div>
+                            <table className='table table-bordered table-hover table-striped shadow-sm'>
+                                <thead className='table-dark'>
+                                    <tr>
+                                        <th scope='col'>Other</th>
+                                        <th scope='col'>Weight</th>
+                                        <th scope='col'>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Political fairness:</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{0.43}</td>
+                                                <td>58</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
 
 
 

@@ -28,3 +28,21 @@
   height:125px;
   z-index: 3;
 }
+
+.results_banner{
+  position:absolute;
+  top: 0;
+  left:0;
+  width:100%;
+  height:130px;
+  z-index: 3;
+}
+
+.objective_banner{
+  position:absolute;
+  top: 0;
+  right:0;
+  width:100%;
+  height:130px;
+  z-index: 3;
+}
