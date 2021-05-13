@@ -41,7 +41,6 @@ const Weights = () => {
     }
     const backToStateSelection = (e) => {
         setObjValueParams(resetWeights); //reset the values of the weights of each measure
-        setStateDistricts(null); //reset the districts of the enacted districting
         setPageName('state-selection') //go back to state selection
     }
 
@@ -112,7 +111,23 @@ const Weights = () => {
     }
 
     const saveEverything = (e) => {
+        const popFat = objValueParams.compactness.type === 2 ? objValueParams.compactness.value : -1
+        const graph = objValueParams.compactness.type === 1 ? objValueParams.compactness.value : -1
+        const geo = objValueParams.compactness.type === 0 ? objValueParams.compactness.value : -1
         e.preventDefault();
+        let requestObj = new XMLHttpRequest();
+        requestObj.onreadystatechange = (res) => {
+            let response = res.target;
+            if (response.readyState == 4 && response.status == 200) {
+                console.log(response.responseText)
+            }
+        };
+        requestObj.open(
+            "GET",
+            `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/setWeights/popEquality=${objValueParams.populationEquality}&devAvgGeo=${objValueParams.devAvgDistGeo}&devAvgPop=${objValueParams.devAvgDistPop}&devEnactedGeo=${objValueParams.devEnDistGeo}&devEnactedPop=${objValueParams.devEnDistPop}&geoCompact=${geo}&graphCompact=${graph}&popFat=${popFat}`,
+            true
+        );
+        requestObj.send();
         setPageName('analysis'); //move on to the final page
     }
 
@@ -172,12 +187,22 @@ const Weights = () => {
         })
     }
 
-    const devAvgDistRange = (e) => {
+    const devAvgDistGeoRange = (e) => {
         e.preventDefault();
         setObjValueParams(prevParams => {
             return {
                 ...prevParams,
-                devAvgDist: e.target.value
+                devAvgDistGeo: e.target.value
+            }
+        })
+    }
+
+    const devAvgDistPopRange = (e) => {
+        e.preventDefault();
+        setObjValueParams(prevParams => {
+            return {
+                ...prevParams,
+                devAvgDistPop: e.target.value
             }
         })
     }
@@ -213,6 +238,9 @@ const Weights = () => {
     }
 
     const numberWithCommas = (x) => {
+        // if(x>=2000){
+        //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"+";
+        // }
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
@@ -268,12 +296,17 @@ const Weights = () => {
 
                     <div className="text-white" align="center" style={{ paddingTop: "1rem", zIndex: "4", position: "relative", marginBottom: "30px" }}>
                         <p class="h3">Objective Function Weights</p>
-                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(Math.floor(Math.sqrt(stateFeature.jobs[stateFeature.job])))} redistrictings</em></p>
+                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.remainingJobs)} redistrictings</em></p>
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                     </div>
-                    <div className="weights_banner" style={{backgroundColor:'#a6283d'}}>
-
+                    <div className="bg-primary weights_banner">
+                        <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop:"30px", width:"94%", marginLeft:"auto", marginRight:"auto"}}>
+                            <div className="progress-bar progress-bar-striped bg-success progress-bar-animated shadow" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "75%" }}>
+                                75%
+                            </div>
+                        </div>
                     </div>
+
                     <div className="d-flex flex-column justify-content-between" style={{ height: "70%", width: "100%" }}>
                         <div>
 
@@ -291,10 +324,10 @@ const Weights = () => {
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
                                         <p class="h6">Split counties:</p>
-                                        <input type="number" value={objValueParams.splitCounties} disabled="disabled" style={{ width: '60px' }} />
+                                        <input type="number" disabled="disabled" style={{ width: '60px' }} />
                                         {/* <p class="h6 px-2 border border-primary">{splitCountyRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="split_county_range" onInput={splitCountyRange} value={objValueParams.splitCounties} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="split_county_range" onInput={splitCountyRange} value={objValueParams.splitCounties} disabled />
                                 </div>
                             </div>
                             <hr></hr>
@@ -307,11 +340,20 @@ const Weights = () => {
                             <div>
                                 <div>
                                     <div class="d-flex flex-row justify-content-between">
-                                        <p class="h6">Average districting:</p>
-                                        <input type="number" value={objValueParams.devAvgDist} disabled="disabled" style={{ width: '60px' }} />
+                                        <p class="h6">Average districting (geometric):</p>
+                                        <input type="number" value={objValueParams.devAvgDistGeo} disabled="disabled" style={{ width: '60px' }} />
                                         {/* <p class="h6 px-2 border border-primary">{devAvgDistRangeVal}</p> */}
                                     </div>
-                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="dev_avg_dist_range" onInput={devAvgDistRange} value={objValueParams.devAvgDist} />
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="dev_avg_dist_geo_range" onInput={devAvgDistGeoRange} value={objValueParams.devAvgDistGeo} />
+                                </div>
+
+                                <div>
+                                    <div class="d-flex flex-row justify-content-between">
+                                        <p class="h6">Average districting (population):</p>
+                                        <input type="number" value={objValueParams.devAvgDistPop} disabled="disabled" style={{ width: '60px' }} />
+                                        {/* <p class="h6 px-2 border border-primary">{devAvgDistRangeVal}</p> */}
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="dev_avg_dist_pop_range" onInput={devAvgDistPopRange} value={objValueParams.devAvgDistPop} />
                                 </div>
 
                                 <div>
@@ -381,9 +423,9 @@ const Weights = () => {
                         <div>
                             <div className='d-flex flex-row justify-content-between'>
                                 <p class="h5 " >Efficiency Gap:</p>
-                                <input type="number" value={objValueParams.efficiencyGap} disabled style={{ width: '60px', marginRight: '15px' }} />
+                                <input type="number" disabled style={{ width: '60px'}} />
                             </div>
-                            <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setEfficiencyGapSlider} value={objValueParams.efficiencyGap} />
+                            <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setEfficiencyGapSlider} value={objValueParams.efficiencyGap} disabled />
 
                         </div>
 

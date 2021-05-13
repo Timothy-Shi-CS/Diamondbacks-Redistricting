@@ -283,7 +283,6 @@ const Analysis = () => {
 
     const backToStateSelection = (e) => {
         e.preventDefault();
-        setStateDistricts(null);
         let paramValues = {
             populationEquality: 0.62,
             splitCounties: 0.21,
@@ -700,7 +699,11 @@ const Analysis = () => {
                         <p class="h3">Analyze Results</p>
                     </div>
                     <div className="bg-primary results_banner">
-
+                        <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop: "30px", width: "94%", marginLeft: "auto", marginRight: "auto" }}>
+                            <div className="progress-bar progress-bar-striped bg-success progress-bar-animated shadow" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}>
+                                100%
+                            </div>
+                        </div>
                     </div>
                     <div className="d-flex flex-column justify-content-between py-4" style={{ height: "77%", width: "100%" }}>
                         <select id="districting-selection" class="form-select" onChange={userChoseDistricting}>
@@ -770,7 +773,7 @@ const Analysis = () => {
                     </div>
                 </div>
                 <div id="right-bar" className="col-3 shadow-lg" style={{ backgroundColor: "#fff", zIndex: "2", height: "100%", position: 'relative' }}>
-                    <div className="text-white" align="center" style={{ paddingTop: "5rem", position: 'relative', zIndex: "4", marginBottom:'50px'}}>
+                    <div className="text-white" align="center" style={{ paddingTop: "5rem", position: 'relative', zIndex: "4", marginBottom: '50px' }}>
                         {showFilters ? (<p class="h4 d-inline-block" >Objective Function Value : 607</p>) : (
                             <p class="h4 d-inline-block" >Objective Function Value</p>
                         )}
@@ -814,15 +817,15 @@ const Analysis = () => {
                                         <th scope="row">Split Counties:</th>
                                         {showFilters ? (
                                             <>
-                                                <td>{objValueParams.splitCounties}</td>
-                                                <td>69</td>
+                                                <td>NA</td>
+                                                <td>NA</td>
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>NA</td>
+                                                    <td>NA</td>
                                                 </>
                                             )
                                         }
@@ -843,7 +846,25 @@ const Analysis = () => {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <th scope="row">Average Districting:</th>
+                                        <th scope="row">Average Districting (Geometric):</th>
+                                        {showFilters ? (
+                                            <>
+                                                <td>{objValueParams.devAvgDist}</td>
+                                                <td>72</td>
+                                            </>
+                                        )
+                                            :
+                                            (
+                                                <>
+                                                    <td></td>
+                                                    <td></td>
+                                                </>
+                                            )
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Average Districting (Population):</th>
                                         {showFilters ? (
                                             <>
                                                 <td>{objValueParams.devAvgDist}</td>
@@ -981,15 +1002,15 @@ const Analysis = () => {
                                         <th scope="row">Political fairness:</th>
                                         {showFilters ? (
                                             <>
-                                                <td>{0.43}</td>
-                                                <td>58</td>
+                                                <td>NA</td>
+                                                <td>NA</td>
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>NA</td>
+                                                    <td>NA</td>
                                                 </>
                                             )
                                         }

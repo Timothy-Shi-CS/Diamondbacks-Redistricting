@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import ReactMapGL, { Source, Layer, Popup } from "react-map-gl";
+import RingLoader from "react-spinners/RingLoader";
 
 import { StateContext } from "../contexts/StateContext";
 
@@ -9,6 +10,7 @@ const Constraints = () => {
   const [pageName, setPageName] = page;
   const [stateDistricts, setStateDistricts] = districts;
   const [constraints, setConstraints] = constraintsData;
+  const [loading, setLoading] = useState(false);
 
   const [popUpText, setPopUpText] = useState("");
   const [popUpCoords, setPopUpCoords] = useState(null);
@@ -20,6 +22,12 @@ const Constraints = () => {
     false,
   ]);
   const [checkMinority, setCheckMinority] = useState([false, false, false]);
+
+  const minorityMap = {
+    0: 'asian',
+    1: 'black',
+    2: 'hispanic'
+  }
 
   const [viewport, setViewport] = useState({
     //map viewing settings
@@ -57,6 +65,8 @@ const Constraints = () => {
 
   useEffect(() => {
     console.log(stateDistricts);
+    console.log(stateFeature)
+    console.log(constraints.incumbents)
     if (stateDistricts === null) {
       //if the districts for the enacted districting weren't loaded in before, load them in now
       let coordHolder = {
@@ -116,14 +126,51 @@ const Constraints = () => {
   };
 
   const saveEverything = (e) => {
+    setLoading(true)
     e.preventDefault();
-    setPageName("weights"); //move on to next page
+    const popFat = constraints.compactnessConstraint.type === 2 ? constraints.compactnessConstraint.value : -1
+    const graph = constraints.compactnessConstraint.type === 1 ? constraints.compactnessConstraint.value : -1
+    const geo = constraints.compactnessConstraint.type === 0 ? constraints.compactnessConstraint.value : -1
+
+    const pop = constraints.populationConstraint.type === 0 ? constraints.populationConstraint.value : -1;
+    const vap = constraints.populationConstraint.type === 1 ? constraints.populationConstraint.value : -1;
+    const cvap = constraints.populationConstraint.type === 2 ? constraints.populationConstraint.value : -1;
+
+    let protectedIncumb = []
+    for (let i = 0; i < constraints.incumbents.length; i++) {
+      if (constraints.incumbentsChecked[i]) {
+        protectedIncumb.push(constraints.incumbents[i].incumbentID)
+      }
+    }
+
+    let minorityIndex = checkMinority.indexOf(true);
+    let requestObj = new XMLHttpRequest();
+    requestObj.onreadystatechange = (res) => {
+      let response = res.target;
+      if (response.readyState == 4 && response.status == 200) {
+        console.log(response.responseText)
+        setStateFeature((prevStateFeature) => {
+          return {
+            ...prevStateFeature,
+            remainingJobs: response.responseText
+          }
+        })
+        setLoading(false)
+        setPageName("weights"); //move on to next page
+      }
+    };
+    requestObj.open(
+      "GET",
+      `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/construct-constraint/job=${stateFeature.jobs[stateFeature.job].id}&minority=${minorityMap[minorityIndex]}&threshold=${constraints.threshold}&majMin=${constraints.majorityMinorityConstraint.value}&incumbent={${protectedIncumb.join()}}&pop=${pop}&vap=${vap}&cvap=${cvap}&geoComp=${geo}&graphComp=${graph}&popFat=${popFat}`,
+      true
+    );
+    requestObj.send();
+    
   };
 
   const backToStateSelection = (e) => {
     console.log("back to state selection");
     resetChecks(); //reset any incumbents user protected
-    setStateDistricts(null); //reset any district data for enacted districting
 
     setConstraints({
       //reset constraint value and choice
@@ -147,36 +194,27 @@ const Constraints = () => {
 
   const userChecked = (e) => {
     let index = parseInt(e.target.id.split("t")[1]); //get index of incumbent in list
-    let tempChecks = [...constraints.incumbents]; //get the list of checks
+    let tempChecks = [...constraints.incumbentsChecked]; //get the list of checks
     tempChecks[index - 1] = !tempChecks[index - 1]; //toggle the incumbent in list
 
     setConstraints((prevConstraints) => {
       return {
         ...prevConstraints,
-        incumbents: [...tempChecks], //set list of checks in context
+        incumbentsChecked: [...tempChecks], //set list of checks in context
       };
     });
   };
 
   const resetChecks = (e) => {
-    let reset = [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-    ];
+    let tempChecks = [];
+    for (let i = 0; i < constraints.incumbents.length; i++) {
+      tempChecks.push(false);
+    }
 
     setConstraints((prevConstraints) => {
       return {
         ...prevConstraints,
-        incumbents: [...reset], //set list of checks in context
+        incumbentsChecked: [...tempChecks], //set list of checks in context
       };
     });
   };
@@ -223,6 +261,16 @@ const Constraints = () => {
     });
   };
 
+  const threshold=(e)=>{
+    e.preventDefault();
+    setConstraints((prevConstraints)=>{
+      return{
+        ...prevConstraints,
+        threshold:e.target.value
+      }
+    })
+  }
+
   const userClickedDistrict = (e) => {
     e.preventDefault();
 
@@ -244,23 +292,14 @@ const Constraints = () => {
 
   const selectAllIncumbents = (e) => {
     e.preventDefault();
-    let tempChecks = [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-    ];
+    let tempChecks = [];
+    for (let i = 0; i < constraints.incumbents.length; i++) {
+      tempChecks.push(true);
+    }
     setConstraints((prevConstraints) => {
       return {
         ...prevConstraints,
-        incumbents: [...tempChecks], //set list of checks in context
+        incumbentsChecked: [...tempChecks], //set list of checks in context
       };
     });
   };
@@ -417,6 +456,11 @@ const Constraints = () => {
             Back
           </p>
           <div className="bg-primary constraints_banner"></div>
+          <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative" }}>
+            <div className="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "50%" }}>
+              50%
+            </div>
+          </div>
           <div
             className="text-white"
             align="center"
@@ -431,7 +475,7 @@ const Constraints = () => {
             <p class="h6">
               <em>
                 Job {stateFeature.job + 1}:{" "}
-                {numberWithCommas(stateFeature.jobs[stateFeature.job])}{" "}
+                {numberWithCommas(stateFeature.jobs[stateFeature.job].numDistrictings)}{" "}
                 redistrictings
               </em>
             </p>
@@ -449,9 +493,10 @@ const Constraints = () => {
               >
                 Choose incumbents
               </button>
+              <hr></hr>
             </div>
 
-            <hr></hr>
+
             <div>
               <p class="h4">Population Equality:</p>
               <div>
@@ -490,6 +535,7 @@ const Constraints = () => {
                       style={{ marginRight: "10px" }}
                       checked={checkPopulation[2]}
                       onChange={userCheckedPop}
+                      disabled
                     />
                     <label class="h6" htmlFor="cvap_2">
                       Citizen Voting Age Population
@@ -509,19 +555,16 @@ const Constraints = () => {
                 type="range"
                 class="form-range"
                 min="0"
-                max="0.05"
+                max="1"
                 step="0.001"
                 id="pop_eq_range"
                 onInput={popEqual}
                 value={constraints.populationConstraint.value}
               />
-              {/* <div class="d-flex flex-row justify-content-between">
-                                <p>0</p>
-                                <p>0.05</p>
-                            </div> */}
+              <hr></hr>
             </div>
 
-            <hr></hr>
+
             <div>
               <div>
                 <p class="h4">Majority-Minority Districts:</p>
@@ -587,8 +630,30 @@ const Constraints = () => {
                 onInput={majMin}
                 value={constraints.majorityMinorityConstraint.value}
               />
+              <div class="d-flex flex-row justify-content-between">
+                <label class="h6">
+                  Threshold
+                </label>
+                <input
+                  type="number"
+                  value={constraints.threshold}
+                  disabled="disabled"
+                  style={{ width: "60px" }}
+                />
+              </div>
+              <input
+                type="range"
+                class="form-range"
+                min="0"
+                max="1"
+                step="0.01"
+                id="threshold_range"
+                onInput={threshold}
+                value={constraints.threshold}
+              />
+              <hr></hr>
             </div>
-            <hr></hr>
+
             <div>
               <div>
                 <p class="h4">Compactness:</p>
@@ -706,6 +771,19 @@ const Constraints = () => {
         )}
       </ReactMapGL>
 
+      {loading ? (
+        <div>
+          <div className="loading-screen">
+          <RingLoader
+              size={200}
+              color={'#25C5E2'}
+              loading={loading}
+              // margin={20}
+            />
+          </div>
+        </div>
+      ) : ""}
+
       {showIncumbents ? (
         <div className="incumbentPopup">
           <div style={OVERLAY_STYLES} />
@@ -727,171 +805,30 @@ const Constraints = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="table-danger">
-                      <th scope="row">1</th>
-                      <td>Robert Wittman</td>
-                      <td>Republican</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent1"
-                          checked={constraints.incumbents[0]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">2</th>
-                      <td>Elaine Luria</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent2"
-                          checked={constraints.incumbents[1]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">3</th>
-                      <td>Robert Scott</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent3"
-                          checked={constraints.incumbents[2]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">4</th>
-                      <td>Donald McEachin</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent4"
-                          checked={constraints.incumbents[3]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-danger">
-                      <th scope="row">5</th>
-                      <td>Robert Good</td>
-                      <td>Republican</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent5"
-                          checked={constraints.incumbents[4]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-danger">
-                      <th scope="row">6</th>
-                      <td>Ben Cline</td>
-                      <td>Republican</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent6"
-                          checked={constraints.incumbents[5]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">7</th>
-                      <td>Abigail Spanberger</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent7"
-                          checked={constraints.incumbents[6]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">8</th>
-                      <td>Donald Beyer Jr.</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent8"
-                          checked={constraints.incumbents[7]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-danger">
-                      <th scope="row">9</th>
-                      <td>Morgan Griffith</td>
-                      <td>Republican</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent9"
-                          checked={constraints.incumbents[8]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">10</th>
-                      <td>Jennifer Wexton</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent10"
-                          checked={constraints.incumbents[9]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
-                    <tr class="table-info">
-                      <th scope="row">11</th>
-                      <td>Gerald Connolly</td>
-                      <td>Democratic</td>
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="incumbent11"
-                          checked={constraints.incumbents[10]}
-                          onChange={userChecked}
-                        />
-                      </td>
-                    </tr>
+                    {constraints.incumbents.map((incumbent, index) => {
+                      let cleanedParty=incumbent.party.substring(1, incumbent.party.length-1)
+                      let cleanedName=incumbent.name.substring(1, incumbent.name.length-1)
+                      let className=cleanedParty==='Republican'?"table-danger":"table-info";
+                      console.log(incumbent.party.substring(1, incumbent.party.length-1))
+                      return (
+                        <tr className={className}>
+                          <th scope="row">{index + 1}</th>
+                          <td>{cleanedName}</td>
+                          <td>{cleanedParty}</td>
+                          <td>
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                              id={`incumbent${index + 1}`}
+                              checked={constraints.incumbentsChecked[index]}
+                              onChange={userChecked}
+                            />
+                          </td>
+                        </tr>
+                      )
+                    })}
+
                   </tbody>
                 </table>
               </div>

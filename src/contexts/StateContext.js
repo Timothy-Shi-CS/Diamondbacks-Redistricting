@@ -7,7 +7,8 @@ export const StateProvider = (props) => {
         feature: null,
         jobs: null,
         job: null,
-        stateCenter: null
+        stateCenter: null,
+        remainingJobs:null
     });
 
     const [page, setPage] = useState("state-selection"); //start at state selection
@@ -21,7 +22,8 @@ export const StateProvider = (props) => {
     const [objValueParams, setObjValueParams] = useState({
         populationEquality: 0.62,
         splitCounties: 0.21,
-        devAvgDist: 0.79,
+        devAvgDistGeo: 0.79,
+        devAvgDistPop: 0.5,
         devEnDistGeo: 0.44,
         devEnDistPop: 0.97,
         compactness: {
@@ -44,7 +46,9 @@ export const StateProvider = (props) => {
             value: 2,
             type: 0
         },
-        incumbents: []
+        threshold:0.53,
+        incumbents: [],
+        incumbentsChecked:[]
     })
 
     return (

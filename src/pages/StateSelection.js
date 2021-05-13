@@ -1,14 +1,17 @@
 import React, { useState, useContext, useEffect } from "react";
 import ReactMapGL, { Source, Layer } from "react-map-gl";
+import RingLoader from "react-spinners/RingLoader";
 
 import { StateContext } from "../contexts/StateContext";
 
 const StateSelection = () => {
-  const { state, page, polygon, districts } = useContext(StateContext);
+  const { state, page, polygon, districts, constraintsData } = useContext(StateContext);
   const [stateFeature, setStateFeature] = state;
   const [pageName, setPageName] = page;
   const [stateDistricts, setStateDistricts] = districts;
+  const [constraints, setConstraints] = constraintsData;
   const [pd, setPd] = polygon;
+  const [loading, setLoading] = useState(false);
 
   //grab states from global state.
   const [stateCenter, setStateCenter] = useState(null);
@@ -37,8 +40,6 @@ const StateSelection = () => {
     .then((data) => {
       stateCenters = data;
     });
-
-  const [curJob, setCurJob] = useState(null);
 
   const [viewport, setViewport] = useState({
     //set viewing settings for map
@@ -77,9 +78,7 @@ const StateSelection = () => {
 
     for (let i = 0; i < features.length; i++) {
       if (
-        features[i].properties.name === "Utah" ||
-        features[i].properties.name === "Virginia" ||
-        features[i].properties.name === "Arizona"
+        features[i].properties.name === "Utah" || features[i].properties.name === "Virginia" || features[i].properties.name === "Arizona"
       ) {
         states.features.push(features[i]);
       }
@@ -94,7 +93,17 @@ const StateSelection = () => {
       //set value of dropdown
       document.getElementById("state-selection").value =
         stateFeature.feature.properties.postal;
-      //set current job to job that was already chosen
+
+      if (stateDistricts) {
+        setViewport((prevViewPort) => {
+          return {
+            ...prevViewPort,
+            latitude: stateFeature.stateCenter[0],
+            longitude: stateFeature.stateCenter[1],
+            zoom: 6
+          }
+        })
+      }
     }
   }, []);
 
@@ -108,11 +117,8 @@ const StateSelection = () => {
 
     setStateFeature(resetFeature); //reset the data for state
     setStateDistricts(null);
-    if (
-      e.features[0].properties.name === "Utah" ||
-      e.features[0].properties.name === "Virginia" ||
-      e.features[0].properties.name === "Arizona"
-    ) {
+    console.log(e.features)
+    if (e.features[0].properties.name === "Utah" || e.features[0].properties.name === "Virginia" || e.features[0].properties.name === "Arizona") {
       //check which state the user just clicked on
       setStateByName(e.features[0].properties.name); //state data for map will be set in the function
     } else {
@@ -123,8 +129,6 @@ const StateSelection = () => {
   };
 
   const setStateByName = (name) => {
-    //set the state feature from name of chosen state
-    console.log(name);
     let cur_feature = null;
     for (let i = 0; i < geojson.features.length; i++) {
       if (geojson.features[i].properties.name === name) {
@@ -135,63 +139,39 @@ const StateSelection = () => {
             feature: cur_feature,
           };
         });
-        console.log(cur_feature);
         break;
       }
     }
-
-    if (cur_feature) {
-      let requestObj = new XMLHttpRequest();
-      requestObj.onreadystatechange = (res) => {
-        let response = res.target;
-        if (response.readyState == 4 && response.status == 200) {
-          const responseObj = JSON.parse(response.responseText);
-          let jobs = [];
-          for (let i = 0; i < responseObj.length; i++) {
-            jobs.push({
-              id: responseObj[i].id,
-              coolingPeriod: responseObj[i].cooling_period,
-              rounds: responseObj[i].rounds,
-              stateEnum: responseObj[i].state_stateName,
-              numDistrictings: responseObj[i].num_of_districtings,
-            });
-          }
-
-          setStateFeature((prevStateFeature) => {
-            return {
-              ...prevStateFeature,
-              jobs: jobs,
-            };
+    let requestObj = new XMLHttpRequest();
+    requestObj.onreadystatechange = (res) => {
+      if (res.target.readyState == 4 && res.target.status == 200) {
+        const responseObj = JSON.parse(res.target.responseText);
+        let jobs = [];
+        for (let i = 0; i < responseObj.length; i++) {
+          jobs.push({
+            id: responseObj[i].id,
+            coolingPeriod: responseObj[i].coolingPeriod,
+            rounds: responseObj[i].rounds,
+            stateName: responseObj[i].state.stateName,
+            numDistrictings: responseObj[i].numDistrictings,
           });
         }
-      };
-      requestObj.open(
-        "GET",
-        `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/jobs=${name.toUpperCase()}`,
-        true
-      );
-      requestObj.send();
+        setStateFeature((prevStateFeature) => {
+          return {
+            ...prevStateFeature,
+            jobs: jobs,
+          };
+        });
+      }
+    };
+    requestObj.open("GET", `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/jobs=${name.toUpperCase()}`, false);
+    requestObj.send();
 
-      console.log(stateFeature);
+    getStateDistricts(name);
 
-      getStateDistricts(name);
+    document.getElementById("state-selection").value = cur_feature.properties.postal;
 
-      document.getElementById("state-selection").value =
-        cur_feature.properties.postal;
-
-      let center = getStateCenter(name);
-      setViewport((prevViewPort) => {
-        return {
-          ...prevViewPort,
-          latitude: center.latitude,
-          longitude: center.longitude,
-          zoom: 6,
-        };
-      });
-    } else {
-      //state isn't valid
-      setStateFeature(resetFeature); //reset the state data
-    }
+    getStateCenter(name);
   };
 
   const stateSelectionDropdown = (e) => {
@@ -259,11 +239,7 @@ const StateSelection = () => {
           properties: features[i].properties,
         });
 
-        let red = Math.floor(Math.random() * 255);
-        let blue = Math.floor(Math.random() * 255);
-        let green = Math.floor(Math.random() * 255);
-
-        colors.push(`rgba(${red},${blue},${green},0.5)`); //generate a random color and push
+        colors.push(`rgba(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},0.5)`); //generate a random color and push
         districts.push(features[i].properties.DISTRICT); //push the district number
       }
     }
@@ -282,20 +258,58 @@ const StateSelection = () => {
         break;
       }
     }
-    return center;
+    setViewport((prevViewPort) => {
+      return {
+        ...prevViewPort,
+        latitude: center.latitude,
+        longitude: center.longitude,
+        zoom: 6,
+      };
+    });
   };
 
   const applyEverything = (e) => {
+    setLoading(true);
     e.preventDefault();
     console.log(stateFeature.feature);
 
-    setStateFeature((prevStateFeature) => {
-      return {
-        ...prevStateFeature,
-        stateCenter: [stateCenter.latitude, stateCenter.longitude], //set the center of that state for the next page
-      };
-    });
-    setPageName("constraints"); //move on to next page
+    let requestObj = new XMLHttpRequest();
+    requestObj.onreadystatechange = (res) => {
+      let response = res.target;
+      if (response.readyState == 4 && response.status == 200) {
+        let incumbents = JSON.parse(response.responseText)
+        console.log(incumbents)
+        let incumbentsChecked = []
+        for (let i = 0; i < incumbents.length; i++) {
+          incumbentsChecked.push(false)
+        }
+        setConstraints((prevConstraints) => {
+          return {
+            ...prevConstraints,
+            incumbents: [...incumbents],
+            incumbentsChecked: [...incumbentsChecked]
+          }
+        })
+        setLoading(false)
+        setPageName("constraints"); //move on to next page
+      }
+    };
+    requestObj.open(
+      "GET",
+      `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/state=${stateFeature.feature.properties.name.toUpperCase()}&job=${stateFeature.jobs[stateFeature.job].id}`,
+      true
+    );
+    requestObj.send();
+
+    if (!stateFeature.stateCenter) {
+      setStateFeature((prevStateFeature) => {
+        return {
+          ...prevStateFeature,
+          stateCenter: [stateCenter.latitude, stateCenter.longitude], //set the center of that state for the next page
+        };
+      })
+    }
+
   };
 
   const numberWithCommas = (x) => {
@@ -303,7 +317,7 @@ const StateSelection = () => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  let render = "";
+  let render = null;
 
   if (stateDistricts) {
     //if the districts have been loaded in
@@ -326,7 +340,7 @@ const StateSelection = () => {
         layout: {},
         paint: {
           "fill-color": stateDistricts.distColors[index],
-          "fill-outline-color": "rgba(255,255,255,1.0)",
+          "fill-outline-color": "rgba(0,0,0,1.0)",
         },
       };
 
@@ -370,10 +384,12 @@ const StateSelection = () => {
             position: "relative",
           }}
         >
+
           <div
             className="text-white"
             style={{ zIndex: "4", position: "relative" }}
           >
+
             <h3>Select a state:</h3>
             <select
               id="state-selection"
@@ -388,7 +404,13 @@ const StateSelection = () => {
               <option value="VA">Virginia</option>
             </select>
           </div>
-          <div className="bg-primary state_selection_banner"></div>
+          <div className="bg-primary state_selection_banner">
+            <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop:"30px", width:"94%"}}>
+              <div className="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "25%" }}>
+                25%
+              </div>
+            </div>
+          </div>
           {stateFeature.jobs !== null ? (
             <div
               className="d-flex flex-column justify-content-between py-4"
@@ -403,7 +425,7 @@ const StateSelection = () => {
                 {stateFeature.jobs.map((job, index) => {
                   return (
                     <div class="card" key={index + 1}>
-                      <h5 class="card-header">Job {index + 1}</h5>
+                      <h5 class="card-header">{job.stateName} - Job {index + 1}</h5>
                       <div class="card-body">
                         <h5 class="card-title">
                           {numberWithCommas(job.numDistrictings)} redistrictings
@@ -470,6 +492,19 @@ const StateSelection = () => {
           <Layer {...statesLayer} />
         </Source>
       </ReactMapGL>
+
+      {loading ? (
+        <div>
+          <div className="loading-screen">
+            <RingLoader
+              size={200}
+              color={'#25C5E2'}
+              loading={loading}
+              // margin={20}
+            />
+          </div>
+        </div>
+      ) : ""}
     </div>
   );
 };
