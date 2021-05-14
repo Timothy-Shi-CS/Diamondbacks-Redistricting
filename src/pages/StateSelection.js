@@ -148,13 +148,16 @@ const StateSelection = () => {
         const responseObj = JSON.parse(res.target.responseText);
         let jobs = [];
         for (let i = 0; i < responseObj.length; i++) {
-          jobs.push({
-            id: responseObj[i].id,
-            coolingPeriod: responseObj[i].coolingPeriod,
-            rounds: responseObj[i].rounds,
-            stateName: responseObj[i].state.stateName,
-            numDistrictings: responseObj[i].numDistrictings,
-          });
+          if (responseObj[i].id !== "enacted") {
+            jobs.push({
+              id: responseObj[i].id,
+              coolingPeriod: responseObj[i].coolingPeriod,
+              rounds: responseObj[i].rounds,
+              stateName: responseObj[i].state.stateName,
+              numDistrictings: responseObj[i].numDistrictings,
+            });
+          }
+
         }
         setStateFeature((prevStateFeature) => {
           return {
@@ -278,11 +281,13 @@ const StateSelection = () => {
       let response = res.target;
       if (response.readyState == 4 && response.status == 200) {
         let incumbents = JSON.parse(response.responseText)
-        console.log(incumbents)
         let incumbentsChecked = []
+        console.log(incumbents)
         for (let i = 0; i < incumbents.length; i++) {
           incumbentsChecked.push(false)
+          incumbents[i].incumbentID=incumbents[i].incumbentID.split("_")[1]
         }
+        console.log(incumbents)
         setConstraints((prevConstraints) => {
           return {
             ...prevConstraints,
@@ -405,7 +410,7 @@ const StateSelection = () => {
             </select>
           </div>
           <div className="bg-primary state_selection_banner">
-            <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop:"30px", width:"94%"}}>
+            <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop: "30px", width: "94%" }}>
               <div className="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "25%" }}>
                 25%
               </div>
@@ -500,7 +505,7 @@ const StateSelection = () => {
               size={200}
               color={'#25C5E2'}
               loading={loading}
-              // margin={20}
+            // margin={20}
             />
           </div>
         </div>

@@ -8,7 +8,7 @@ export const StateProvider = (props) => {
         jobs: null,
         job: null,
         stateCenter: null,
-        remainingJobs:null
+        remainingJobs: null
     });
 
     const [page, setPage] = useState("state-selection"); //start at state selection
@@ -46,10 +46,12 @@ export const StateProvider = (props) => {
             value: 2,
             type: 0
         },
-        threshold:0.53,
+        threshold: 0.53,
         incumbents: [],
-        incumbentsChecked:[]
+        incumbentsChecked: []
     })
+
+    const [districtings, setDistrictings] = useState(null)
 
     return (
         <StateContext.Provider value={{
@@ -58,7 +60,8 @@ export const StateProvider = (props) => {
             polygon: [polygon, setPolygon],
             districts: [districts, setDistrics],
             objective: [objValueParams, setObjValueParams],
-            constraintsData: [constraints, setConstraints]
+            constraintsData: [constraints, setConstraints],
+            districtings: [districtings, setDistrictings]
         }}>
             {props.children}
         </StateContext.Provider>

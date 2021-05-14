@@ -5,11 +5,14 @@ import Plot from 'react-plotly.js';
 import { StateContext } from '../contexts/StateContext'
 
 const Analysis = () => {
-    const { state, page, districts, objective } = useContext(StateContext);
+    const { state, page, districts, objective, districtings} = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
     const [objValueParams, setObjValueParams] = objective;
+    const [districtingsData,setDistrictingsData] = districtings
+
+    const [districtingOBJ, setDistrictingOBJ] = useState(null)
 
     const [showFilters, setShowFilters] = useState(false);
 
@@ -640,6 +643,11 @@ const Analysis = () => {
         setShowBoxAndWhiskerPopup(true); //show box and whisker
     }
 
+    const districtingClicked=(districtingsData)=>{
+        console.log("clicked")
+        setDistrictingOBJ(districtingsData)
+    }
+
 
     let render = "";
 
@@ -677,15 +685,15 @@ const Analysis = () => {
         })
     }
 
-    let compactness;
-    if (objValueParams.chosenCompactness === 'graph-compact') {
-        compactness = 'Graph Compactness'
-    }
-    else if (objValueParams.chosenCompactness === 'geo-compact') {
-        compactness = 'Geometric Compactness'
-    } else {
-        compactness = 'Population Fatness'
-    }
+    // let compactness;
+    // if (objValueParams.chosenCompactness === 'graph-compact') {
+    //     compactness = 'Graph Compactness'
+    // }
+    // else if (objValueParams.chosenCompactness === 'geo-compact') {
+    //     compactness = 'Geometric Compactness'
+    // } else {
+    //     compactness = 'Population Fatness'
+    // }
 
     return (
         <div className="container-fluid" style={{ height: "100vh", width: "100vw", position: 'relative' }}>
@@ -720,40 +728,40 @@ const Analysis = () => {
                             <option>Districting 10 - Obj. Value : 2</option>
                         </select>
 
-                        {showFilters ? (
+                        {/* {showFilters ? (
                             <>
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="split-counties-1">
                                         Show counties
-                            </label>
+                                    </label>
                                     <input class="form-check-input" type="radio" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="dev-avg-2">
                                         Show deviation from average districting
-                            </label>
+                                    </label>
                                     <input class="form-check-input" type="radio" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="geo-compact-3">
                                         Show geometric compactness
-                            </label>
+                                    </label>
                                     <input class="form-check-input" type="radio" value="" id="geo-compact-3" checked={checks[2]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="graph-compact-4">
                                         Show graph compactness
-                            </label>
+                                    </label>
                                     <input class="form-check-input" type="radio" value="" id="graph-compact-4" checked={checks[3]} onChange={userChecked} />
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" htmlFor="pop-fat-5">
                                         Show population fatness
-                            </label>
+                                    </label>
                                     <input class="form-check-input" type="radio" value="" id="pop-fat-5" checked={checks[4]} onChange={userChecked} />
                                 </div>
 
@@ -768,7 +776,198 @@ const Analysis = () => {
                                     <button type="button" className="btn btn-lg col-12 btn-primary" onClick={resetChecks}>Reset</button>
                                 </div>
                             </>
-                        ) : ""}
+                        ) : ""} */}
+                        <div
+                            style={{ overflow: "auto", height: "600px" }}
+                        >
+                            <div  style={{width:"100%"}}>
+                                <nav className="navbar navbar-dark bg-dark navbar-expand-lg text-light " style={{ height: "30px", justifyContent: "center" }}> Top 10 Districtings</nav>
+                                <div className="row d-flex justify-content-between align-items-center" style={{paddingTop:"10px"}}>
+
+                                    <div className="col">
+                                        <div class="card districting" onClick={()=>{districtingClicked(districtingsData[0])}}>
+                                        <h5 class="card-header">
+                                                Districting 1
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[0].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                    <div class="card districting" onClick={()=>{districtingClicked(districtingsData[1])}}>
+                                        <h5 class="card-header">
+                                                Districting 2
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[1].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+
+                                <div className="row d-flex justify-content-center align-items-center" style={{paddingTop:"10px"}}>
+                                <div className="col">
+                                <div class="card districting" onClick={()=>{districtingClicked(districtingsData[2])}}>
+                                        <h5 class="card-header">
+                                                Districting 3
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[2].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                    <div class="card districting" onClick={()=>{districtingClicked(districtingsData[3])}}>
+                                        <h5 class="card-header">
+                                                Districting 4
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[3].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+
+                                <div className="row d-flex justify-content-center align-items-center" style={{paddingTop:"10px"}}>
+                                <div className="col">
+                                <div class="card districting" onClick={()=>{districtingClicked(districtingsData[4])}}>
+                                        <h5 class="card-header">
+                                                Districting 5
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[4].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                    <div class="card districting" onClick={()=>{districtingClicked(districtingsData[5])}}>
+                                        <h5 class="card-header">
+                                                Districting 6
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[5].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+
+                                <div className="row d-flex justify-content-center align-items-center" style={{paddingTop:"10px"}}>
+                                <div className="col">
+                                <div class="card districting" onClick={()=>{districtingClicked(districtingsData[6])}}>
+                                        <h5 class="card-header">
+                                                Districting 7
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[6].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                    <div class="card districting" onClick={()=>{districtingClicked(districtingsData[7])}}>
+                                        <h5 class="card-header">
+                                                Districting 8
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[7].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+
+                                <div className="row d-flex justify-content-center align-items-center" style={{paddingTop:"10px", paddingBottom:"10px"}}>
+                                <div className="col">
+                                <div class="card districting" onClick={()=>{districtingClicked(districtingsData[8])}}>
+                                        <h5 class="card-header">
+                                                Districting 9
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[8].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                    <div class="card districting" onClick={()=>{districtingClicked(districtingsData[9])}}>
+                                        <h5 class="card-header">
+                                                Districting 10
+                                                
+                                            </h5>
+                                            <div class="card-body">
+                                                
+                                            <h6 class="card-title">Objective Value</h6>
+                                                <p class="card-text">
+                                                {districtingsData[9].overallObjectiveValueScore}
+                                            </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+
+                            <nav className="navbar navbar-dark bg-dark navbar-expand-lg text-light " style={{ height: "30px", justifyContent: "center" }}> Deviation From Enacted</nav>
+                            <nav className="navbar navbar-dark bg-dark navbar-expand-lg text-light " style={{ height: "30px", justifyContent: "center" }}> Very Different Area-Pair Deviations</nav>
+
+                        </div>
 
                     </div>
                 </div>
@@ -797,20 +996,13 @@ const Analysis = () => {
                                 <tbody>
                                     <tr>
                                         <th scope="row">Population:</th>
-                                        {showFilters ? (
-                                            <>
-                                                <td>{objValueParams.populationEquality}</td>
-                                                <td>54</td>
-                                            </>
-                                        )
-                                            :
-                                            (
-                                                <>
-                                                    <td></td>
-                                                    <td></td>
-                                                </>
-                                            )
-                                        }
+                                        
+                                                    <td>{objValueParams.populationEquality}</td>
+                                                    {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.TOT_POP_EQU.measureScore}
+                                                        </td>):(<td></td>)
+                                                    }
+                                                    
 
                                     </tr>
                                     <tr>
@@ -849,15 +1041,18 @@ const Analysis = () => {
                                         <th scope="row">Average Districting (Geometric):</th>
                                         {showFilters ? (
                                             <>
-                                                <td>{objValueParams.devAvgDist}</td>
+                                                <td>{objValueParams.devAvgDistGeo}</td>
                                                 <td>72</td>
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>{objValueParams.devAvgDistGeo}</td>
+                                                    {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                                 </>
                                             )
                                         }
@@ -867,15 +1062,18 @@ const Analysis = () => {
                                         <th scope="row">Average Districting (Population):</th>
                                         {showFilters ? (
                                             <>
-                                                <td>{objValueParams.devAvgDist}</td>
+                                                <td>{objValueParams.devAvgDistPop}</td>
                                                 <td>72</td>
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>{objValueParams.devAvgDistPop}</td>
+                                                    {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.DEV_AVERAGE_POP.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                                 </>
                                             )
                                         }
@@ -892,8 +1090,11 @@ const Analysis = () => {
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>{objValueParams.devEnDistGeo}</td>
+                                                    {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.DEV_ENACTED_GEO.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                                 </>
                                             )
                                         }
@@ -909,8 +1110,11 @@ const Analysis = () => {
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>{objValueParams.devEnDistPop}</td>
+                                                    {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.DEV_ENACTED_POP.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                                 </>
                                             )
                                         }
@@ -933,17 +1137,20 @@ const Analysis = () => {
                                 <tbody>
                                     <tr>
                                         <th scope="row">Geometric:</th>
-                                        {showFilters ? (
+                                        {objValueParams.compactness.type === 0 ? (
                                             <>
-                                                <td>{objValueParams.devAvgDist}</td>
-                                                <td>72</td>
+                                                <td>{objValueParams.compactness.value}</td>
+                                                {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.GEOMETRIC_COMPACTNESS.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>NA</td>
+                                                    <td>NA</td>
                                                 </>
                                             )
                                         }
@@ -951,34 +1158,40 @@ const Analysis = () => {
                                     </tr>
                                     <tr>
                                         <th scope="row">Graph:</th>
-                                        {showFilters ? (
+                                        {objValueParams.compactness.type === 1 ? (
                                             <>
-                                                <td>{objValueParams.devEnDistGeo}</td>
-                                                <td>53</td>
+                                                <td>{objValueParams.compactness.value}</td>
+                                                {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.GRAPH_COMPACTNESS.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>NA</td>
+                                                    <td>NA</td>
                                                 </>
                                             )
                                         }
                                     </tr>
                                     <tr>
                                         <th scope="row">Population Fatness:</th>
-                                        {showFilters ? (
+                                        {objValueParams.compactness.type === 2 ? (
                                             <>
-                                                <td>{objValueParams.devEnDistPop}</td>
-                                                <td>89</td>
+                                                <td>{objValueParams.compactness.value}</td>
+                                                {districtingOBJ?
+                                                        (<td>{districtingOBJ.measures.POPULATION_FATNESS.measureScore.toPrecision(7)}
+                                                        </td>):(<td></td>)
+                                                    }
                                             </>
                                         )
                                             :
                                             (
                                                 <>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>NA</td>
+                                                    <td>NA</td>
                                                 </>
                                             )
                                         }

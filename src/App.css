@@ -1,4 +1,4 @@
-.back-btn:hover, a:hover, .compareBtn:hover, .boxAndWhisker:hover{
+.back-btn:hover, a:hover, .compareBtn:hover, .boxAndWhisker:hover, .districting:hover{
   cursor: pointer;
 }
 
@@ -60,3 +60,4 @@
   justify-content: center;
   align-items: center;
 }
+

@@ -1,14 +1,17 @@
 import React, { useState, useContext, useEffect } from 'react'
 import ReactMapGL, { Source, Layer, Popup } from "react-map-gl"
+import RingLoader from "react-spinners/RingLoader";
 
 import { StateContext } from '../contexts/StateContext'
 
 const Weights = () => {
-    const { state, page, districts, objective } = useContext(StateContext);
+    const { state, page, districts, objective, districtings } = useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
     const [stateDistricts, setStateDistricts] = districts;
     const [objValueParams, setObjValueParams] = objective;
+    const [districtingsData, setDistrictingsData] = districtings
+    const [loading, setLoading] = useState(false);
 
     const [popUpText, setPopUpText] = useState("");
     const [popUpCoords, setPopUpCoords] = useState(null);
@@ -111,6 +114,7 @@ const Weights = () => {
     }
 
     const saveEverything = (e) => {
+        setLoading(true)
         const popFat = objValueParams.compactness.type === 2 ? objValueParams.compactness.value : -1
         const graph = objValueParams.compactness.type === 1 ? objValueParams.compactness.value : -1
         const geo = objValueParams.compactness.type === 0 ? objValueParams.compactness.value : -1
@@ -119,8 +123,21 @@ const Weights = () => {
         requestObj.onreadystatechange = (res) => {
             let response = res.target;
             if (response.readyState == 4 && response.status == 200) {
-                console.log(response.responseText)
+                let districtingsMap = []
+                let districtingsResp = JSON.parse(response.responseText)
+                const keys = Object.keys(districtingsResp);
+                for (let i = 0; i < keys.length; i++) {
+                    districtingsMap.push({
+                        id: keys[i].substring(1, keys[i].length - 1),
+                        ...districtingsResp[keys[i]]
+                    })
+                }
+                console.log(districtingsMap)
+                setDistrictingsData(districtingsMap)
+                setLoading(false);
+                setPageName('analysis'); //move on to the final page
             }
+
         };
         requestObj.open(
             "GET",
@@ -128,7 +145,7 @@ const Weights = () => {
             true
         );
         requestObj.send();
-        setPageName('analysis'); //move on to the final page
+
     }
 
     let render = "";
@@ -300,7 +317,7 @@ const Weights = () => {
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                     </div>
                     <div className="bg-primary weights_banner">
-                        <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop:"30px", width:"94%", marginLeft:"auto", marginRight:"auto"}}>
+                        <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop: "30px", width: "94%", marginLeft: "auto", marginRight: "auto" }}>
                             <div className="progress-bar progress-bar-striped bg-success progress-bar-animated shadow" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "75%" }}>
                                 75%
                             </div>
@@ -386,7 +403,7 @@ const Weights = () => {
                                         <div class="form-check">
                                             <label class="form-check-label h6" htmlFor="geo-compact_0">
                                                 {/* <p class="h6">Geographic compactness:</p> */}
-                                                Geographic compactness
+                                                Geometric compactness
                                             </label>
                                             <input class="form-check-input" type="radio" id="geo-compact_0" checked={checks[0]} onChange={userChecked} />
                                         </div>
@@ -423,7 +440,7 @@ const Weights = () => {
                         <div>
                             <div className='d-flex flex-row justify-content-between'>
                                 <p class="h5 " >Efficiency Gap:</p>
-                                <input type="number" disabled style={{ width: '60px'}} />
+                                <input type="number" disabled style={{ width: '60px' }} />
                             </div>
                             <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setEfficiencyGapSlider} value={objValueParams.efficiencyGap} disabled />
 
@@ -464,6 +481,18 @@ const Weights = () => {
                     </Popup>
                 ) : ""}
             </ReactMapGL>
+            {loading ? (
+                <div>
+                    <div className="loading-screen">
+                        <RingLoader
+                            size={200}
+                            color={'#25C5E2'}
+                            loading={loading}
+                        // margin={20}
+                        />
+                    </div>
+                </div>
+            ) : ""}
 
             <p style={{ position: 'absolute', top: '95%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: '1' }}><strong><em>Figure shows the most recent district boundaries</em></strong></p>
 
