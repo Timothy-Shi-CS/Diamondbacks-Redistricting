@@ -664,7 +664,7 @@ const Constraints = () => {
                         class="form-check-label h6"
                         htmlFor="geo-compact_0"
                       >
-                        Geographic Compactness
+                        Geometric Compactness
                       </label>
                       <input
                         class="form-check-input"

@@ -126,10 +126,10 @@ const Weights = () => {
                 let districtingsMap = []
                 let districtingsResp = JSON.parse(response.responseText)
                 const keys = Object.keys(districtingsResp);
-                for (let i = 0; i < keys.length; i++) {
+                for (let i = 0; i < districtingsResp.length; i++) {
                     districtingsMap.push({
-                        id: keys[i].substring(1, keys[i].length - 1),
-                        ...districtingsResp[keys[i]]
+                        id: districtingsResp[i].fileName.substring(1, districtingsResp[i].fileName.length - 1),
+                        ...districtingsResp[i]
                     })
                 }
                 console.log(districtingsMap)
