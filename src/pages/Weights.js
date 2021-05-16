@@ -17,6 +17,13 @@ const Weights = () => {
     const [popUpCoords, setPopUpCoords] = useState(null);
     const [checks, setChecks] = useState([false, false, false]);
 
+    const [countyLayer, setCountyLayer] = useState("");
+    const [precinctLayer, setPrecinctLayer] = useState("");
+    const [filterChecks, setFilterChecks] = useState([false, false]);
+
+    const [counties, setCounties] = useState(null)
+    const [precincts, setPrecincts] = useState(null)
+
     const [viewport, setViewport] = useState({ // set the map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
@@ -50,6 +57,39 @@ const Weights = () => {
     const enactedDistricts = require('../data/districts114.json'); //load in the enacted districtings of each state
 
     useEffect(() => {
+        let statename = stateFeature.feature.properties.name.toLowerCase();
+        console.log(statename);
+
+        let requestObj2 = new XMLHttpRequest();
+        requestObj2.onreadystatechange = (res) => {
+            let response = res.target;
+            if (response.readyState == 4 && response.status == 200) {
+
+                setCounties(JSON.parse(response.responseText));
+                console.log(counties)
+            }
+        };
+        requestObj2.open(
+            "GET",
+            `http://127.0.0.1:5000/${statename}_counties`,
+            true
+        );
+        requestObj2.send();
+
+        let requestObj3 = new XMLHttpRequest();
+        requestObj3.onreadystatechange = (res) => {
+            let response = res.target;
+            if (response.readyState == 4 && response.status == 200) {
+
+                setPrecincts(JSON.parse(response.responseText));
+            }
+        };
+        requestObj3.open(
+            "GET",
+            `http://127.0.0.1:5000/${statename}_precincts`,
+            true
+        );
+        requestObj3.send();
         if (stateDistricts === null) { //if the districts weren't loaded in before, do so now
             let coordHolder = { //create a map to hold the districts data
                 type: "FeatureCollection",
@@ -99,6 +139,91 @@ const Weights = () => {
         //document.getElementById('slider_range').disabled = false
     }, []);
 
+    const userCheckedFilters = (e) => {
+        let tempChecks = [...filterChecks];
+        const index = parseInt(e.target.id.split("-")[2]); //get the index of the selected filter
+
+        if (filterChecks[index - 1] === true) {
+            //if the filter was originally selected, turn it off
+            tempChecks[index - 1] = false;
+            // removeOtherFilterLayers(); //get back the origin colors of each district
+            // setView(""); //
+            // setCountyLayer(""); //clear county layer
+            if (index === 1) {
+                setCountyLayer("")
+            } else if (index === 2) {
+                setPrecinctLayer("")
+            }
+        } else {
+            //if the filter was originally deselected, turn it on
+            tempChecks[index - 1] = true;
+            // setView(e.target.id);
+            if (index === 1) {
+                // removeOtherFilterLayers();
+                showCounties(); //show counties
+                // setPrecinctLayer("");
+            } else if (index === 2) {
+                // showDevAvg(); //show deviation from average
+                // setCountyLayer(""); //remove the counties
+                showPrecincts();
+            }
+            // } else {
+            //     removeOtherFilterLayers();
+            //     setCountyLayer(""); //remove the counties
+            // }
+        }
+        setFilterChecks([...tempChecks]);
+        console.log(index);
+    }
+
+    const showCounties = () => {
+        // console.log(counties);
+        const countyLayer = {
+            //styling for layer that shows counties
+            id: "counties-layer",
+            type: "fill",
+            source: "counties",
+            layout: {},
+            paint: {
+                "fill-color": "rgba(247, 138, 222, 0.33)",
+                "fill-outline-color": "rgba(255, 0, 0, 0.46)",
+            },
+        };
+
+        setCountyLayer(
+            <Source
+                id="counties"
+                type="geojson"
+                data={counties}
+            >
+                <Layer {...countyLayer} />
+            </Source>
+        );
+    };
+
+    const showPrecincts = () => {
+        const precinctLayer = {
+            id: "precincts-layer",
+            type: "fill",
+            source: "precincts",
+            layout: {},
+            paint: {
+                "fill-color": "rgba(229, 145, 255, 0.025)",
+                "fill-outline-color": "rgba(0,0,0,0.3)",
+            }
+        }
+
+        setPrecinctLayer(
+            <Source
+                id="precincts"
+                type="geojson"
+                data={precincts}
+            >
+                <Layer {...precinctLayer} />
+            </Source>
+        );
+    }
+
     const userClickedDistrict = (e) => {
         e.preventDefault();
 
@@ -122,6 +247,7 @@ const Weights = () => {
         let requestObj = new XMLHttpRequest();
         requestObj.onreadystatechange = (res) => {
             let response = res.target;
+            console.log(`http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/setWeights/popEquality=${objValueParams.populationEquality}&devAvgGeo=${objValueParams.devAvgDistGeo}&devAvgPop=${objValueParams.devAvgDistPop}&devEnactedGeo=${objValueParams.devEnDistGeo}&devEnactedPop=${objValueParams.devEnDistPop}&geoCompact=${geo}&graphCompact=${graph}&popFat=${popFat}`)
             if (response.readyState == 4 && response.status == 200) {
                 let districtingsMap = []
                 let districtingsResp = JSON.parse(response.responseText)
@@ -311,7 +437,7 @@ const Weights = () => {
                         <p class="h6 d-inline-block back-btn text-white" onClick={backToStateSelection} style={{ position: 'relative', zIndex: "4" }}>Home</p>
                     </div>
 
-                    <div className="text-white" align="center" style={{ paddingTop: "1rem", zIndex: "4", position: "relative", marginBottom: "30px" }}>
+                    <div className="text-white" align="center" style={{ paddingTop: "2rem", zIndex: "4", position: "relative", marginBottom: "30px" }}>
                         <p class="h3">Objective Function Weights</p>
                         <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.remainingJobs)} redistrictings</em></p>
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
@@ -325,6 +451,21 @@ const Weights = () => {
                     </div>
 
                     <div className="d-flex flex-column justify-content-between" style={{ height: "70%", width: "100%" }}>
+                        <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
+                            <div class="col form-check" style={{ marginLeft: "70px" }}>
+                                <label class="form-check-label" htmlFor="split-counties-1">
+                                    Show counties
+                                    </label>
+                                <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={filterChecks[0]} onChange={userCheckedFilters} />
+                            </div>
+
+                            <div class="col form-check">
+                                <label class="form-check-label" htmlFor="dev-avg-2">
+                                    Show precincts
+                                    </label>
+                                <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={filterChecks[1]} onChange={userCheckedFilters} />
+                            </div>
+                        </div>
                         <div>
 
                             <p class="h4">General:</p>
@@ -347,7 +488,7 @@ const Weights = () => {
                                     <input type="range" class="form-range" min="0" max="1" step="0.01" id="split_county_range" onInput={splitCountyRange} value={objValueParams.splitCounties} disabled />
                                 </div>
                             </div>
-                            <hr></hr>
+                            {/* <hr></hr> */}
                         </div>
 
 
@@ -392,7 +533,7 @@ const Weights = () => {
                                 </div>
 
                             </div>
-                            <hr></hr>
+                            {/* <hr></hr> */}
                         </div>
 
                         <div>
@@ -435,7 +576,7 @@ const Weights = () => {
                                     <input type="range" class="form-range" min="0" max="1" step="0.01" id="slider_range" onInput={setCompactnessSlider} value={objValueParams.compactness.value} />
                                 </div>
                             </div>
-                            <hr></hr>
+                            {/* <hr></hr> */}
                         </div>
                         <div>
                             <div className='d-flex flex-row justify-content-between'>
@@ -466,7 +607,8 @@ const Weights = () => {
                 mapboxApiAccessToken={"pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"}
                 onClick={userClickedDistrict}
             >
-
+                {countyLayer}
+                {precinctLayer}
                 {render}
 
                 {popUpCoords ? (

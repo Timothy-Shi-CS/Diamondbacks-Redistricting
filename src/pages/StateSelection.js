@@ -285,9 +285,10 @@ const StateSelection = () => {
         console.log(incumbents)
         for (let i = 0; i < incumbents.length; i++) {
           incumbentsChecked.push(false)
-          incumbents[i].incumbentID=incumbents[i].incumbentID.split("_")[1]
+          incumbents[i].incumbentID = incumbents[i].incumbentID.split("_")[1]
         }
         console.log(incumbents)
+        console.log(`http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/state=${stateFeature.feature.properties.name.toUpperCase()}&job=${stateFeature.jobs[stateFeature.job].id}`)
         setConstraints((prevConstraints) => {
           return {
             ...prevConstraints,
@@ -349,6 +350,7 @@ const StateSelection = () => {
         },
       };
 
+
       return (
         //return a source component with a child Layer component for that district
         <Source
@@ -362,6 +364,8 @@ const StateSelection = () => {
       );
     });
   }
+
+
 
   return (
     <div

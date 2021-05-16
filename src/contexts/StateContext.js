@@ -35,18 +35,18 @@ export const StateProvider = (props) => {
 
     const [constraints, setConstraints] = useState({
         populationConstraint: {
-            value: 0.02,
-            type: 0
+            value: 0.147,
+            type: 1
         },
         compactnessConstraint: {
-            value: 0.5,
-            type: 0
+            value: 0.23,
+            type: 2
         },
         majorityMinorityConstraint: {
-            value: 2,
-            type: 0
+            value: 1,
+            type: 2
         },
-        threshold: 0.53,
+        threshold: 0.57,
         incumbents: [],
         incumbentsChecked: []
     })

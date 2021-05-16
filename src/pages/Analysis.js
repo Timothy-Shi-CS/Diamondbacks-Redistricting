@@ -6,7 +6,7 @@ import RingLoader from "react-spinners/RingLoader";
 import { StateContext } from "../contexts/StateContext";
 
 const Analysis = () => {
-    const { state, page, districts, objective,constraintsData,districtings } =
+    const { state, page, districts, objective, constraintsData, districtings } =
         useContext(StateContext);
     const [stateFeature, setStateFeature] = state;
     const [pageName, setPageName] = page;
@@ -21,13 +21,14 @@ const Analysis = () => {
     const [showFilters, setShowFilters] = useState(false);
 
     const [countyLayer, setCountyLayer] = useState("");
+    const [precinctLayer, setPrecinctLayer] = useState("");
 
     const [showPopup, setShowPopup] = useState(false);
     const [popUpText, setPopUpText] = useState(null);
     const [popUpCoords, setPopUpCoords] = useState(null);
 
     const [view, setView] = useState("");
-    const [bawData, setBAWData]=useState(null)
+    const [bawData, setBAWData] = useState(null)
 
     let [checks, setChecks] = useState([false, false]);
 
@@ -37,6 +38,8 @@ const Analysis = () => {
     const [districtNumbers, setDistrictNumbers] = useState(null);
     const [showComparisonPopup, setShowComparisonPopup] = useState(false);
     const [showBoxAndWhiskerPopup, setShowBoxAndWhiskerPopup] = useState(false);
+
+    const [showDistrictData, setShowDistrictData] = useState(false)
 
     const [viewport, setViewport] = useState({
         //main map viewing settings
@@ -88,408 +91,10 @@ const Analysis = () => {
         zIndex: 1000,
     };
 
-
-    const data = [
-        //placeholder data for box and whisker
-        {
-            name: "1",
-            y: [
-                2.6, 2.7, 3.3, 5, 5, 6, 7, 9, 8.7, 10, 6.9, 5.33, 3.72, 2, 7.3, 2.9,
-                4.43, 5.67, 8.19, 15.76, 18.79,
-            ],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "2",
-            y: [4.3, 5.67, 4, 6.7, 7.8, , 8.9, 12.54, 18.33, 20.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "3",
-            y: [6.3, 6.67, 5, 7.7, 8.8, 9.9, 13.54, 19.33, 22.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "4",
-            y: [6.3, 8.67, 9, 10.7, 11.8, 12.9, 16.54, 22.33, 25.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "5",
-            y: [6.9, 10.67, 11, 12.7, 14.8, 16.9, 20.54, 27.33, 33.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "6",
-            y: [7.9, 12.67, 13, 15.7, 17.8, 20.9, 24.54, 31.33, 35.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "7",
-            y: [8.4, 14.67, 15, 17.7, 21.8, 24.9, 27.54, 33.33, 37.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-
-        {
-            name: "8",
-            y: [19.5, 20.67, 21, 24.7, 32.8, 35.9, 38.54, 38.33, 49.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "9",
-            y: [31.5, 34.67, 36, 38.7, 46.8, 47.9, 48.54, 48.33, 59.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "10",
-            y: [41.5, 44.67, 36, 48.7, 56.8, 57.9, 68.54, 78.33, 79.89],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "11",
-            y: [
-                79.97, 82.15, 63.3, 65.87, 75.87, 67.3, 73.2, 91.21, 82.7, 84.24, 62.9,
-                52.33, 53.72, 42.87, 72.3, 44.9, 44.43, 55.67, 68.19, 65.76, 60.73,
-            ],
-            boxpoints: false,
-            type: "box",
-            marker: {
-                color: "rgb",
-            },
-            showlegend: false,
-        },
-        {
-            name: "Enacted",
-            mode: "markers",
-            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-            y: [1, 2, 4, 16, 20, 24, 51, 54, 64, 82, 91],
-            type: "scatter",
-            marker: { color: "red" },
-        },
-        {
-            name: "Current",
-            mode: "markers",
-            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-            y: [
-                Math.random() * (18.79 - 2.6) + 2.6,
-                Math.random() * (20.89 - 4.3) + 4.3,
-                Math.random() * (22.89 - 6.3) + 6.3,
-                Math.random() * (25.89 - 6.3) + 6.3,
-                Math.random() * (33.89 - 6.9) + 6.9,
-                Math.random() * (35.89 - 7.9) + 7.9,
-                Math.random() * (37.89 - 8.4) + 8.4,
-                Math.random() * (49.89 - 19.5) + 19.5,
-                Math.random() * (59.89 - 31.5) + 31.5,
-                Math.random() * (79.89 - 36) + 36,
-                Math.random() * (91.21 - 42.87) + 42.87,
-            ],
-            type: "scatter",
-            marker: { color: "blue" },
-        },
-    ];
-
-    const demographics = {
-        //placeholder demographic data for district popup
-        1: (
-            <p>
-                <b>Incumbent:</b> Rob Wittman
-                <br />
-                <b>Total Population:</b> 824,492
-                <br />
-                <b>White:</b> 596,921
-                <br />
-                <b>Black or African American:</b> 134,826
-                <br />
-                <b>American Indian and Alaska Native:</b> 1,781
-                <br />
-                <b>Asian:</b> 29,756
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 53
-                <br />
-                <b>Some other race:</b> 26,421
-            </p>
-        ),
-        2: (
-            <p>
-                <b>Incumbent:</b> Elaine Luria
-                <br />
-                <b>Total Population:</b> 723,927
-                <br />
-                <b>White:</b> 486,553
-                <br />
-                <b>Black or African American:</b> 139,463
-                <br />
-                <b>American Indian and Alaska Native:</b> 1,888
-                <br />
-                <b>Asian:</b> 44,601
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 709
-                <br />
-                <b>Some other race:</b> 15,586
-            </p>
-        ),
-        3: (
-            <p>
-                <b>Incumbent:</b> Bobby Scott
-                <br />
-                <b>Total Population:</b> 760,127
-                <br />
-                <b>White:</b> 329,198
-                <br />
-                <b>Black or African American:</b> 360,389
-                <br />
-                <b>American Indian and Alaska Native:</b> 975
-                <br />
-                <b>Asian:</b> 19,615
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 725
-                <br />
-                <b>Some other race:</b> 15,501
-            </p>
-        ),
-        4: (
-            <p>
-                <b>Incumbent:</b> Donald McEachin
-                <br />
-                <b>Total Population:</b> 768,382
-                <br />
-                <b>White:</b> 394,028
-                <br />
-                <b>Black or African American:</b> 315,577
-                <br />
-                <b>American Indian and Alaska Native:</b> 2,487
-                <br />
-                <b>Asian:</b> 12,914
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b>26
-                <br />
-                <b>Some other race:</b> 16,956
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 46,332
-            </p>
-        ),
-        5: (
-            <p>
-                <b>Incumbent:</b> Robert Good
-                <br />
-                <b>Total Population:</b> 735,766
-                <br />
-                <b>White:</b> 551,428
-                <br />
-                <b>Black or African American:</b> 315,577
-                <br />
-                <b>American Indian and Alaska Native:</b> 2,632
-                <br />
-                <b>Asian:</b> 12,914
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 26
-                <br />
-                <b>Some other race:</b> 16,956
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 46,332
-            </p>
-        ),
-        6: (
-            <p>
-                <b>Incumbent:</b> Ben Cline
-                <br />
-                <b>Deviation from population from ideal:</b> 0.02
-                <br />
-                <b>Deviation from enacted:</b> 0.01
-                <br />
-                <b>Total Population:</b> 755,012
-                <br />
-                <b>White:</b> 620, 342
-                <br />
-                <b>Black or African American:</b> 90,140
-                <br />
-                <b>American Indian and Alaska Native:</b> 2,033
-                <br />
-                <b>Asian:</b> 11,315
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 428
-                <br />
-                <b>Some other race:</b> 8,558
-                <br />
-                <b>Hispanic or Latino(of any race):</b> 42,512
-            </p>
-        ),
-        7: (
-            <p>
-                <b>Incumbent:</b> Abigail Spanberger
-                <br />
-                <b>Deviation from population from ideal:</b> 0.02
-                <br />
-                <b>Deviation from enacted:</b> 0.01
-                <br />
-                <b>Total Population:</b> 802,921
-                <br />
-                <b>White:</b> 554,096
-                <br />
-                <b>Black or African American:</b> 144,789
-                <br />
-                <b>American Indian and Alaska Native:</b> 1,580
-                <br />
-                <b>Asian:</b> 43,682
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 431
-                <br />
-                <b>Some other race:</b> 16,956
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 46,332
-            </p>
-        ),
-        8: (
-            <p>
-                <b>Incumbent:</b> Don Beyer
-                <br />
-                <b>Deviation from population from ideal:</b> 0.05
-                <br />
-                <b>Deviation from enacted:</b> 0.03
-                <br />
-                <b>Total Population:</b> 813,568
-                <br />
-                <b>White:</b> 511,900
-                <br />
-                <b>Black or African American:</b> 114,695
-                <br />
-                <b>American Indian and Alaska Native:</b> 2,268
-                <br />
-                <b>Asian</b>: 99,313
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander</b>: 159
-                <br />
-                <b>Some other race:</b> 47,546
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 150,802
-            </p>
-        ),
-        9: (
-            <p>
-                <b>Incumbent:</b> Morgan Griffith
-                <br />
-                <b>Deviation from population from ideal:</b> 0.02
-                <br />
-                <b>Deviation from enacted:</b> 0.04
-                <br />
-                <b>Total Population:</b> 857,693
-                <br />
-                <b>White:</b> 638,988
-                <br />
-                <b>Black or African American:</b> 38,995
-                <br />
-                <b>American Indian and Alaska Native:</b> 1,714
-                <br />
-                <b>Asian:</b> 10,633
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 583
-                <br />
-                <b>Some other race:</b> 2,632
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 19,557
-            </p>
-        ),
-        10: (
-            <p>
-                <b>Incumbent:</b> Jennifer Wexton
-                <br />
-                <b>Deviation from population from ideal:</b> 0.02
-                <br />
-                <b>Deviation from enacted:</b> 0.04
-                <br />
-                <b>Total Population:</b> 857,693
-                <br />
-                <b>White:</b> 593,061
-                <br />
-                <b>Black or African American:</b> 68,611
-                <br />
-                <b>American Indian and Alaska Native:</b> 2,284
-                <br />
-                <b>Asian:</b> 133,607
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 490
-                <br />
-                <b>Some other race: </b>21,341
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 123,194
-            </p>
-        ),
-        11: (
-            <p>
-                <b>Incumbent:</b> Gerry Conolly
-                <br />
-                <b>Deviation from population from ideal:</b> 0.04
-                <br />
-                <b>Deviation from enacted:</b> 0.02
-                <br />
-                <b>Total Population:</b> 789,553
-                <br />
-                <b>White:</b> 438,131
-                <br />
-                <b>Black or African American:</b> 109,462
-                <br />
-                <b>American Indian and Alaska Native:</b> 3,746
-                <br />
-                <b>Asian:</b> 147,446
-                <br />
-                <b>Native Hawaiian and Other Pacific Islander:</b> 1,200
-                <br />
-                <b>Some other race: </b>54,991
-                <br />
-                <b>Hispanic or Latino (of any race):</b> 150,667
-            </p>
-        ),
-    };
+    const [counties, setCounties] = useState(null)
+    const [precincts, setPrecincts] = useState(null)
+    // let counties=null
+    // let precincts=''
 
     const [districtingData, setDistrictingData] = useState(null);
 
@@ -589,7 +194,7 @@ const Analysis = () => {
 
     const userChecked = (e) => {
         //user clicked on one of the filters
-        let tempChecks = [false, false];
+        let tempChecks = [...checks];
         const index = parseInt(e.target.id.split("-")[2]); //get the index of the selected filter
         setShowPopup(false); //remove any popups
         if (checks[index - 1] === true) {
@@ -598,6 +203,11 @@ const Analysis = () => {
             // removeOtherFilterLayers(); //get back the origin colors of each district
             // setView(""); //
             // setCountyLayer(""); //clear county layer
+            if (index === 1) {
+                setCountyLayer("")
+            } else if (index === 2) {
+                setPrecinctLayer("")
+            }
         } else {
             //if the filter was originally deselected, turn it on
             tempChecks[index - 1] = true;
@@ -605,9 +215,11 @@ const Analysis = () => {
             if (index === 1) {
                 // removeOtherFilterLayers();
                 showCounties(); //show counties
+                // setPrecinctLayer("");
             } else if (index === 2) {
                 // showDevAvg(); //show deviation from average
-                setCountyLayer(""); //remove the counties
+                // setCountyLayer(""); //remove the counties
+                showPrecincts();
             }
             // } else {
             //     removeOtherFilterLayers();
@@ -719,21 +331,44 @@ const Analysis = () => {
             source: "counties",
             layout: {},
             paint: {
-                "fill-color": "rgba(229, 145, 255, 0.025)",
-                "fill-outline-color": "rgba(0,0,0,0.3)",
+                "fill-color": "rgba(247, 138, 222, 0.33)",
+                "fill-outline-color": "rgba(255, 0, 0, 0.46)",
             },
         };
 
-        // setCountyLayer(
-        //     <Source
-        //         id="counties"
-        //         type="geojson"
-        //         data={counties}
-        //     >
-        //         <Layer {...countyLayer} />
-        //     </Source>
-        // );
+        setCountyLayer(
+            <Source
+                id="counties"
+                type="geojson"
+                data={counties}
+            >
+                <Layer {...countyLayer} />
+            </Source>
+        );
     };
+
+    const showPrecincts = () => {
+        const precinctLayer = {
+            id: "precincts-layer",
+            type: "fill",
+            source: "precincts",
+            layout: {},
+            paint: {
+                "fill-color": "rgba(229, 145, 255, 0.025)",
+                "fill-outline-color": "rgba(0,0,0,0.3)",
+            }
+        }
+
+        setPrecinctLayer(
+            <Source
+                id="precincts"
+                type="geojson"
+                data={precincts}
+            >
+                <Layer {...precinctLayer} />
+            </Source>
+        );
+    }
 
     const showDevAvg = () => {
         console.log(curDistrictingNum);
@@ -818,50 +453,43 @@ const Analysis = () => {
     const userClickedOnMap = (e) => {
         //user clicked on one of the districts
         e.preventDefault();
-        console.log(e);
+        // console.log(e.features[0].source);
         let coords = [e.lngLat[0], e.lngLat[1]]; //get the coordinates of where the user clicked.
         if (e.features[0].source.includes("district")) {
             //make sure that the user actually clicked on one of the districts
             const index = parseInt(e.features[0].source.split("_")[1]); //get the index of that district
-
-            setShowPopup(true); //show popup and set the text for the popup
-            setPopUpText(
-                <>
-                    <h3>
-                        <b>District {districtNumbers[index]}</b>
-                    </h3>
-                    {demographics[districtNumbers[index]]}
-                    <p>
-                        <b>District {districtNumbers[index]} obj. value: </b>15
-            <br />
-                        <b>General:</b>
-                        <br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Population Equality: </b>2 (
-            <i>weight: 0.62</i>)<br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Split counties: </b>3 (
-            <i>weight: 0.21</i>)<br />
-                        <b>Deviation From: </b>
-                        <br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Average Districting: </b>2 (
-            <i>weight: 0.79</i>)<br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Enacted Districting(geometric): </b>1 (
-            <i>weight: 0.44</i>)<br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Enacted Districting(population): </b>2 (
-            <i>weight: 0.97</i>)<br />
-                        <b>Compactness: </b>4<br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Geometric: </b>1 (<i>weight: 0.50</i>)
-            <br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Graph: </b>2 (<i>weight: 0.50</i>)<br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Population Fatness: </b>1 (
-            <i>weight: 0.50</i>)<br />
-                        <b>Other:</b>
-                        <br />
-                        <b>&nbsp;&nbsp;&nbsp;&nbsp;Political Fairness:</b>1 (
-            <i>weight: 0.43</i>)
-          </p>
-                </>
+            const districtNumber = index + 1
+            console.log(districtNumber)
+            console.log(districtingOBJ)
+            let requestObj = new XMLHttpRequest();
+            requestObj.onreadystatechange = (res) => {
+                let response = res.target;
+                console.log(`http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/getDistrictData/districtingID=${"\"" + districtingOBJ.id + "\""}/districtID=${districtNumber}`)
+                if (response.readyState == 4 && response.status == 200) {
+                    let resp = JSON.parse(response.responseText)
+                    for (let i = 1; i < resp.length; i++) {
+                        resp[i] = parseFloat(resp[i])
+                    }
+                    console.log(resp)
+                }
+            };
+            requestObj.open(
+                "GET",
+                `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/getDistrictData/districtingID=${"\"" + districtingOBJ.id + "\""}/districtID=${districtNumber}`,
+                true
             );
-            setPopUpCoords([...coords]); //set the location of the popup
+
+            requestObj.send();
+            // let requestObj2 = new XMLHttpRequest()
+            // requestObj2.onreadystatechange=(res)=>{
+            //     let response = res.target;
+            //     console.log(JSON.parse(response.responseText))
+            // }
+
+            // requestObj2.open(
+            //     "GET",
+            //     ``
+            // )
         } else if (e.features[0].source === "counties") {
             //if the user clicked on a county instead
             setShowPopup(true); //show popup
@@ -939,17 +567,17 @@ const Analysis = () => {
         });
     };
 
-    const setPlot=(data)=>{
-        let boxAndWhisker=[];
-        let bawPart=data[2];
-        let x=[]
+    const setPlot = (data) => {
+        let boxAndWhisker = [];
+        let bawPart = data[2];
+        let x = []
         const keys = Object.keys(bawPart)
         console.log(bawPart)
-        for(let i=0;i<keys.length;i++){
+        for (let i = 0; i < keys.length; i++) {
             boxAndWhisker.push(
                 {
-                    name:`District ${i+1}`,
-                    y:bawPart[i],
+                    name: `District ${i + 1}`,
+                    y: bawPart[i],
                     boxpoints: false,
                     type: "box",
                     marker: {
@@ -958,26 +586,26 @@ const Analysis = () => {
                     showlegend: false,
                 }
             )
-            x.push(`District ${i+1}`)
+            x.push(`District ${i + 1}`)
         }
         boxAndWhisker.push({
-            name:"Enacted",
-            mode:"markers",
-            x:x,
-            y:Object.values(data[1]),
-            type:"scatter",
+            name: "Enacted",
+            mode: "markers",
+            x: x,
+            y: Object.values(data[1]),
+            type: "scatter",
             showlegend: true,
-            marker:{color:"red"}
+            marker: { color: "red" }
         })
 
         boxAndWhisker.push({
-            name:"Current",
-            mode:"markers",
-            x:x,
-            y:Object.values(data[0]),
-            type:"scatter",
+            name: "Current",
+            mode: "markers",
+            x: x,
+            y: Object.values(data[0]),
+            type: "scatter",
             showlegend: true,
-            marker:{color: "blue"}
+            marker: { color: "blue" }
         })
         setBAWData(boxAndWhisker);
         console.log(boxAndWhisker);
@@ -986,12 +614,12 @@ const Analysis = () => {
 
     const showBoxAndWhisker = (e) => {
         e.preventDefault();
-        let requestObj= new XMLHttpRequest();
-        requestObj.onreadystatechange=(res)=>{
+        let requestObj = new XMLHttpRequest();
+        requestObj.onreadystatechange = (res) => {
             let response = res.target;
             if (response.readyState == 4 && response.status == 200) {
-                
-                setPlot(JSON.parse(response.responseText))
+
+                console.log(response.responseText)
             }
         };
         requestObj.open(
@@ -1000,7 +628,6 @@ const Analysis = () => {
             true
         );
         requestObj.send();
-        // setShowBoxAndWhiskerPopup(true); //show box and whisker
     };
 
     const districtingClicked = (districtingsData) => {
@@ -1016,9 +643,9 @@ const Analysis = () => {
         requestObj.onreadystatechange = (res) => {
             let response = res.target;
             if (response.readyState == 4 && response.status == 200) {
-                console.log(response.responseText);
+                // console.log(response.responseText);
                 let dat = JSON.parse(response.responseText);
-                console.log(dat)
+                // console.log(dat)
                 // setDistrictingData(JSON.parse(response.responseText));
                 setDistrictMap(dat);
             }
@@ -1030,21 +657,75 @@ const Analysis = () => {
         );
         requestObj.send();
 
-        let requestObj2= new XMLHttpRequest();
-        requestObj2.onreadystatechange=(res)=>{
+        let requestObj1 = new XMLHttpRequest();
+        requestObj1.onreadystatechange = (res) => {
             let response = res.target;
             if (response.readyState == 4 && response.status == 200) {
                 console.log(response.responseText);
             }
-        };
-        requestObj2.open(
+        }
+        requestObj1.open(
             "GET",
             `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/setDistricting/districtingID=${districtingsData.id}`,
             true
+        )
+        requestObj1.send()
+
+        let requestObj2 = new XMLHttpRequest();
+        requestObj2.onreadystatechange = (res) => {
+            let response = res.target;
+            if (response.readyState == 4 && response.status == 200) {
+
+                setCounties(JSON.parse(response.responseText));
+                console.log(counties)
+            }
+        };
+        requestObj2.open(
+            "GET",
+            `http://127.0.0.1:5000/${statename}_counties`,
+            true
         );
         requestObj2.send();
+
+        let requestObj3 = new XMLHttpRequest();
+        requestObj3.onreadystatechange = (res) => {
+            let response = res.target;
+            if (response.readyState == 4 && response.status == 200) {
+
+                setPrecincts(JSON.parse(response.responseText));
+            }
+        };
+        requestObj3.open(
+            "GET",
+            `http://127.0.0.1:5000/${statename}_precincts`,
+            true
+        );
+        requestObj3.send();
         setDistrictingOBJ(districtingsData);
     };
+
+    const infoClicked = (measure) => {
+        if (curDistrictingNum) {
+            console.log(curDistrictingNum)
+            console.log(measure)
+            setShowDistrictData(true)
+
+            let requestObj1 = new XMLHttpRequest();
+            requestObj1.onreadystatechange = (res) => {
+                let response = res.target;
+                if (response.readyState == 4 && response.status == 200) {
+                    console.log(response.responseText);
+                }
+            }
+            requestObj1.open(
+                "GET",
+                `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/getDistrictMeasures/measureType=${measure}`,
+                true
+            )
+            requestObj1.send()
+        }
+
+    }
 
     let render = "";
 
@@ -1082,13 +763,13 @@ const Analysis = () => {
         });
     }
 
-    let race=""
-    if(constraints.majorityMinorityConstraint.type===0){
-        race="Asians"
-    }else if(constraints.majorityMinorityConstraint.type===1){
-        race="African Americans"
-    }else{
-        race="Hispanics"
+    let race = ""
+    if (constraints.majorityMinorityConstraint.type === 0) {
+        race = "Asians"
+    } else if (constraints.majorityMinorityConstraint.type === 1) {
+        race = "African Americans"
+    } else {
+        race = "Hispanics"
     }
     // let compactness;
     // if (objValueParams.chosenCompactness === 'graph-compact') {
@@ -1174,93 +855,25 @@ const Analysis = () => {
                         className="d-flex flex-column justify-content-around py-4"
                         style={{ height: "77%", width: "100%" }}
                     >
-                        <div className="row d-flex justify-content-around" style={{width:"100%"}}>
-                        <div class="col form-check" style={{marginLeft:"70px"}}>
-                                    <label class="form-check-label" htmlFor="split-counties-1">
-                                        Show counties
+                        <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
+                            <div class="col form-check" style={{ marginLeft: "70px" }}>
+                                <label class="form-check-label" htmlFor="split-counties-1">
+                                    Show counties
                                     </label>
-                                    <input class="form-check-input" type="radio" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
-                                </div>
+                                <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
+                            </div>
 
-                                <div class="col form-check">
-                                    <label class="form-check-label" htmlFor="dev-avg-2">
-                                        Show precincts
+                            <div class="col form-check">
+                                <label class="form-check-label" htmlFor="dev-avg-2">
+                                    Show precincts
                                     </label>
-                                    <input class="form-check-input" type="radio" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
-                                </div>
+                                <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
+                            </div>
                         </div>
                         <div>
-                                    <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
-                                </div>
-                        {/* <select
-                            id="districting-selection"
-                            class="form-select"
-                            onChange={userChoseDistricting}
-                        >
-                            <option value="" defaultValue hidden>
-                                Select a districting
-              </option>
-                            <option value="1">Districting 1 - Obj. Value : 607</option>
-                            <option value="2">Districting 2 - Obj. Value : 606</option>
-                            <option value="3">Districting 3 - Obj. Value : 605</option>
-                            <option>Districting 4 - Obj. Value : 604</option>
-                            <option>Districting 5 - Obj. Value : 603</option>
-                            <option>Districting 6 - Obj. Value : 602</option>
-                            <option>Districting 7 - Obj. Value : 601</option>
-                            <option>Districting 8 - Obj. Value : 600</option>
-                            <option>Districting 9 - Obj. Value : 400</option>
-                            <option>Districting 10 - Obj. Value : 2</option>
-                        </select> */}
+                            <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" disabled>View Box and Whisker plot</button>
+                        </div>
 
-                        {/* {showFilters ? (
-                            <>
-                                <div class="form-check">
-                                    <label class="form-check-label" htmlFor="split-counties-1">
-                                        Show counties
-                                    </label>
-                                    <input class="form-check-input" type="radio" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label" htmlFor="dev-avg-2">
-                                        Show deviation from average districting
-                                    </label>
-                                    <input class="form-check-input" type="radio" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label" htmlFor="geo-compact-3">
-                                        Show geometric compactness
-                                    </label>
-                                    <input class="form-check-input" type="radio" value="" id="geo-compact-3" checked={checks[2]} onChange={userChecked} />
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label" htmlFor="graph-compact-4">
-                                        Show graph compactness
-                                    </label>
-                                    <input class="form-check-input" type="radio" value="" id="graph-compact-4" checked={checks[3]} onChange={userChecked} />
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label" htmlFor="pop-fat-5">
-                                        Show population fatness
-                                    </label>
-                                    <input class="form-check-input" type="radio" value="" id="pop-fat-5" checked={checks[4]} onChange={userChecked} />
-                                </div>
-
-                                <div>
-                                    <button type="button" class="btn btn-lg col-12 btn-primary compareBtn" onClick={showComparison}>View enacted and selected</button>
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
-                                </div>
-
-                                <div>
-                                    <button type="button" className="btn btn-lg col-12 btn-primary" onClick={resetChecks}>Reset</button>
-                                </div>
-                            </>
-                        ) : ""} */}
                         <div style={{ overflow: "auto", height: "600px" }}>
                             <div style={{ width: "100%" }}>
                                 <nav
@@ -1279,6 +892,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[0]);
+                                                setCurDistrictingNum(0);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 1:</h5>
@@ -1295,6 +909,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[1]);
+                                                setCurDistrictingNum(1);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 2:</h5>
@@ -1317,6 +932,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[2]);
+                                                setCurDistrictingNum(2);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 3:</h5>
@@ -1333,6 +949,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[3]);
+                                                setCurDistrictingNum(3);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 4:</h5>
@@ -1355,6 +972,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[4]);
+                                                setCurDistrictingNum(4);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 5:</h5>
@@ -1371,6 +989,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[5]);
+                                                setCurDistrictingNum(5);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 6:</h5>
@@ -1393,6 +1012,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[6]);
+                                                setCurDistrictingNum(6);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 7:</h5>
@@ -1409,6 +1029,7 @@ const Analysis = () => {
                                             class="card districting"
                                             onClick={() => {
                                                 districtingClicked(districtingsData[7]);
+                                                setCurDistrictingNum(7);
                                             }}
                                         >
                                             <h5 class="card-header">Rank 8:</h5>
@@ -1420,9 +1041,9 @@ const Analysis = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
-                                
+
 
                                 <div
                                     className="row d-flex justify-content-center align-items-center"
@@ -1717,9 +1338,9 @@ const Analysis = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
-                        
+
                     </div>
                 </div>
                 <div
@@ -1808,7 +1429,14 @@ const Analysis = () => {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <th scope="row">Average (Geo.):</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("avg_geo") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Average (Geo.)
+                                        </th>
                                         {showFilters ? (
                                             <>
                                                 <td>{objValueParams.devAvgDistGeo}</td>
@@ -1819,26 +1447,33 @@ const Analysis = () => {
                                                 <td>{objValueParams.devAvgDistGeo}</td>
                                                 {districtingOBJ ? (
                                                     <>
-                                                    <td>
-                                                        {districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore.toPrecision(
-                                                            3
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                    {(1/(1+Math.exp(Math.pow(-10,-25)*districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore))).toPrecision(5)}
-                                                    </td>
+                                                        <td>
+                                                            {districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore.toPrecision(
+                                                                3
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            {(1 / (1 + Math.exp(Math.pow(-10, -25) * districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore))).toPrecision(5)}
+                                                        </td>
                                                     </>
                                                 ) : (
                                                     <>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td></td>
+                                                        <td></td>
                                                     </>
                                                 )}
                                             </>
                                         )}
                                     </tr>
                                     <tr>
-                                        <th scope="row">Average (Pop.):</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("avg_pop") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Average (Pop.)
+                                        </th>
                                         {showFilters ? (
                                             <>
                                                 <td>{objValueParams.devAvgDistPop}</td>
@@ -1854,20 +1489,27 @@ const Analysis = () => {
                                                         )}
                                                     </td>
                                                     <td>
-                                                        {(1/(1+Math.exp(Math.pow(-10,-25)*districtingOBJ.measures.DEV_AVERAGE_POP.measureScore))).toPrecision(5)}
+                                                        {(1 / (1 + Math.exp(Math.pow(-10, -10) * districtingOBJ.measures.DEV_AVERAGE_POP.measureScore))).toPrecision(5)}
                                                     </td>
-                                                    </>
+                                                </>
                                                 ) : (
                                                     <>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td></td>
+                                                        <td></td>
                                                     </>
                                                 )}
                                             </>
                                         )}
                                     </tr>
                                     <tr>
-                                        <th scope="row">Enacted (Geo.):</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("enacted_geo") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Enacted (Geo.)
+                                        </th>
                                         {showFilters ? (
                                             <>
                                                 <td>{objValueParams.devEnDistGeo}</td>
@@ -1878,26 +1520,33 @@ const Analysis = () => {
                                                 <td>{objValueParams.devEnDistGeo}</td>
                                                 {districtingOBJ ? (
                                                     <>
-                                                    <td>
-                                                        {districtingOBJ.measures.DEV_ENACTED_GEO.measureScore.toPrecision(
-                                                            3
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                    {(1/(1+Math.exp(Math.pow(-10,-25)*districtingOBJ.measures.DEV_ENACTED_GEO.measureScore))).toPrecision(5)}
-                                                    </td>
+                                                        <td>
+                                                            {districtingOBJ.measures.DEV_ENACTED_GEO.measureScore.toPrecision(
+                                                                3
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            {(1 / (1 + Math.exp(Math.pow(-10, -25) * districtingOBJ.measures.DEV_ENACTED_GEO.measureScore))).toPrecision(5)}
+                                                        </td>
                                                     </>
                                                 ) : (
                                                     <>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td></td>
+                                                        <td></td>
                                                     </>
                                                 )}
                                             </>
                                         )}
                                     </tr>
                                     <tr>
-                                        <th scope="row">Enacted (Pop.):</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("enacted_pop") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Enacted (Pop.)
+                                        </th>
                                         {showFilters ? (
                                             <>
                                                 <td>{objValueParams.devEnDistPop}</td>
@@ -1908,19 +1557,19 @@ const Analysis = () => {
                                                 <td>{objValueParams.devEnDistPop}</td>
                                                 {districtingOBJ ? (
                                                     <>
-                                                    <td>
-                                                        {districtingOBJ.measures.DEV_ENACTED_POP.measureScore.toPrecision(
-                                                            3
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                    {(1/(1+Math.exp(Math.pow(-10,-25)*districtingOBJ.measures.DEV_ENACTED_POP.measureScore))).toPrecision(5)}
-                                                    </td>
+                                                        <td>
+                                                            {districtingOBJ.measures.DEV_ENACTED_POP.measureScore.toPrecision(
+                                                                3
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            {(1 / (1 + Math.exp(Math.pow(-10, -10) * districtingOBJ.measures.DEV_ENACTED_POP.measureScore))).toPrecision(5)}
+                                                        </td>
                                                     </>
                                                 ) : (
                                                     <>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td></td>
+                                                        <td></td>
                                                     </>
                                                 )}
                                             </>
@@ -1942,7 +1591,14 @@ const Analysis = () => {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <th scope="row">Geometric:</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("geo_compact") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Geometric
+                                        </th>
                                         {objValueParams.compactness.type === 0 ? (
                                             <>
                                                 <td>{objValueParams.compactness.value}</td>
@@ -1964,7 +1620,14 @@ const Analysis = () => {
                                         )}
                                     </tr>
                                     <tr>
-                                        <th scope="row">Graph:</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("graph_compact") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Graph
+                                        </th>
                                         {objValueParams.compactness.type === 1 ? (
                                             <>
                                                 <td>{objValueParams.compactness.value}</td>
@@ -1986,7 +1649,14 @@ const Analysis = () => {
                                         )}
                                     </tr>
                                     <tr>
-                                        <th scope="row">Population Fatness:</th>
+                                        <th scope="row">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle info-circle" viewBox="0 0 16 16" onClick={() => { infoClicked("pop_fat") }}>
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                            </svg>
+                                            {" "}
+                                            Population Fatness
+                                        </th>
                                         {objValueParams.compactness.type === 2 ? (
                                             <>
                                                 <td>{objValueParams.compactness.value}</td>
@@ -2049,11 +1719,13 @@ const Analysis = () => {
                 mapboxApiAccessToken={
                     "pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"
                 }
-            // onClick={userClickedOnMap}
+                onClick={userClickedOnMap}
             >
                 {countyLayer}
+                {precinctLayer}
                 {curDistricting}
-                {showPopup && popUpText && popUpCoords ? (
+
+                {/* {showPopup && popUpText && popUpCoords ? (
                     <Popup
                         latitude={popUpCoords[1]}
                         longitude={popUpCoords[0]}
@@ -2068,7 +1740,7 @@ const Analysis = () => {
                     </Popup>
                 ) : (
                     ""
-                )}
+                )} */}
             </ReactMapGL>
             {loading ? (
                 <div>
@@ -2195,6 +1867,29 @@ const Analysis = () => {
                         <button
                             className="btn btn-secondary"
                             onClick={() => setShowBoxAndWhiskerPopup(false)}
+                        >
+                            Close
+            </button>
+                    </div>
+                </div>
+            ) : (
+                ""
+            )}
+
+            {showDistrictData ? (
+                <div className="districtPopup">
+                    <div style={OVERLAY_STYLES} />
+                    <div className="container-fluid" align="center" style={MODAL_STYLES}>
+                        {/* {children} */}
+                        <div
+                            class="row d-flex flex-row justify-content-around align-items-center"
+                            style={{ height: "90%", width: "100%" }}
+                        >
+
+                        </div>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => setShowDistrictData(false)}
                         >
                             Close
             </button>

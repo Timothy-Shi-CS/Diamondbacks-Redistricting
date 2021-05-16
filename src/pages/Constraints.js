@@ -16,6 +16,14 @@ const Constraints = () => {
   const [popUpCoords, setPopUpCoords] = useState(null);
   const [showIncumbents, setShowIncumbents] = useState(false);
   const [checkPopulation, setCheckPopulation] = useState([false, false, false]);
+
+  const [countyLayer, setCountyLayer] = useState("");
+  const [precinctLayer, setPrecinctLayer] = useState("");
+  let [checks, setChecks] = useState([false, false]);
+
+  const [counties, setCounties] = useState(null)
+  const [precincts, setPrecincts] = useState(null)
+
   const [checkCompactness, setCheckCompactness] = useState([
     false,
     false,
@@ -64,9 +72,43 @@ const Constraints = () => {
   const enactedDistricts = require("../data/districts114.json");
 
   useEffect(() => {
+    let statename = stateFeature.feature.properties.name.toLowerCase();
+    console.log(statename);
     console.log(stateDistricts);
     console.log(stateFeature)
     console.log(constraints.incumbents)
+
+    let requestObj2 = new XMLHttpRequest();
+    requestObj2.onreadystatechange = (res) => {
+      let response = res.target;
+      if (response.readyState == 4 && response.status == 200) {
+
+        setCounties(JSON.parse(response.responseText));
+        console.log(counties)
+      }
+    };
+    requestObj2.open(
+      "GET",
+      `http://127.0.0.1:5000/${statename}_counties`,
+      true
+    );
+    requestObj2.send();
+
+    let requestObj3 = new XMLHttpRequest();
+    requestObj3.onreadystatechange = (res) => {
+      let response = res.target;
+      if (response.readyState == 4 && response.status == 200) {
+
+        setPrecincts(JSON.parse(response.responseText));
+      }
+    };
+    requestObj3.open(
+      "GET",
+      `http://127.0.0.1:5000/${statename}_precincts`,
+      true
+    );
+    requestObj3.send();
+
     if (stateDistricts === null) {
       //if the districts for the enacted districting weren't loaded in before, load them in now
       let coordHolder = {
@@ -145,10 +187,12 @@ const Constraints = () => {
 
     let minorityIndex = checkMinority.indexOf(true);
     let requestObj = new XMLHttpRequest();
+    let link = `http://localhost:8080/Diamondbacks-1.0-SNAPSHOT/api/controller/construct-constraint/job=${stateFeature.jobs[stateFeature.job].id}&minority=${minorityMap[minorityIndex]}&threshold=${constraints.threshold}&majMin=${constraints.majorityMinorityConstraint.value}&incumbent={${protectedIncumb.join()}}&pop=${pop}&vap=${vap}&cvap=${cvap}&geoComp=${geo}&graphComp=${graph}&popFat=${popFat}`
     requestObj.onreadystatechange = (res) => {
       let response = res.target;
       if (response.readyState == 4 && response.status == 200) {
         console.log(response.responseText)
+        console.log(link)
         setStateFeature((prevStateFeature) => {
           return {
             ...prevStateFeature,
@@ -165,7 +209,7 @@ const Constraints = () => {
       true
     );
     requestObj.send();
-    
+
   };
 
   const backToStateSelection = (e) => {
@@ -191,6 +235,91 @@ const Constraints = () => {
 
     setPageName("state-selection"); //go back to state selection
   };
+
+  const userCheckedFilters = (e) => {
+    let tempChecks = [...checks];
+    const index = parseInt(e.target.id.split("-")[2]); //get the index of the selected filter
+
+    if (checks[index - 1] === true) {
+      //if the filter was originally selected, turn it off
+      tempChecks[index - 1] = false;
+      // removeOtherFilterLayers(); //get back the origin colors of each district
+      // setView(""); //
+      // setCountyLayer(""); //clear county layer
+      if (index === 1) {
+        setCountyLayer("")
+      } else if (index === 2) {
+        setPrecinctLayer("")
+      }
+    } else {
+      //if the filter was originally deselected, turn it on
+      tempChecks[index - 1] = true;
+      // setView(e.target.id);
+      if (index === 1) {
+        // removeOtherFilterLayers();
+        showCounties(); //show counties
+        // setPrecinctLayer("");
+      } else if (index === 2) {
+        // showDevAvg(); //show deviation from average
+        // setCountyLayer(""); //remove the counties
+        showPrecincts();
+      }
+      // } else {
+      //     removeOtherFilterLayers();
+      //     setCountyLayer(""); //remove the counties
+      // }
+    }
+    setChecks([...tempChecks]);
+    console.log(index);
+  }
+
+  const showCounties = () => {
+    // console.log(counties);
+    const countyLayer = {
+      //styling for layer that shows counties
+      id: "counties-layer",
+      type: "fill",
+      source: "counties",
+      layout: {},
+      paint: {
+        "fill-color": "rgba(247, 138, 222, 0.33)",
+        "fill-outline-color": "rgba(255, 0, 0, 0.46)",
+      },
+    };
+
+    setCountyLayer(
+      <Source
+        id="counties"
+        type="geojson"
+        data={counties}
+      >
+        <Layer {...countyLayer} />
+      </Source>
+    );
+  };
+
+  const showPrecincts = () => {
+    const precinctLayer = {
+      id: "precincts-layer",
+      type: "fill",
+      source: "precincts",
+      layout: {},
+      paint: {
+        "fill-color": "rgba(229, 145, 255, 0.025)",
+        "fill-outline-color": "rgba(0,0,0,0.3)",
+      }
+    }
+
+    setPrecinctLayer(
+      <Source
+        id="precincts"
+        type="geojson"
+        data={precincts}
+      >
+        <Layer {...precinctLayer} />
+      </Source>
+    );
+  }
 
   const userChecked = (e) => {
     let index = parseInt(e.target.id.split("t")[1]); //get index of incumbent in list
@@ -261,12 +390,12 @@ const Constraints = () => {
     });
   };
 
-  const threshold=(e)=>{
+  const threshold = (e) => {
     e.preventDefault();
-    setConstraints((prevConstraints)=>{
-      return{
+    setConstraints((prevConstraints) => {
+      return {
         ...prevConstraints,
-        threshold:e.target.value
+        threshold: e.target.value
       }
     })
   }
@@ -485,6 +614,24 @@ const Constraints = () => {
             style={{ height: "80%", width: "100%" }}
           >
             <div>
+
+              <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
+                <div class="col form-check" style={{ marginLeft: "70px" }}>
+                  <label class="form-check-label" htmlFor="split-counties-1">
+                    Show counties
+                                    </label>
+                  <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userCheckedFilters} />
+                </div>
+
+                <div class="col form-check">
+                  <label class="form-check-label" htmlFor="dev-avg-2">
+                    Show precincts
+                                    </label>
+                  <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userCheckedFilters} />
+                </div>
+              </div>
+              <div>
+              </div>
               <p class="h4">Incumbent Protection:</p>
               <button
                 type="button"
@@ -752,6 +899,8 @@ const Constraints = () => {
         }
         onClick={userClickedDistrict}
       >
+        {countyLayer}
+        {precinctLayer}
         {render}
 
         {popUpCoords ? (
@@ -774,11 +923,11 @@ const Constraints = () => {
       {loading ? (
         <div>
           <div className="loading-screen">
-          <RingLoader
+            <RingLoader
               size={200}
               color={'#25C5E2'}
               loading={loading}
-              // margin={20}
+            // margin={20}
             />
           </div>
         </div>
@@ -806,10 +955,10 @@ const Constraints = () => {
                   </thead>
                   <tbody>
                     {constraints.incumbents.map((incumbent, index) => {
-                      let cleanedParty=incumbent.party.substring(1, incumbent.party.length-1)
-                      let cleanedName=incumbent.name.substring(1, incumbent.name.length-1)
-                      let className=cleanedParty==='Republican'?"table-danger":"table-info";
-                      console.log(incumbent.party.substring(1, incumbent.party.length-1))
+                      let cleanedParty = incumbent.party.substring(1, incumbent.party.length - 1)
+                      let cleanedName = incumbent.name.substring(1, incumbent.name.length - 1)
+                      let className = cleanedParty === 'Republican' ? "table-danger" : "table-info";
+                      console.log(incumbent.party.substring(1, incumbent.party.length - 1))
                       return (
                         <tr className={className}>
                           <th scope="row">{index + 1}</th>
