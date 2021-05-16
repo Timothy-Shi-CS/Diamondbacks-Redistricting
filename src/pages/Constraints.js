@@ -605,7 +605,7 @@ const Constraints = () => {
               <em>
                 Job {stateFeature.job + 1}:{" "}
                 {numberWithCommas(stateFeature.jobs[stateFeature.job].numDistrictings)}{" "}
-                redistrictings
+                districtings
               </em>
             </p>
           </div>

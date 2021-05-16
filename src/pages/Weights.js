@@ -439,7 +439,7 @@ const Weights = () => {
 
                     <div className="text-white" align="center" style={{ paddingTop: "2rem", zIndex: "4", position: "relative", marginBottom: "30px" }}>
                         <p class="h3">Objective Function Weights</p>
-                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.remainingJobs)} redistrictings</em></p>
+                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.remainingJobs)} districtings</em></p>
                         {/* <p class="text-muted"><em>Figure on the right shows the most recent district boundaries</em></p> */}
                     </div>
                     <div className="bg-primary weights_banner">

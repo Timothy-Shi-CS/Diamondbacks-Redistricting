@@ -38,6 +38,7 @@ const Analysis = () => {
     const [districtNumbers, setDistrictNumbers] = useState(null);
     const [showComparisonPopup, setShowComparisonPopup] = useState(false);
     const [showBoxAndWhiskerPopup, setShowBoxAndWhiskerPopup] = useState(false);
+    const [highlightDistrict, setHighlightDistrict] = useState(null)
 
     const [showDistrictData, setShowDistrictData] = useState(null)
 
@@ -104,6 +105,8 @@ const Analysis = () => {
         width: "100%",
         zIndex: 1000,
     };
+
+    const [districtGeoJSON, setDistrictGeoJSON] = useState(null)
 
     const [counties, setCounties] = useState(null)
     const [precincts, setPrecincts] = useState(null)
@@ -299,6 +302,7 @@ const Analysis = () => {
 
     const setDistrictMap = (data) => {
         console.log(data);
+        setDistrictGeoJSON(data);
         // const districtsColorsAndNumbers = getDistrictColorsAndNumbers(data)
         // const distNums = districtsColorsAndNumbers.distNums
         // console.log(data);
@@ -388,6 +392,14 @@ const Analysis = () => {
         e.preventDefault();
         // console.log(e.features[0].source);
         let coords = [e.lngLat[0], e.lngLat[1]]; //get the coordinates of where the user clicked.
+        let race = ""
+        if (constraints.majorityMinorityConstraint.type === 0) {
+            race = "Asian"
+        } else if (constraints.majorityMinorityConstraint.type === 1) {
+            race = "African American"
+        } else {
+            race = "Hispanic"
+        }
         if (e.features[0].source.includes("district")) {
             //make sure that the user actually clicked on one of the districts
             const index = parseInt(e.features[0].source.split("_")[1]); //get the index of that district
@@ -404,6 +416,26 @@ const Analysis = () => {
                         resp[i] = parseFloat(resp[i])
                     }
                     console.log(resp)
+                    setPopUpText(
+                        <>
+                            <h4>{`District ${resp[0].charCodeAt(0) - 64}`}</h4>
+                            <p class="h6">{`Population - ${resp[1]}`}</p>
+                            <p class="h6">{`${race} Populaton - ${resp[resp.length-1]}`}</p>
+                            <p class="h6">{`Area - ${resp[2]}`}</p>
+                            <p class="h6">{`Perimeter - ${resp[3]}`}</p>
+                            <p class="h6">{`Total Pop. Equality - ${resp[4]}`}</p>
+                            <p class="h6">{`VAP Equality - ${resp[5]}`}</p>
+                            <p class="h6">{`Dev. Avg. Geo. - ${resp[6]}`}</p>
+                            <p class="h6">{`Dev. Avg. Pop. - ${resp[7]}`}</p>
+                            <p class="h6">{`Dev. Enacted Geo. - ${resp[8]}`}</p>
+                            <p class="h6">{`Dev. Enacted Pop. - ${resp[9]}`}</p>
+                            <p class="h6">{`Geographic Compactness - ${resp[10]}`}</p>
+                            <p class="h6">{`Graph Compactness - ${resp[11]}`}</p>
+                            <p class="h6">{`Population Fatness - ${resp[12]}`}</p>
+                        </>
+                    )
+                    setShowPopup(true)
+                    setPopUpCoords([...coords]);
                 }
             };
             requestObj.open(
@@ -696,6 +728,53 @@ const Analysis = () => {
 
     }
 
+    const clickMe = (district) => {
+        // let tempDistricting = curDistricting
+
+        let feature = districtGeoJSON.features[district]
+        const f_data = {
+            type: feature.type,
+            geometry: {
+                type: feature.geometry.type,
+                coordinates: feature.geometry.coordinates,
+            }
+        }
+
+        const f_layer = {
+            id: `highlight_district_layer`,
+            type: 'fill',
+            source: `highlight_district`,
+            layout: {},
+            paint: {
+                "fill-color": `rgba(255, 255, 0, 0.5)`,
+                "fill-outline-color": "rgba(255, 255, 0, 1)",
+            }
+        }
+
+        setHighlightDistrict(
+            <Source
+                id={`highlightdistrict_${district}`}
+                type="geojson"
+                data={f_data}
+                key={district}
+            >
+                <Layer {...f_layer} />
+            </Source>
+        )
+
+    }
+
+    const numberWithCommas = (x) => {
+        // if(x>=2000){
+        //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"+";
+        // }
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    const removeHighLight = () => {
+        setHighlightDistrict(null);
+    }
+
     let render = "";
 
     if (stateDistricts) {
@@ -785,6 +864,7 @@ const Analysis = () => {
                         }}
                     >
                         <p class="h3">Analyze Results</p>
+                        <p class="h6"><em>Job {stateFeature.job + 1}: {numberWithCommas(stateFeature.remainingJobs)} districtings</em></p>
                     </div>
                     <div className="bg-primary results_banner">
                         <div
@@ -833,6 +913,9 @@ const Analysis = () => {
                         <div>
                             <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" disabled>View Box and Whisker plot</button>
                         </div>
+                        {/* <div>
+                            <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onMouseEnter={clickMe} onMouseLeave={removeHighLight}>click me</button>
+                        </div> */}
 
                         <div style={{ overflow: "auto", height: "600px" }}>
                             <div style={{ width: "100%" }}>
@@ -848,149 +931,73 @@ const Analysis = () => {
                                     style={{ paddingTop: "10px" }}
                                 >
                                     <div className="col">
-                                        {curDistrictingNum===0?(
+                                        {curDistrictingNum === 0 ? (
                                             <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[0]);
-                                                setCurDistrictingNum(0);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 1:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[0].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[0]);
+                                                    setCurDistrictingNum(0);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 1:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[0].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        ):(
+                                        ) : (
                                             <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[0]);
-                                                setCurDistrictingNum(0);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 1:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[0].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[0]);
+                                                    setCurDistrictingNum(0);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 1:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[0].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
                                         )}
                                     </div>
                                     <div className="col">
-                                        {curDistrictingNum===1?(
+                                        {curDistrictingNum === 1 ? (
                                             <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[1]);
-                                                setCurDistrictingNum(1);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 2:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[1].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[1]);
+                                                    setCurDistrictingNum(1);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 2:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[1].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        ):(
+                                        ) : (
                                             <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[1]);
-                                                setCurDistrictingNum(1);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 2:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[1].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[1]);
+                                                    setCurDistrictingNum(1);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 2:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[1].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div
-                                    className="row d-flex justify-content-center align-items-center"
-                                    style={{ paddingTop: "10px" }}
-                                >
-                                    <div className="col">
-                                        {curDistrictingNum===2?(
-                                            <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[2]);
-                                                setCurDistrictingNum(2);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 3:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[2].overallObjectiveValueScore}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        ):(
-                                            <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[2]);
-                                                setCurDistrictingNum(2);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 3:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[2].overallObjectiveValueScore}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        )}
-                                    </div>
-                                    <div className="col">
-                                        {curDistrictingNum===3?(
-                                            <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[3]);
-                                                setCurDistrictingNum(3);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 4:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[3].overallObjectiveValueScore}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        ):(
-                                            <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[3]);
-                                                setCurDistrictingNum(3);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 4:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[3].overallObjectiveValueScore}
-                                                </p>
-                                            </div>
-                                        </div>
                                         )}
                                     </div>
                                 </div>
@@ -1000,73 +1007,73 @@ const Analysis = () => {
                                     style={{ paddingTop: "10px" }}
                                 >
                                     <div className="col">
-                                        {curDistrictingNum===4?(
+                                        {curDistrictingNum === 2 ? (
                                             <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[4]);
-                                                setCurDistrictingNum(4);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 5:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[4].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[2]);
+                                                    setCurDistrictingNum(2);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 3:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[2].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        ):(
+                                        ) : (
                                             <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[4]);
-                                                setCurDistrictingNum(4);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 5:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[4].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[2]);
+                                                    setCurDistrictingNum(2);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 3:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[2].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
                                         )}
                                     </div>
                                     <div className="col">
-                                        {curDistrictingNum===5?(
+                                        {curDistrictingNum === 3 ? (
                                             <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[5]);
-                                                setCurDistrictingNum(5);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 6:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[5].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[3]);
+                                                    setCurDistrictingNum(3);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 4:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[3].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        ):(
+                                        ) : (
                                             <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[5]);
-                                                setCurDistrictingNum(5);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 6:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[5].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[3]);
+                                                    setCurDistrictingNum(3);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 4:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[3].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
                                         )}
                                     </div>
                                 </div>
@@ -1076,73 +1083,149 @@ const Analysis = () => {
                                     style={{ paddingTop: "10px" }}
                                 >
                                     <div className="col">
-                                        {curDistrictingNum===6?(
+                                        {curDistrictingNum === 4 ? (
                                             <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[6]);
-                                                setCurDistrictingNum(6);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 7:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[6].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[4]);
+                                                    setCurDistrictingNum(4);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 5:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[4].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        ):(
+                                        ) : (
                                             <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[6]);
-                                                setCurDistrictingNum(6);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 7:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[6].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[4]);
+                                                    setCurDistrictingNum(4);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 5:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[4].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
                                         )}
                                     </div>
                                     <div className="col">
-                                        {curDistrictingNum===7?(
+                                        {curDistrictingNum === 5 ? (
                                             <div
-                                            class="card districting border border-primary border-5"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[7]);
-                                                setCurDistrictingNum(7);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 8:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[7].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[5]);
+                                                    setCurDistrictingNum(5);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 6:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[5].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        ):(
+                                        ) : (
                                             <div
-                                            class="card districting"
-                                            onClick={() => {
-                                                districtingClicked(districtingsData[7]);
-                                                setCurDistrictingNum(7);
-                                            }}
-                                        >
-                                            <h5 class="card-header">Rank 8:</h5>
-                                            <div class="card-body">
-                                                <h6 class="card-title">Objective Value:</h6>
-                                                <p class="card-text">
-                                                    {districtingsData[7].overallObjectiveValueScore}
-                                                </p>
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[5]);
+                                                    setCurDistrictingNum(5);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 6:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[5].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div
+                                    className="row d-flex justify-content-center align-items-center"
+                                    style={{ paddingTop: "10px" }}
+                                >
+                                    <div className="col">
+                                        {curDistrictingNum === 6 ? (
+                                            <div
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[6]);
+                                                    setCurDistrictingNum(6);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 7:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[6].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[6]);
+                                                    setCurDistrictingNum(6);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 7:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[6].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="col">
+                                        {curDistrictingNum === 7 ? (
+                                            <div
+                                                class="card districting border border-primary border-5"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[7]);
+                                                    setCurDistrictingNum(7);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 8:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[7].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                class="card districting"
+                                                onClick={() => {
+                                                    districtingClicked(districtingsData[7]);
+                                                    setCurDistrictingNum(7);
+                                                }}
+                                            >
+                                                <h5 class="card-header">Rank 8:</h5>
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Objective Value:</h6>
+                                                    <p class="card-text">
+                                                        {districtingsData[7].overallObjectiveValueScore}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
 
@@ -1231,7 +1314,7 @@ const Analysis = () => {
                                 style={{ height: "30px", justifyContent: "center" }}
                             >
                                 {" "}
-                Deviation From Enacted
+                Top Deviation From Enacted
               </nav>
                             <div
                                 className="row d-flex justify-content-center align-items-center"
@@ -2060,12 +2143,14 @@ const Analysis = () => {
                     "pk.eyJ1IjoieGxpdHRvYm95eHgiLCJhIjoiY2tscHFmejN4MG5veTJvbGhyZjFoMjR5MiJ9.XlWX6UhL_3qDIlHl0eUuiw"
                 }
                 onClick={userClickedOnMap}
+                className="analysis-map"
             >
                 {countyLayer}
                 {precinctLayer}
+                {highlightDistrict}
                 {curDistricting}
 
-                {/* {showPopup && popUpText && popUpCoords ? (
+                {showPopup && popUpText && popUpCoords ? (
                     <Popup
                         latitude={popUpCoords[1]}
                         longitude={popUpCoords[0]}
@@ -2080,7 +2165,7 @@ const Analysis = () => {
                     </Popup>
                 ) : (
                     ""
-                )} */}
+                )}
             </ReactMapGL>
             {loading ? (
                 <div>
@@ -2215,6 +2300,29 @@ const Analysis = () => {
             ) : (
                 ""
             )}
+            {districtGeoJSON ? (
+                <div className="shadow" style={{
+                    position: "absolute",
+                    top: "87%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: "1", height: "200px",
+                    overflow: "auto"
+                }}>
+                    <div class="card" style={{ width: "18rem" }}>
+                        <div class="card-header">
+                            Districts
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {districtGeoJSON.features.map((f, index) => {
+                                return (
+                                    <li class="list-group-item" onMouseEnter={() => { clickMe(index) }} onMouseLeave={removeHighLight}>{`District ${index + 1}`}</li>
+                                )
+                            })}
+                        </ul>
+                    </div>
+                </div>
+            ) : ("")}
 
             {showDistrictData}
         </div>
