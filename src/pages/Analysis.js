@@ -115,8 +115,11 @@ const Analysis = () => {
 
     const [districtingData, setDistrictingData] = useState(null);
 
+    const [showEnacted, setShowEnacted] = useState(false);
+
 
     const stateCoords = require("../data/stateCoords.json"); //load in dataset that contains geometry for each state. we'll use this to show the actual state as a default view.
+
 
     useEffect(() => {
         console.log(districtingData);
@@ -221,6 +224,8 @@ const Analysis = () => {
                 // showDevAvg(); //show deviation from average
                 // setCountyLayer(""); //remove the counties
                 showPrecincts();
+            } else {
+                setShowEnacted(!showEnacted)
             }
             // } else {
             //     removeOtherFilterLayers();
@@ -415,23 +420,25 @@ const Analysis = () => {
                     for (let i = 1; i < resp.length; i++) {
                         resp[i] = parseFloat(resp[i])
                     }
+                    console.log(constraints.incumbents[resp[0].charCodeAt(0) - 65])
                     console.log(resp)
                     setPopUpText(
                         <>
                             <h4>{`District ${resp[0].charCodeAt(0) - 64}`}</h4>
-                            <p class="h6">{`Population - ${resp[1]}`}</p>
-                            <p class="h6">{`${race} Populaton - ${resp[resp.length-1]}`}</p>
-                            <p class="h6">{`Area - ${resp[2]}`}</p>
-                            <p class="h6">{`Perimeter - ${resp[3]}`}</p>
+                            <p class="h6">{`Population - ${numberWithCommas(resp[1])}`}</p>
+                            <p class="h6">{`${race} Population - ${numberWithCommas(resp[resp.length - 1])}`}</p>
+                            {/* <p class="h6">{`Area - ${numberWithCommas(resp[2])}`}</p>
+                            <p class="h6">{`Perimeter - ${numberWithCommas(resp[3])}`}</p> */}
                             <p class="h6">{`Total Pop. Equality - ${resp[4]}`}</p>
                             <p class="h6">{`VAP Equality - ${resp[5]}`}</p>
-                            <p class="h6">{`Dev. Avg. Geo. - ${resp[6]}`}</p>
-                            <p class="h6">{`Dev. Avg. Pop. - ${resp[7]}`}</p>
-                            <p class="h6">{`Dev. Enacted Geo. - ${resp[8]}`}</p>
-                            <p class="h6">{`Dev. Enacted Pop. - ${resp[9]}`}</p>
+                            <p class="h6">{`Dev. Avg. Geo. - ${numberWithCommas(resp[6])}`}</p>
+                            <p class="h6">{`Dev. Avg. Pop. - ${numberWithCommas(resp[7])}`}</p>
+                            <p class="h6">{`Dev. Enacted Geo. - ${numberWithCommas(resp[8])}`}</p>
+                            <p class="h6">{`Dev. Enacted Pop. - ${numberWithCommas(resp[9])}`}</p>
                             <p class="h6">{`Geographic Compactness - ${resp[10]}`}</p>
                             <p class="h6">{`Graph Compactness - ${resp[11]}`}</p>
                             <p class="h6">{`Population Fatness - ${resp[12]}`}</p>
+                            <p class="h6">{`Incumbent Candidate - ${constraints.incumbents[resp[0].charCodeAt(0) - 65].name.substring(1, constraints.incumbents[resp[0].charCodeAt(0) - 65].name.length - 1)}`}</p>
                         </>
                     )
                     setShowPopup(true)
@@ -455,16 +462,17 @@ const Analysis = () => {
             //     "GET",
             //     ``
             // )
-        } else if (e.features[0].source === "counties") {
-            //if the user clicked on a county instead
-            setShowPopup(true); //show popup
-            e.features[0].properties.name
-                ? setPopUpText(`${e.features[0].properties.name}`)
-                : setPopUpText(`${e.features[0].properties.NAME}`); //set the text
-            setPopUpCoords([...coords]); //set location of the popup
-        } else {
-            setShowPopup(false);
         }
+        // } else if (e.features[0].source === "counties") {
+        //     //if the user clicked on a county instead
+        //     setShowPopup(true); //show popup
+        //     e.features[0].properties.name
+        //         ? setPopUpText(`${e.features[0].properties.name}`)
+        //         : setPopUpText(`${e.features[0].properties.NAME}`); //set the text
+        //     setPopUpCoords([...coords]); //set location of the popup
+        // } else {
+        //     setShowPopup(false);
+        // }
     };
 
     const getUnstyledCurDistricting = () => {
@@ -528,15 +536,42 @@ const Analysis = () => {
 
     const setPlot = (data) => {
         let boxAndWhisker = [];
-        let bawPart = data[2];
+        let arrs = data[0].length
+        let Ys = []
         let x = []
-        const keys = Object.keys(bawPart)
-        console.log(bawPart)
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0; i < arrs; i++) {
+            Ys.push([]);
+            x.push(`District ${i + 1}`)
+        }
+        // let bawPart = data[2];
+
+        // const keys = Object.keys(bawPart)
+        // console.log(bawPart)
+        console.log(Ys)
+        for (let i = 3; i < data.length; i++) {
+            for (let j = 0; j < data[i].length; j++) {
+                Ys[j].push(data[i][j])
+            }
+            // boxAndWhisker.push(
+            //     {
+            //         name: `District ${i + 1}`,
+            //         y: bawPart[i],
+            //         boxpoints: false,
+            //         type: "box",
+            //         marker: {
+            //             color: '#3D9970',
+            //         },
+            //         showlegend: false,
+            //     }
+            // )
+
+        }
+        console.log(Ys)
+        for (let i = 0; i < Ys.length; i++) {
             boxAndWhisker.push(
                 {
                     name: `District ${i + 1}`,
-                    y: bawPart[i],
+                    y: Ys[i],
                     boxpoints: false,
                     type: "box",
                     marker: {
@@ -545,26 +580,35 @@ const Analysis = () => {
                     showlegend: false,
                 }
             )
-            x.push(`District ${i + 1}`)
         }
         boxAndWhisker.push({
             name: "Enacted",
             mode: "markers",
             x: x,
-            y: Object.values(data[1]),
+            y: data[1],
             type: "scatter",
             showlegend: true,
-            marker: { color: "red" }
+            marker: { color: "blue" }
         })
 
         boxAndWhisker.push({
             name: "Current",
             mode: "markers",
             x: x,
-            y: Object.values(data[0]),
+            y: data[0],
             type: "scatter",
             showlegend: true,
-            marker: { color: "blue" }
+            marker: { color: "red" }
+        })
+
+        boxAndWhisker.push({
+            name: "Average",
+            mode: "markers",
+            x: x,
+            y: data[2],
+            type: "scatter",
+            showlegend: true,
+            marker: { color: "#7f3ba3" }
         })
         setBAWData(boxAndWhisker);
         console.log(boxAndWhisker);
@@ -579,6 +623,7 @@ const Analysis = () => {
             if (response.readyState == 4 && response.status == 200) {
 
                 console.log(response.responseText)
+                setPlot(JSON.parse(response.responseText))
             }
         };
         requestObj.open(
@@ -590,6 +635,7 @@ const Analysis = () => {
     };
 
     const districtingClicked = (districtingsData) => {
+        setShowPopup(false)
         setLoading(true)
         let filepath = `C:/Users/jimmy_lin/Desktop/new_az/${stateFeature.jobs[stateFeature.job].id
             }/${districtingsData.id}`;
@@ -665,7 +711,7 @@ const Analysis = () => {
     };
 
     const infoClicked = (measure) => {
-        if (curDistrictingNum) {
+        if (curDistrictingNum >= 0) {
             console.log(curDistrictingNum)
             console.log(measure)
 
@@ -697,11 +743,11 @@ const Analysis = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {measureValues.map((measure, index) => {
+                                            {measureValues.slice(0, measureValues.length - 1).map((measure, index) => {
                                                 return (
                                                     <tr className="table-light">
                                                         <th scope="row">District {index + 1}</th>
-                                                        <td>{measure}</td>
+                                                        <td>{numberWithCommas(parseFloat(measure))}</td>
                                                     </tr>)
                                             })}
                                         </tbody>
@@ -746,7 +792,7 @@ const Analysis = () => {
             source: `highlight_district`,
             layout: {},
             paint: {
-                "fill-color": `rgba(255, 255, 0, 0.5)`,
+                "fill-color": `rgba(255, 245, 219, 0.5)`,
                 "fill-outline-color": "rgba(255, 255, 0, 1)",
             }
         }
@@ -768,6 +814,10 @@ const Analysis = () => {
         // if(x>=2000){
         //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"+";
         // }
+        console.log(x.toString().indexOf("."))
+        if (x.toString().indexOf(".") <= 3 && x.toString().indexOf(".") !== -1) {
+            return x;
+        }
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
@@ -794,9 +844,10 @@ const Analysis = () => {
                 layout: {},
                 paint: {
                     "fill-color": stateDistricts.distColors[index],
-                    "fill-outline-color": "rgba(255,255,255,1.0)",
+                    "fill-outline-color": "rgba(0,0,0,1.0)",
                 },
             };
+            console.log(stateDistricts.distNums[index])
 
             return (
                 <Source
@@ -810,6 +861,9 @@ const Analysis = () => {
             );
         });
     }
+
+
+
 
     let race = ""
     if (constraints.majorityMinorityConstraint.type === 0) {
@@ -880,7 +934,7 @@ const Analysis = () => {
                             }}
                         >
                             <div
-                                className="progress-bar progress-bar-striped bg-success progress-bar-animated shadow"
+                                className="progress-bar progress-bar-striped bg-warning progress-bar-animated shadow "
                                 role="progressbar"
                                 aria-valuenow="10"
                                 aria-valuemin="0"
@@ -895,26 +949,30 @@ const Analysis = () => {
                         className="d-flex flex-column justify-content-around py-4"
                         style={{ height: "77%", width: "100%" }}
                     >
-                        <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
-                            <div class="col form-check" style={{ marginLeft: "70px" }}>
+                        {/* <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
+                            <div class="col form-check" style={{ marginLeft: "65px" }}>
                                 <label class="form-check-label" htmlFor="split-counties-1">
-                                    Show counties
+                                    Counties
                                     </label>
                                 <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />
                             </div>
 
                             <div class="col form-check">
                                 <label class="form-check-label" htmlFor="dev-avg-2">
-                                    Show precincts
+                                    Precincts
                                     </label>
                                 <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />
                             </div>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" disabled>View Box and Whisker plot</button>
-                        </div>
+
+                            <div class="col form-check" >
+                                <label class="form-check-label" htmlFor="current-districting">
+                                    Enacted
+                                    </label>
+                                <input class="form-check-input" type="checkbox" value="" id="current-districting" checked={checks[2]} onChange={userChecked} />
+                            </div>
+                        </div> */}
                         {/* <div>
-                            <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onMouseEnter={clickMe} onMouseLeave={removeHighLight}>click me</button>
+                            <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
                         </div> */}
 
                         <div style={{ overflow: "auto", height: "600px" }}>
@@ -924,8 +982,8 @@ const Analysis = () => {
                                     style={{ height: "30px", justifyContent: "center" }}
                                 >
                                     {" "}
-                  Top 10 Districtings
-                </nav>
+                                        Top 10 Districtings
+                                        </nav>
                                 <div
                                     className="row d-flex justify-content-between align-items-center"
                                     style={{ paddingTop: "10px" }}
@@ -1314,8 +1372,8 @@ const Analysis = () => {
                                 style={{ height: "30px", justifyContent: "center" }}
                             >
                                 {" "}
-                Top Deviation From Enacted
-              </nav>
+                            Closest To Enacted
+                            </nav>
                             <div
                                 className="row d-flex justify-content-center align-items-center"
                                 style={{ paddingTop: "10px", paddingBottom: "10px" }}
@@ -1390,8 +1448,8 @@ const Analysis = () => {
                                 style={{ height: "30px", justifyContent: "center" }}
                             >
                                 {" "}
-                Very Different Area-Pair Deviations
-              </nav>
+                            Very Different Area-Pair Deviations
+                            </nav>
                             <div
                                 className="row d-flex justify-content-center align-items-center"
                                 style={{ paddingTop: "10px", paddingBottom: "10px" }}
@@ -1748,8 +1806,90 @@ const Analysis = () => {
                                 </div>
                             </div>
 
-                        </div>
+                            <nav
+                                className="navbar navbar-dark bg-dark navbar-expand-lg text-light "
+                                style={{ height: "30px", justifyContent: "center" }}
+                            >
+                                {" "}
+                            Desired Range Of Majority-Minority Districts
+                            </nav>
 
+                            <div
+                                className="row d-flex justify-content-center align-items-center"
+                                style={{ paddingTop: "10px", paddingBottom: "10px" }}
+                            >
+                                <div className="col">
+                                    {curDistrictingNum === 22 ? (<div
+                                        class="card districting border border-primary border-5"
+                                        onClick={() => {
+                                            districtingClicked(districtingsData[22]);
+                                            setCurDistrictingNum(22);
+                                        }}
+                                    >
+                                        <h5 class="card-header">Districting 1:</h5>
+                                        <div class="card-body">
+                                            <h6 class="card-title">Objective Value:</h6>
+                                            <p class="card-text">
+                                                {districtingsData[22].overallObjectiveValueScore}
+                                            </p>
+                                        </div>
+                                    </div>) :
+                                        (<div
+                                            class="card districting"
+                                            onClick={() => {
+                                                districtingClicked(districtingsData[22]);
+                                                setCurDistrictingNum(22);
+                                            }}
+                                        >
+                                            <h5 class="card-header">Districting 1:</h5>
+                                            <div class="card-body">
+                                                <h6 class="card-title">Objective Value:</h6>
+                                                <p class="card-text">
+                                                    {districtingsData[22].overallObjectiveValueScore}
+                                                </p>
+                                            </div>
+                                        </div>)}
+
+                                </div>
+                                <div className="col">
+                                    {curDistrictingNum === 23 ? (<div
+                                        class="card districting border border-primary border-5"
+                                        onClick={() => {
+                                            districtingClicked(districtingsData[23]);
+                                            setCurDistrictingNum(23);
+                                        }}
+                                    >
+                                        <h5 class="card-header">Districting 2:</h5>
+                                        <div class="card-body">
+                                            <h6 class="card-title">Objective Value:</h6>
+                                            <p class="card-text">
+                                                {districtingsData[23].overallObjectiveValueScore}
+                                            </p>
+                                        </div>
+                                    </div>) : (
+                                        <div
+                                            class="card districting"
+                                            onClick={() => {
+                                                districtingClicked(districtingsData[23]);
+                                                setCurDistrictingNum(23);
+                                            }}
+                                        >
+                                            <h5 class="card-header">Districting 2:</h5>
+                                            <div class="card-body">
+                                                <h6 class="card-title">Objective Value:</h6>
+                                                <p class="card-text">
+                                                    {districtingsData[23].overallObjectiveValueScore}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-lg col-12 btn-primary boxAndWhisker" onClick={showBoxAndWhisker}>View Box and Whisker plot</button>
+                        </div>
                     </div>
                 </div>
                 <div
@@ -1876,7 +2016,7 @@ const Analysis = () => {
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {(1 / (1 + Math.exp(Math.pow(-10, -25) * districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore))).toPrecision(5)}
+                                                            {Math.abs(Math.sin(districtingOBJ.measures.DEV_AVERAGE_GEO.measureScore)).toPrecision(5)}
                                                         </td>
                                                     </>
                                                 ) : (
@@ -1912,7 +2052,7 @@ const Analysis = () => {
                                                         )}
                                                     </td>
                                                     <td>
-                                                        {(1 / (1 + Math.exp(Math.pow(-10, -10) * districtingOBJ.measures.DEV_AVERAGE_POP.measureScore))).toPrecision(5)}
+                                                        {Math.abs(Math.sin(districtingOBJ.measures.DEV_AVERAGE_POP.measureScore)).toPrecision(5)}
                                                     </td>
                                                 </>
                                                 ) : (
@@ -1949,7 +2089,7 @@ const Analysis = () => {
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {(1 / (1 + Math.exp(Math.pow(-10, -25) * districtingOBJ.measures.DEV_ENACTED_GEO.measureScore))).toPrecision(5)}
+                                                            {Math.abs(Math.sin(districtingOBJ.measures.DEV_ENACTED_GEO.measureScore)).toPrecision(5)}
                                                         </td>
                                                     </>
                                                 ) : (
@@ -1986,7 +2126,7 @@ const Analysis = () => {
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {(1 / (1 + Math.exp(Math.pow(-10, -10) * districtingOBJ.measures.DEV_ENACTED_POP.measureScore))).toPrecision(5)}
+                                                            {Math.abs(Math.sin(districtingOBJ.measures.DEV_ENACTED_POP.measureScore)).toPrecision(5)}
                                                         </td>
                                                     </>
                                                 ) : (
@@ -2028,7 +2168,7 @@ const Analysis = () => {
                                                 {districtingOBJ ? (
                                                     <td>
                                                         {districtingOBJ.measures.GEOMETRIC_COMPACTNESS.measureScore.toPrecision(
-                                                            7
+                                                            2
                                                         )}
                                                     </td>
                                                 ) : (
@@ -2038,7 +2178,15 @@ const Analysis = () => {
                                         ) : (
                                             <>
                                                 <td>NA</td>
-                                                <td>NA</td>
+                                                {districtingOBJ ? (
+                                                    <td>
+                                                        {districtingOBJ.measures.GEOMETRIC_COMPACTNESS.measureScore.toPrecision(
+                                                            2
+                                                        )}
+                                                    </td>
+                                                ) : (
+                                                    <td></td>
+                                                )}
                                             </>
                                         )}
                                     </tr>
@@ -2057,7 +2205,7 @@ const Analysis = () => {
                                                 {districtingOBJ ? (
                                                     <td>
                                                         {districtingOBJ.measures.GRAPH_COMPACTNESS.measureScore.toPrecision(
-                                                            7
+                                                            2
                                                         )}
                                                     </td>
                                                 ) : (
@@ -2067,7 +2215,15 @@ const Analysis = () => {
                                         ) : (
                                             <>
                                                 <td>NA</td>
-                                                <td>NA</td>
+                                                {districtingOBJ ? (
+                                                    <td>
+                                                        {districtingOBJ.measures.GRAPH_COMPACTNESS.measureScore.toPrecision(
+                                                            2
+                                                        )}
+                                                    </td>
+                                                ) : (
+                                                    <td></td>
+                                                )}
                                             </>
                                         )}
                                     </tr>
@@ -2086,7 +2242,7 @@ const Analysis = () => {
                                                 {districtingOBJ ? (
                                                     <td>
                                                         {districtingOBJ.measures.POPULATION_FATNESS.measureScore.toPrecision(
-                                                            7
+                                                            2
                                                         )}
                                                     </td>
                                                 ) : (
@@ -2096,7 +2252,15 @@ const Analysis = () => {
                                         ) : (
                                             <>
                                                 <td>NA</td>
-                                                <td>NA</td>
+                                                {districtingOBJ ? (
+                                                    <td>
+                                                        {districtingOBJ.measures.POPULATION_FATNESS.measureScore.toPrecision(
+                                                            2
+                                                        )}
+                                                    </td>
+                                                ) : (
+                                                    <td></td>
+                                                )}
                                             </>
                                         )}
                                     </tr>
@@ -2147,10 +2311,18 @@ const Analysis = () => {
             >
                 {countyLayer}
                 {precinctLayer}
-                {highlightDistrict}
-                {curDistricting}
+                {showEnacted ? (
+                    <>
+                        {render}
+                    </>) : (
+                    <>
+                        {highlightDistrict}
+                        {curDistricting}
+                    </>
+                )}
 
-                {showPopup && popUpText && popUpCoords ? (
+
+                {!showEnacted && showPopup && popUpText && popUpCoords ? (
                     <Popup
                         latitude={popUpCoords[1]}
                         longitude={popUpCoords[0]}
@@ -2264,7 +2436,7 @@ const Analysis = () => {
                                 layout={{
                                     width: 900,
                                     height: 700,
-                                    title: `Distribution of ${race}`,
+                                    title: `Distribution of ${race}(${numberWithCommas(stateFeature.remainingJobs)} districtings remaining)`,
                                     display: "inline-block",
                                     xaxis: {
                                         title: {
@@ -2300,18 +2472,18 @@ const Analysis = () => {
             ) : (
                 ""
             )}
-            {districtGeoJSON ? (
-                <div className="shadow" style={{
+            {!showEnacted && districtGeoJSON ? (
+                <div className="shadow rounded border border-primary" style={{
                     position: "absolute",
-                    top: "87%",
-                    left: "50%",
+                    top: "87.5%",
+                    left: "34%",
                     transform: "translate(-50%, -50%)",
                     zIndex: "1", height: "200px",
                     overflow: "auto"
                 }}>
-                    <div class="card" style={{ width: "18rem" }}>
+                    <div class="card " style={{ width: "18rem" }}>
                         <div class="card-header">
-                            Districts
+                            <p class="h5">Districts</p>
                         </div>
                         <ul class="list-group list-group-flush">
                             {districtGeoJSON.features.map((f, index) => {
@@ -2325,6 +2497,40 @@ const Analysis = () => {
             ) : ("")}
 
             {showDistrictData}
+
+
+            <div className="shadow-lg rounded" style={{
+                position: "absolute",
+                top: "8%",
+                left: "28.5%",
+                transform: "translate(-50%, -50%)",
+                zIndex: "1",
+                overflow: "auto"
+            }}>
+                <div class="card border border-primary">
+                    <div class="card-body">
+                        <h5>Filters</h5>
+
+                        <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userChecked} />{"        "}
+                        <label class="form-check-label" htmlFor="split-counties-1">
+                            Counties
+                                    </label>
+
+                        <br></br>
+                        <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userChecked} />{"        "}
+                        <label class="form-check-label" htmlFor="dev-avg-2">
+                            Precincts
+                                    </label>
+                        <br></br>
+
+                        <input class="form-check-input" type="checkbox" value="" id="current-districting" checked={checks[2]} onChange={userChecked} />{"        "}
+                        <label class="form-check-label" htmlFor="current-districting">
+                            Enacted
+                                    </label>
+                    </div>
+
+                </div>
+            </div>
         </div>
     );
 };

@@ -69,6 +69,8 @@ const Constraints = () => {
     zIndex: 1000,
   };
 
+  const [progress, setProgress] = useState("33.3%")
+
   const enactedDistricts = require("../data/districts114.json");
 
   useEffect(() => {
@@ -83,6 +85,7 @@ const Constraints = () => {
       let response = res.target;
       if (response.readyState == 4 && response.status == 200) {
 
+        console.log(JSON.parse(response.responseText))
         setCounties(JSON.parse(response.responseText));
         console.log(counties)
       }
@@ -98,7 +101,7 @@ const Constraints = () => {
     requestObj3.onreadystatechange = (res) => {
       let response = res.target;
       if (response.readyState == 4 && response.status == 200) {
-
+        console.log(JSON.parse(response.responseText))
         setPrecincts(JSON.parse(response.responseText));
       }
     };
@@ -168,6 +171,7 @@ const Constraints = () => {
   };
 
   const saveEverything = (e) => {
+    setProgress("66.6%")
     setLoading(true)
     e.preventDefault();
     const popFat = constraints.compactnessConstraint.type === 2 ? constraints.compactnessConstraint.value : -1
@@ -586,8 +590,8 @@ const Constraints = () => {
           </p>
           <div className="bg-primary constraints_banner"></div>
           <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative" }}>
-            <div className="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "50%" }}>
-              50%
+            <div className="progress-bar progress-bar-striped bg-warning progress-bar-animated" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: progress }}>
+              {progress}
             </div>
           </div>
           <div
@@ -615,7 +619,7 @@ const Constraints = () => {
           >
             <div>
 
-              <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
+              {/* <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
                 <div class="col form-check" style={{ marginLeft: "70px" }}>
                   <label class="form-check-label" htmlFor="split-counties-1">
                     Show counties
@@ -629,8 +633,9 @@ const Constraints = () => {
                                     </label>
                   <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userCheckedFilters} />
                 </div>
-              </div>
-              <div>
+
+              </div> */}
+              <div >
               </div>
               <p class="h4">Incumbent Protection:</p>
               <button
@@ -792,7 +797,7 @@ const Constraints = () => {
                 type="range"
                 class="form-range"
                 min="0"
-                max="1"
+                max="0.5"
                 step="0.01"
                 id="threshold_range"
                 onInput={threshold}
@@ -1021,6 +1026,33 @@ const Constraints = () => {
           <em>Figure shows the most recent district boundaries</em>
         </strong>
       </p>
+
+
+      <div className="shadow-lg rounded" style={{
+        position: "absolute",
+        top: "6.75%",
+        left: "28.5%",
+        transform: "translate(-50%, -50%)",
+        zIndex: "1",
+        overflow: "auto"
+      }}>
+        <div class="card border border-primary">
+          <div class="card-body">
+          <h5>Filters</h5>
+            <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={checks[0]} onChange={userCheckedFilters} />{"        "}
+            <label class="form-check-label" htmlFor="split-counties-1">
+              Counties
+                                    </label>
+
+            <br></br>
+            <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={checks[1]} onChange={userCheckedFilters} />{"        "}
+            <label class="form-check-label" htmlFor="dev-avg-2">
+              Precincts
+                                    </label>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 };

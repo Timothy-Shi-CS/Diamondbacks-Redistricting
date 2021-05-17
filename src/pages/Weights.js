@@ -24,6 +24,8 @@ const Weights = () => {
     const [counties, setCounties] = useState(null)
     const [precincts, setPrecincts] = useState(null)
 
+    const [progress, setProgress] = useState("66.6%")
+
     const [viewport, setViewport] = useState({ // set the map viewing settings
         latitude: parseFloat(stateFeature.stateCenter[0]),
         longitude: parseFloat(stateFeature.stateCenter[1]),
@@ -239,6 +241,7 @@ const Weights = () => {
     }
 
     const saveEverything = (e) => {
+        setProgress("100%")
         setLoading(true)
         const popFat = objValueParams.compactness.type === 2 ? objValueParams.compactness.value : -1
         const graph = objValueParams.compactness.type === 1 ? objValueParams.compactness.value : -1
@@ -444,28 +447,13 @@ const Weights = () => {
                     </div>
                     <div className="bg-primary weights_banner">
                         <div className="progress" style={{ height: "11px", zIndex: "10", position: "relative", marginTop: "30px", width: "94%", marginLeft: "auto", marginRight: "auto" }}>
-                            <div className="progress-bar progress-bar-striped bg-success progress-bar-animated shadow" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: "75%" }}>
-                                75%
+                            <div className="progress-bar progress-bar-striped bg-warning progress-bar-animated shadow" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style={{ width: progress }}>
+                                {progress}
                             </div>
                         </div>
                     </div>
 
-                    <div className="d-flex flex-column justify-content-between" style={{ height: "70%", width: "100%" }}>
-                        <div className="row d-flex justify-content-around" style={{ width: "100%" }}>
-                            <div class="col form-check" style={{ marginLeft: "70px" }}>
-                                <label class="form-check-label" htmlFor="split-counties-1">
-                                    Show counties
-                                    </label>
-                                <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={filterChecks[0]} onChange={userCheckedFilters} />
-                            </div>
-
-                            <div class="col form-check">
-                                <label class="form-check-label" htmlFor="dev-avg-2">
-                                    Show precincts
-                                    </label>
-                                <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={filterChecks[1]} onChange={userCheckedFilters} />
-                            </div>
-                        </div>
+                    <div className="d-flex flex-column justify-content-between py-4" style={{ height: "70%", width: "100%" }}>
                         <div>
 
                             <p class="h4">General:</p>
@@ -638,7 +626,31 @@ const Weights = () => {
 
             <p style={{ position: 'absolute', top: '95%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: '1' }}><strong><em>Figure shows the most recent district boundaries</em></strong></p>
 
+            <div className="shadow-lg rounded" style={{
+                position: "absolute",
+                top: "6.75%",
+                left: "28.5%",
+                transform: "translate(-50%, -50%)",
+                zIndex: "1",
+                overflow: "auto"
+            }}>
+                <div class="card border border-primary">
+                    <div class="card-body">
+                    <h5>Filters</h5>
+                        <input class="form-check-input" type="checkbox" value="" id="split-counties-1" checked={filterChecks[0]} onChange={userCheckedFilters} />{"        "}
+                        <label class="form-check-label" htmlFor="split-counties-1">
+                            Counties
+                                    </label>
 
+                        <br></br>
+                        <input class="form-check-input" type="checkbox" value="" id="dev-avg-2" checked={filterChecks[1]} onChange={userCheckedFilters} />{"        "}
+                        <label class="form-check-label" htmlFor="dev-avg-2">
+                            Precincts
+                                    </label>
+                    </div>
+
+                </div>
+            </div>
 
         </div>
 
